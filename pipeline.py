@@ -1,0 +1,120 @@
+import configparser
+import requests
+import subprocess
+from enum import Enum
+
+######## ENUMS ########
+class StatusEnum(Enum):
+    TASK_PENDING = 'TASK_PENDING'
+    TASK_STARTED = 'TASK_STARTED'
+    TASK_COMPLETED = 'TASK_COMPLETED'
+    TASK_FAILED = 'TASK_FAILED'
+
+######## HELPER FUNCTIONS ########
+def update_task_status(config, task_id, status):
+    url = config['SERVER']['url'] + config['TASK-ROUTES']['update_status'].format(task_id, status)
+
+    r = requests.patch(url, headers={
+        'Authorization': auth
+    })
+
+    if r.status_code != 200:
+        print('Error: ' + str(r.status_code))
+        exit(1)
+
+######## CONFIGURATION ########
+
+# Load config
+config = configparser.ConfigParser()
+config.read('config.ini')
+
+# Load authentication token
+auth = 'Bearer ' + config['CREDENTIALS']['authentication_token']
+
+######## NEXT TASK LOAD ########
+# Get next task
+url = config['SERVER']['url'] + config['TASK-ROUTES']['next']
+
+r = requests.get(url, headers={
+    'Authorization': auth
+})
+
+# If status code is not 200, exit
+if r.status_code != 200:
+    exit(1)
+
+# If no task is available, exit
+# if r.content == b'':
+#     exit(0)
+task = r.json()
+
+print(task)
+
+if task['id'] == 0:
+    print("no task to do on the durel server")
+    exit(0)
+
+######## USES ########
+project = task["projectName"]
+word = task["word"]
+# url = config['SERVER']['url'] + config['USAGE-ROUTES']['usage_with_project'].format(project)
+url = config['SERVER']['url'] + config['USAGE-ROUTES']['usage_with_word'].format(project, word)
+print(url)
+
+r = requests.get(url, headers={
+    'Authorization': auth
+})
+
+if r.status_code != 200:
+    update_task_status(config, task['id'], StatusEnum.TASK_FAILED.value)
+    exit(1)
+
+with open('tmp/uses.csv', 'w') as f:
+    f.write(r.content.decode('utf-8'))
+
+######## INSTANCES ########
+# url = config['SERVER']['url'] + config['INSTANCE-ROUTES']['instance_with_project'].format(project)
+url = config['SERVER']['url'] + config['INSTANCE-ROUTES']['instance_with_word'].format(project, word)
+
+print(url)
+r = requests.get(url, headers={
+    'Authorization': auth
+})
+
+if r.status_code != 200:
+    update_task_status(config, task['id'], StatusEnum.TASK_FAILED.value)
+    exit(1)
+
+with open('tmp/instances.csv', 'w') as f:
+    f.write(r.content.decode('utf-8'))
+
+
+######## ANNOTATION ########
+prefix = ""
+completed_process = subprocess.run(['python3', config['SCRIPT']['annotator'], '-u', 'tmp', '-p', prefix, "-d"])
+
+print("start annotation")
+if completed_process.returncode != 0:
+    update_task_status(config, task['id'], StatusEnum.TASK_FAILED.value)
+    exit(1)
+
+######## JUDGEMENT UPLOAD ########
+# Upload judgements
+url = config['SERVER']['url'] + config['JUDGEMENT-ROUTES']['judgement']
+print("url for upload votes: " + url)
+# build multipart form data for file upload with owner, project, phase and task id
+# files = {'file': ('judgements.csv', open('tmp/{}judgements.csv'.format(prefix), 'rb'), 'text/tab-separated-values')} 
+files = [("files", open('tmp/{}judgements.csv'.format(prefix), 'rb'))]
+
+r = requests.post(url, headers={
+    'Authorization': auth
+}, files=files)
+
+# print(r)
+
+if r.status_code != 200:
+    update_task_status(config, task['id'], StatusEnum.TASK_FAILED.value)
+    exit(1)
+
+# Set task status to completed
+update_task_status(config, task['id'], StatusEnum.TASK_COMPLETED.value)
