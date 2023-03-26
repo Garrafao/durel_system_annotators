@@ -3,6 +3,7 @@ import random
 import logging
 
 from annotation_provider import AnnotationProvider
+from inference import *
 
 def main(usage_dir, custom_dir, custom_filename, prefix, debug):
 
@@ -27,15 +28,25 @@ def main(usage_dir, custom_dir, custom_filename, prefix, debug):
 
     # Example annotator that randomly annotates the given set
     annotation_provider = AnnotationProvider(usage_dir, prefix, DEBUG=debug)
-    for instance in annotation_provider.get_instances_iterator(RANDOM=True):
-        # Randomly annotate the instance
-        annotation_provider.add_judgement({'instanceID': instance['instanceID'], 'internal_identifier1': instance['internal_identifier1'], 'internal_identifier2': instance['internal_identifier2'], 'label':random.choice([*instance['label_set']]), 'comment': '-'})
 
+    annotation_provider.flush_instance_with_token_index(path=custom_dir)
+
+    # instance_id = 34
+    # annotation_provider.flush_single_instance_wic(instance_id, path=custom_dir)
+
+    cls_result = make_inference_for_dataset('tmp/instances_with_token_index.csv')
+
+    for i, instance in enumerate(annotation_provider.get_instances_iterator(RANDOM=True)):
+        annotation_provider.add_judgement({'instanceID': instance['instanceID'], 'internal_identifier1': instance['internal_identifier1'], 'internal_identifier2': instance['internal_identifier2'], 'label': cls_result[i], 'comment': '-'})
+
+    # print(annotation_provider._uses)
+    # print(annotation_provider._instances)
+    # print(annotation_provider._judgements)
+    # print(annotation_provider._instances_in_wic_format)
     # Save the judgement
     annotation_provider.flush_judgement(path=custom_dir, filename=custom_filename)
 
 if __name__ == '__main__':
-    print("enter random_annotate.py")
     parser = OptionParser()
     parser.add_option("-u", "--usage_dir", dest="usage_dir", help="Directory containing uses and instances data")
     parser.add_option("-p", "--prefix", dest="prefix", help="Prefix for the usage and instances files")
@@ -46,4 +57,4 @@ if __name__ == '__main__':
     print(options)
     main(options.usage_dir, options.custom_dir, options.custom_filename, options.prefix, options.debug)
 
-# python random_annotate.py -u tmp -p "" -d
+# python xmlr_naive_annotate.py -u tmp -p "" -d

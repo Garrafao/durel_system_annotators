@@ -1,13 +1,16 @@
 from __future__ import annotations
 from collections.abc import Iterable
+from helper_functions import *
 import os
 import csv
 import random
 
 import logging
 
+
 class AnnotationProvider:
     FILE_EXTENSION = ".csv"
+
     def __init__(self, path: str, prefix: str = '', DEBUG: bool = False):
         """Initialize the annotation provider.
 
@@ -41,7 +44,8 @@ class AnnotationProvider:
         self._DEBUG = DEBUG
         self.prefix = prefix
         if self._DEBUG:
-            logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+            logging.basicConfig(
+                format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
         self._path = path
         if not os.path.exists(self._path):
@@ -51,22 +55,79 @@ class AnnotationProvider:
         if not os.path.exists(os.path.join(self._path, '{}uses{}'.format(self.prefix, self.FILE_EXTENSION))):
             # print(os.path.join(self._path, '{}uses{}'.format(self.prefix, self.FILE_EXTENSION)))
             if DEBUG:
-                logging.warning(f"Path '{self._path}' does not contain a uses file.")
-            raise FileNotFoundError(f"Path '{self._path}' does not contain a 'uses.tsv' file.")
+                logging.warning(
+                    f"Path '{self._path}' does not contain a uses file.")
+            raise FileNotFoundError(
+                f"Path '{self._path}' does not contain a 'uses.tsv' file.")
         if not os.path.exists(os.path.join(self._path, '{}instances{}'.format(self.prefix, self.FILE_EXTENSION))):
             if DEBUG:
-                logging.warning(f"Path '{self._path}' does not contain a instances file.")
-            raise FileNotFoundError(f"Path '{self._path}' does not contain a 'instances.tsv' file.")
-        
+                logging.warning(
+                    f"Path '{self._path}' does not contain a instances file.")
+            raise FileNotFoundError(
+                f"Path '{self._path}' does not contain a 'instances.tsv' file.")
+
         if self._DEBUG:
             logging.debug(f"Loading uses file from '{self._path}'.")
         self._uses = self._load_uses()
         self._instances = self._load_instances()
+        # self._instances_in_wic_format = self._convert_instances_to_wic_format()
+        self._instances_with_token_index = self._create_instances_with_token_index()
         if self._DEBUG:
-            logging.debug(f"Loaded {len(self._uses)} uses and {len(self._instances)} instances from path '{self._path}'.")
-        
-        self._judgements = [] 
+            logging.debug(
+                f"Loaded {len(self._uses)} uses and {len(self._instances)} instances from path '{self._path}'.")
 
+        self._judgements = []
+
+    def _create_instances_with_token_index(self):
+        instances_with_token_index = {}
+        for key in self._instances.keys():
+            # print(self._instances[key])
+            instances_with_token_index[key] = dict()
+            lemma = self._instances[key]["lemma"]
+            instances_with_token_index[key]["lemma"] = lemma
+            sentence_left = self.get_sentence_by_identifier(
+                self._instances[key]["internal_identifier1"])
+            sentence_right = self.get_sentence_by_identifier(
+                self._instances[key]["internal_identifier2"])
+            instances_with_token_index[key]["sentence_left"] = sentence_left
+            instances_with_token_index[key]["sentence_right"] = sentence_right
+            instances_with_token_index[key]["token_index_of_sentence_left"] = self.get_token_index_of_sentence_by_identifier(
+                self._instances[key]["internal_identifier1"])[0]
+            instances_with_token_index[key]["token_index_of_sentence_right"] = self.get_token_index_of_sentence_by_identifier(
+                self._instances[key]["internal_identifier2"])[0]
+        return instances_with_token_index
+
+    def get_token_index_of_sentence_by_identifier(self, identifier):
+        return self._uses[identifier]["indices_target_token"]
+
+    def get_sentence_by_identifier(self, identifier):
+        # print("enter get_sentence_by_identifier")
+        # print(self._uses[identifier])
+        return self._uses[identifier]["context"]
+
+    def _convert_instances_to_wic_format(self):
+        instances_wic = {}
+        for key in self._instances.keys():
+            # print(self._instances[key])
+            instances_wic[key] = dict()
+            lemma = self._instances[key]["lemma"]
+            instances_wic[key]["lemma"] = lemma
+            instances_wic[key]["category"] = "unknown"
+            sentence_left = self.get_sentence_by_identifier(
+                self._instances[key]["internal_identifier1"])
+            sentence_right = self.get_sentence_by_identifier(
+                self._instances[key]["internal_identifier2"])
+            sentence_left_converted = convert_raw_sentence_to_wic_format(
+                sentence_left)
+            sentence_right_converted = convert_raw_sentence_to_wic_format(
+                sentence_right)
+            instances_wic[key]["sentence_left"] = sentence_left_converted
+            instances_wic[key]["sentence_right"] = sentence_right_converted
+
+            instances_wic[key]["index_string"] = str(get_index_of_keyword(
+                lemma, sentence_left_converted)) + "-" + str(get_index_of_keyword(lemma, sentence_right_converted))
+
+        return instances_wic
 
     def _load_uses(self) -> dict[str, dict]:
         """Load the uses.
@@ -102,12 +163,14 @@ class AnnotationProvider:
             for row in data:
                 row["dataID"] = row.pop("identifier_system")
                 row["indices_target_token"] = row.pop("indexes_target_token")
-                row["indices_target_sentence"] = row.pop("indexes_target_sentence")
-                
+                row["indices_target_sentence"] = row.pop(
+                    "indexes_target_sentence")
+
             reader = data
             for row in reader:
                 if row['dataID'] in uses:
-                    raise ValueError(f"Duplicate dataID '{row['dataID']}' in uses file.")
+                    raise ValueError(
+                        f"Duplicate dataID '{row['dataID']}' in uses file.")
                 uses[row['dataID']] = {
                     'dataID': row['dataID'],
                     'context': row['context'],
@@ -117,7 +180,6 @@ class AnnotationProvider:
                 }
         # print(uses)
         return uses
-
 
     def _load_instances(self) -> dict[str, dict]:
         """Load the instances annotations.
@@ -154,10 +216,11 @@ class AnnotationProvider:
                 row["instanceID"] = row.pop("id")
                 row["label_set"] = [1, 2, 3, 4]
 
-            reader = data            
+            reader = data
             for row in reader:
                 if row['instanceID'] in instances:
-                    raise ValueError(f"Duplicate instanceID '{row['instanceID']}' in instances file.")
+                    raise ValueError(
+                        f"Duplicate instanceID '{row['instanceID']}' in instances file.")
                 instances[row['instanceID']] = row.copy()
 
                 # for key in row.keys():
@@ -170,10 +233,9 @@ class AnnotationProvider:
         # print(instances)
         return instances
 
-
-    def get_use(self, index: int|None = None) -> dict:
+    def get_use(self, index: int | None = None) -> dict:
         """Get the use for a given index. If no index is given, all uses are returned.
-            
+
         Parameters
         ----------
         index : int, optional
@@ -220,7 +282,6 @@ class AnnotationProvider:
             raise ValueError(f"Index '{index}' not in uses dict.")
         return self._uses[index]
 
-
     def get_uses_ids(self) -> list:
         """Get a list of all uses ids.
 
@@ -235,7 +296,6 @@ class AnnotationProvider:
         [0, 1, 2, 3, ...]
         """
         return list(self._uses.keys())
-
 
     def get_uses_iterator(self, RANDOM: bool = False) -> Iterable:
         """Get an iterator over all usess.
@@ -263,14 +323,13 @@ class AnnotationProvider:
         }
         """
         if RANDOM:
-            return iter([ self._uses[index] for index in random.sample(sorted(self._uses), len(self._uses)) ])
+            return iter([self._uses[index] for index in random.sample(sorted(self._uses), len(self._uses))])
         return iter(self._uses.values())
 
-
-    def get_instance(self, index: int|None = None) -> dict:
+    def get_instance(self, index: int | None = None) -> dict:
         """Get the instance for a given index. If no index is given, all instances are returned.
         Note: The instance dict is dependend on the annotation type.
-            
+
         Parameters
         ----------
         index : int, optional
@@ -316,7 +375,6 @@ class AnnotationProvider:
             raise ValueError(f"Index '{index}' not in instances dict.")
         return self._instances[index]
 
-
     def get_instance_ids(self) -> list:
         """Get a list of all instance ids.
 
@@ -332,7 +390,6 @@ class AnnotationProvider:
         """
         return list(self._instances.keys())
 
-    
     def get_instances_iterator(self, RANDOM: bool = False) -> Iterable:
         """Get an iterator over all instances.
         Note: The instance dict is dependend on the annotation type.
@@ -360,11 +417,10 @@ class AnnotationProvider:
         """
         # print("type of self._instances: " + str(type(self._instances)))
         # print(self._instances)
-        print("sorted instances is: " + str(sorted(self._instances)))
+        # print("sorted instances is: " + str(sorted(self._instances)))
         if RANDOM:
-            return iter([ self._instances[index] for index in random.sample(sorted(self._instances), len(self._instances)) ])
+            return iter([self._instances[index] for index in random.sample(sorted(self._instances), len(self._instances))])
         return iter(self._instances.values())
-
 
     def add_judgement(self, judgement: dict):
         """Add judgement to the judgement set.
@@ -396,7 +452,6 @@ class AnnotationProvider:
         self._validate_judgement(judgement)
         self._judgements.append(judgement)
 
-
     def _validate_judgement(self, judgement: dict):
         """Validate a judgement.
 
@@ -417,22 +472,24 @@ class AnnotationProvider:
         if 'instanceID' not in judgement:
             if self._DEBUG:
                 logging.warning(f"Judgement has no instanceID: {judgement}")
-            raise ValueError(f"Judgement '{judgement}' does not contain the key 'instanceID'.")
+            raise ValueError(
+                f"Judgement '{judgement}' does not contain the key 'instanceID'.")
         if 'label' not in judgement:
             if self._DEBUG:
                 logging.warning(f"Judgement has no label: {judgement}")
-            raise ValueError(f"Judgement '{judgement}' does not contain the key 'label'.")
+            raise ValueError(
+                f"Judgement '{judgement}' does not contain the key 'label'.")
         if 'comment' not in judgement:
             if self._DEBUG:
                 logging.warning(f"Judgement has no comment: {judgement}")
-            raise ValueError(f"Judgement '{judgement}' does not contain the key 'comment'.")
+            raise ValueError(
+                f"Judgement '{judgement}' does not contain the key 'comment'.")
         if len(judgement) != 5:
             if self._DEBUG:
                 logging.warning(f"Judgement has too many keys: {judgement}")
             raise ValueError(f"Judgement '{judgement}' has more than 5 keys.")
 
-
-    def flush_judgement(self, path: str|None = None, filename: str = 'judgements.csv'):
+    def flush_judgement(self, path: str | None = None, filename: str = 'judgements.csv'):
         """Write the judgement set to the judgement file.
         If a custom path is provided, the judgement file is written to this path, 
             else it is written to the path where the uses & instance file.
@@ -470,17 +527,49 @@ class AnnotationProvider:
         dest_file = "{}{}".format(self.prefix, filename)
 
         if self._DEBUG:
-            logging.info(f"Writing judgements to path/file: '{path}/{dest_file}'")
-        
+            logging.info(
+                f"Writing judgements to path/file: '{path}/{dest_file}'")
+
         if path is None:
             path = self._path
 
         with open(os.path.join(path, dest_file), 'w+') as f:
             # Write Header if file is empty
             if os.stat(os.path.join(path, dest_file)).st_size == 0:
-                f.write('instanceID\tinternal_identifier1\tinternal_identifier2\tlabel\tcomment\n')
+                f.write(
+                    'instanceID\tinternal_identifier1\tinternal_identifier2\tlabel\tcomment\n')
             # Write Judgements
             for judgement in self._judgements:
-                f.write(f"{judgement['instanceID']}\t{judgement['internal_identifier1']}\t{judgement['internal_identifier2']}\t{judgement['label']}\t{judgement['comment']}\n")
-        
+                f.write(
+                    f"{judgement['instanceID']}\t{judgement['internal_identifier1']}\t{judgement['internal_identifier2']}\t{judgement['label']}\t{judgement['comment']}\n")
+
         self._judgements = []
+
+    def flush_instance_with_token_index(self, path: str | None = None, filename: str = 'instances_with_token_index.csv'):
+        dest_file = "{}{}".format(self.prefix, filename)
+
+        if self._DEBUG:
+            logging.info(
+                f"Writing instances to path/file: '{path}/{dest_file}'")
+
+        if path is None:
+            path = self._path
+
+        with open(os.path.join(path, dest_file), 'w+') as f:
+            # no need to write header file as wic data file does not have header
+            for key, instance in self._instances_with_token_index.items():
+                # print(instance)
+                # print(instance)
+                f.write(
+                    f"{instance['lemma']}\t{instance['sentence_left']}\t{instance['token_index_of_sentence_left']}\t{instance['sentence_right']}\t{instance['token_index_of_sentence_right']}\n")
+
+    def flush_single_instance_wic(self, instance_id, path: str | None = None, filename: str = 'instances_wic_single.csv'):
+        dest_file = "{}{}".format(self.prefix, filename)
+
+        with open(os.path.join(path, dest_file), 'w+') as f:
+            # no need to write header file as wic data file does not have header
+            for key, instance in self._instances_in_wic_format.items():
+                # print("key is: " + str(key))
+                if int(key) == instance_id:
+                    f.write(
+                        f"{instance['lemma']}\t{instance['category']}\t{instance['index_string']}\t{instance['sentence_left']}\t{instance['sentence_right']}\n")

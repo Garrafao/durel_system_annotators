@@ -14,7 +14,7 @@ r = requests.post(url, json={
 if r.status_code == 200:
     # Save token to config file 
     config['CREDENTIALS']['authentication_token'] = r.json()['jwt']
-    with open('config.ini', 'a') as configfile:
+    with open('config.ini', 'w') as configfile:
         config.write(configfile)
     print("process succeeds, jwt is written in the config file")
 else:

@@ -2,6 +2,6 @@ tmp
 logs
 random-annotator-venv
 annotations
-_pycache_
+__pycache__
 computational-annotator-pilot
-
+test.py

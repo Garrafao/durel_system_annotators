@@ -2,6 +2,7 @@ import configparser
 import requests
 import subprocess
 from enum import Enum
+import os
 
 ######## ENUMS ########
 class StatusEnum(Enum):
@@ -22,6 +23,11 @@ def update_task_status(config, task_id, status):
         print('Error: ' + str(r.status_code))
         exit(1)
 
+current_file_path = os.path.abspath(__file__)
+print("current file path:" + current_file_path)
+parent_dir_path = os.path.dirname(current_file_path)
+
+python_env = os.path.join(parent_dir_path, "random-annotator-venv", "bin", "python")
 ######## CONFIGURATION ########
 
 # Load config
@@ -91,9 +97,20 @@ with open('tmp/instances.csv', 'w') as f:
 
 ######## ANNOTATION ########
 prefix = ""
-completed_process = subprocess.run(['python3', config['SCRIPT']['annotator'], '-u', 'tmp', '-p', prefix, "-d"])
+with open('logs/subprocess.logs', 'w') as f:
+    completed_process = subprocess.run([python_env, config['SCRIPT']['annotator'], '-u', 'tmp', '-p', prefix, "-d"], stdout=f, stderr=subprocess.PIPE)
+
+
+
+# Capture stderr output from the completed process
+stderr_output = completed_process.stderr.decode('utf-8')
+print(stderr_output)
+# Print the stderr output if there is any
+if stderr_output:
+    print(f"Error: {stderr_output}")
 
 print("start annotation")
+
 if completed_process.returncode != 0:
     update_task_status(config, task['id'], StatusEnum.TASK_FAILED.value)
     exit(1)
