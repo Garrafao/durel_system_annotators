@@ -63,6 +63,12 @@ if task['id'] == 0:
 ######## USES ########
 project = task["projectName"]
 word = task["word"]
+annotator_type = task["annotatorType"]
+if (annotator_type == "random"):
+    annotation_script_to_use = "random_annotate.py"
+elif (annotator_type == "xlmr_naive"):
+    annotation_script_to_use = "xmlr_naive_annotate.py"
+
 # url = config['SERVER']['url'] + config['USAGE-ROUTES']['usage_with_project'].format(project)
 url = config['SERVER']['url'] + config['USAGE-ROUTES']['usage_with_word'].format(project, word)
 print(url)
@@ -98,7 +104,7 @@ with open('tmp/instances.csv', 'w') as f:
 ######## ANNOTATION ########
 prefix = ""
 with open('logs/subprocess.logs', 'w') as f:
-    completed_process = subprocess.run([python_env, config['SCRIPT']['annotator'], '-u', 'tmp', '-p', prefix, "-d"], stdout=f, stderr=subprocess.PIPE)
+    completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, "-d"], stdout=f, stderr=subprocess.PIPE)
 
 
 
