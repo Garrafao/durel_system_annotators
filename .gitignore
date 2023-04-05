@@ -1,7 +1,11 @@
-tmp
-logs
+tmp/*
+!tmp/.gitkeep
+logs/*
+!logs/.gitkeep
 random-annotator-venv
 annotations
 __pycache__
-computational-annotator-pilot
+computational-annotator-pilot/*
+!computational-annotator-pilot/X_train.npy
+!computational-annotator-pilot/xmlr+mlp-naive.pth
 test.py

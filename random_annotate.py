@@ -5,7 +5,7 @@ import logging
 from annotation_provider import AnnotationProvider
 
 def main(usage_dir, custom_dir, custom_filename, prefix, debug):
-
+    # note the logging module below would direct message to standard error
     if debug:
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
         logging.info("Debug mode is on.")

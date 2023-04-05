@@ -105,30 +105,6 @@ class AnnotationProvider:
         # print(self._uses[identifier])
         return self._uses[identifier]["context"]
 
-    def _convert_instances_to_wic_format(self):
-        instances_wic = {}
-        for key in self._instances.keys():
-            # print(self._instances[key])
-            instances_wic[key] = dict()
-            lemma = self._instances[key]["lemma"]
-            instances_wic[key]["lemma"] = lemma
-            instances_wic[key]["category"] = "unknown"
-            sentence_left = self.get_sentence_by_identifier(
-                self._instances[key]["internal_identifier1"])
-            sentence_right = self.get_sentence_by_identifier(
-                self._instances[key]["internal_identifier2"])
-            sentence_left_converted = convert_raw_sentence_to_wic_format(
-                sentence_left)
-            sentence_right_converted = convert_raw_sentence_to_wic_format(
-                sentence_right)
-            instances_wic[key]["sentence_left"] = sentence_left_converted
-            instances_wic[key]["sentence_right"] = sentence_right_converted
-
-            instances_wic[key]["index_string"] = str(get_index_of_keyword(
-                lemma, sentence_left_converted)) + "-" + str(get_index_of_keyword(lemma, sentence_right_converted))
-
-        return instances_wic
-
     def _load_uses(self) -> dict[str, dict]:
         """Load the uses.
 
@@ -156,9 +132,10 @@ class AnnotationProvider:
             }
         }
         """
+        print("enter _load_uses")
         uses = {}
         with open(os.path.join(self._path, '{}uses{}'.format(self.prefix, self.FILE_EXTENSION)), 'r') as f:
-            reader = csv.DictReader(f, delimiter='\t')
+            reader = csv.DictReader(f, delimiter='\t',quoting=csv.QUOTE_NONE,strict=True)
             data = list(reader)
             for row in data:
                 row["dataID"] = row.pop("identifier_system")
@@ -178,7 +155,7 @@ class AnnotationProvider:
                     'indices_target_sentence': [tuple(int(i) for i in index.split(':')) for index in row['indices_target_sentence'].split(',')],
                     'lemma': row['lemma'],
                 }
-        # print(uses)
+
         return uses
 
     def _load_instances(self) -> dict[str, dict]:

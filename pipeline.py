@@ -40,7 +40,7 @@ auth = 'Bearer ' + config['CREDENTIALS']['authentication_token']
 ######## NEXT TASK LOAD ########
 # Get next task
 url = config['SERVER']['url'] + config['TASK-ROUTES']['next']
-
+print("url for next task: " + url)
 r = requests.get(url, headers={
     'Authorization': auth
 })
@@ -66,11 +66,15 @@ word = task["word"]
 annotator_type = task["annotatorType"]
 if (annotator_type == "random"):
     annotation_script_to_use = "random_annotate.py"
-elif (annotator_type == "xlmr_naive"):
+elif (annotator_type == "xlmr+mlp+binary"):
     annotation_script_to_use = "xmlr_naive_annotate.py"
 
-# url = config['SERVER']['url'] + config['USAGE-ROUTES']['usage_with_project'].format(project)
-url = config['SERVER']['url'] + config['USAGE-ROUTES']['usage_with_word'].format(project, word)
+
+if word == None:
+    url = config['SERVER']['url'] + config['USAGE-ROUTES']['usage_with_project'].format(project)
+else:
+    url = config['SERVER']['url'] + config['USAGE-ROUTES']['usage_with_word'].format(project, word)
+
 print(url)
 
 r = requests.get(url, headers={
@@ -85,8 +89,12 @@ with open('tmp/uses.csv', 'w') as f:
     f.write(r.content.decode('utf-8'))
 
 ######## INSTANCES ########
-# url = config['SERVER']['url'] + config['INSTANCE-ROUTES']['instance_with_project'].format(project)
-url = config['SERVER']['url'] + config['INSTANCE-ROUTES']['instance_with_word'].format(project, word)
+
+if word == None:
+    url = config['SERVER']['url'] + config['INSTANCE-ROUTES']['instance_with_project'].format(project)
+else:
+    url = config['SERVER']['url'] + config['INSTANCE-ROUTES']['instance_with_word'].format(project, word)
+
 
 print(url)
 r = requests.get(url, headers={
@@ -113,7 +121,7 @@ stderr_output = completed_process.stderr.decode('utf-8')
 print(stderr_output)
 # Print the stderr output if there is any
 if stderr_output:
-    print(f"Error: {stderr_output}")
+    print(f"output from standard error, this could be simply from the logging message from the annotator component: {stderr_output}")
 
 print("start annotation")
 
@@ -131,7 +139,9 @@ files = [("files", open('tmp/{}judgements.csv'.format(prefix), 'rb'))]
 
 r = requests.post(url, headers={
     'Authorization': auth
-}, files=files)
+}, files=files, data={
+    'annotator': task["annotatorType"]
+})
 
 # print(r)
 
