@@ -28,6 +28,10 @@ print("current file path:" + current_file_path)
 parent_dir_path = os.path.dirname(current_file_path)
 
 python_env = os.path.join(parent_dir_path, "random-annotator-venv", "bin", "python")
+
+
+os.makedirs(os.path.join(parent_dir_path, "tmp"), exist_ok=True)
+os.makedirs(os.path.join(parent_dir_path, "logs"), exist_ok=True)
 ######## CONFIGURATION ########
 
 # Load config
@@ -64,10 +68,11 @@ if task['id'] == 0:
 project = task["projectName"]
 word = task["word"]
 annotator_type = task["annotatorType"]
+print("annotator_type is: " + annotator_type)
 if (annotator_type == "random"):
     annotation_script_to_use = "random_annotate.py"
 elif (annotator_type == "xlmr+mlp+binary"):
-    annotation_script_to_use = "xmlr_naive_annotate.py"
+    annotation_script_to_use = "xlmr_naive_annotate.py"
 
 
 if word == None:
@@ -143,7 +148,7 @@ r = requests.post(url, headers={
     'annotator': task["annotatorType"]
 })
 
-# print(r)
+print(r)
 
 if r.status_code != 200:
     update_task_status(config, task['id'], StatusEnum.TASK_FAILED.value)

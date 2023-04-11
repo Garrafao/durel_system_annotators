@@ -7,5 +7,5 @@ annotations
 __pycache__
 computational-annotator-pilot/*
 !computational-annotator-pilot/X_train.npy
-!computational-annotator-pilot/xmlr+mlp-naive.pth
+!computational-annotator-pilot/weight
 test.py

@@ -182,14 +182,34 @@ def save_embeddings(device, input_ids_list, attention_masks, subword_span_list, 
                     subwords_bool_mask.append(False)
             else:
                 subwords_bool_mask.append(False)
+        # print("current subwords_bool_mask is:")
         # print(subwords_bool_mask)
+
+        current_attention_mask = attention_masks[i]
+
+        # truncate input if the model cannot handle it
+        tokens = tokens_list[i]
+        if len(tokens) > 512:
+            lindex, rindex = truncation_indices(subwords_bool_mask, len(tokens))
+            print("lindex and rindex: " + str((lindex, rindex)))
+            tokens = tokens[lindex:rindex]
+            # print("input ids shape before truncation: " + str(input_ids.shape))
+            input_ids = input_ids[lindex:rindex]
+            # print("input ids shape after truncation: " + str(input_ids.shape))
+            print("attention mask shape before truncation:")
+            print(current_attention_mask.shape)
+            current_attention_mask = attention_masks[i][lindex:rindex]
+            print("attention mask shape after truncation:")
+            print(current_attention_mask.shape)
+            subwords_bool_mask = subwords_bool_mask[lindex:rindex]
+
         extracted_subwords = [
                 tokens_list[i][j] for j, value in enumerate(subwords_bool_mask) if value
                 ]
         # print(attention_masks[i])
         # print(extracted_subwords)
         with torch.no_grad():
-            outputs = model(input_ids.unsqueeze(0), token_type_ids=None, attention_mask=attention_masks[i].unsqueeze(0))        
+            outputs = model(input_ids.unsqueeze(0), token_type_ids=None,attention_mask=current_attention_mask.unsqueeze(0))        
 
         embedding = (
             torch.stack(outputs[2], dim=0)  # (layer, batch, subword, embedding)
@@ -218,56 +238,6 @@ def save_embeddings(device, input_ids_list, attention_masks, subword_span_list, 
     # print(token_embeddings_output)
     np.save(saving_path, token_embeddings_output)
 
-
-def save_embeddings_old(device, input_ids, attention_masks, index_padded, saving_path, model):
-    print("enter save_embeddings function")
-
-    input_ids = input_ids.to(device)
-    attention_masks = attention_masks.to(device)
-    print("input ids are on cuda: " + str(input_ids.is_cuda))
-    print("attention masks are on cude: " + str(attention_masks.is_cuda))
-
-    # model = BertModel.from_pretrained('bert-base-uncased', output_hidden_states=True)
-    
-    model = model.to(device)
-
-    set_length = len(input_ids)
-    # print(set_length)
-    token_embeddings_output = list()
-
-    layers_list = [1, 12]
-
-    model.eval()
-    for index in range(set_length):
-        if index % 10 == 0:
-            print("loop through " + str(index) + "th data points in save_embeddings function")
-        with torch.no_grad():
-            outputs = model(input_ids[index].unsqueeze(0), token_type_ids=None, attention_mask=attention_masks[index].unsqueeze(0))
-            hidden_states = outputs[2]
-            token_embeddings = torch.stack(hidden_states, dim=0)
-            # print(token_embeddings.shape)
-            token_embeddings = torch.squeeze(token_embeddings, dim=1)
-            # print(token_embeddings.shape)
-            token_embeddings = token_embeddings.permute(1, 0, 2)
-            # print(token_embeddings.shape)
-            if type(index_padded[index]) is int:
-                # print("enter this condition")
-
-                sum_vec = np.sum([np.array(token_embeddings[index_padded[index]][layer].cpu()) for layer in layers_list], axis=0)
-                token_embeddings_output.append(sum_vec)
-            else:
-                sum_vec = np.sum([np.array(token_embeddings[index_padded[index][0]][layer].cpu()) for layer in layers_list], axis=0)
-                for i in range(1, len(index_padded[index])):
-                    sum_vec = np.add(sum_vec, np.sum([np.array(token_embeddings[index_padded[index][i]][layer].cpu()) for layer in layers_list], axis=0))
-                sum_vec = sum_vec/len(index_padded[index])
-                # print(sum_vec.shape)
-                token_embeddings_output.append(sum_vec)
-
-    token_embeddings_output = np.array(token_embeddings_output)
-    # print(token_embeddings_output.shape)
-    # print(token_embeddings_output)
-    np.save(saving_path, token_embeddings_output)
-
 import re
 def convert_raw_sentence_to_wic_format(sentence):
     output_string = re.sub(r'(?<!\w)[^\w\s]|[^\w\s](?!s)', ' \\g<0> ', sentence)
@@ -282,3 +252,36 @@ def get_index_of_keyword(keyword, sentence):
     for index, _ in enumerate(token_list):
         if keyword == token_list[index].lower():
             return index
+        
+def truncation_indices(target_subword_indices, len_tokens):
+    n_target_subtokens = target_subword_indices.count(True)
+
+    # truncation_tokens_before_target is a ratio, this means the percentage of words to keep before target 
+    truncation_tokens_before_target = 0.5
+    max_tokens = 512
+    tokens_before = int(
+        (max_tokens - n_target_subtokens) * truncation_tokens_before_target
+    )
+    tokens_after = max_tokens - tokens_before - n_target_subtokens
+
+    # get index of the first target subword
+    lindex_target = target_subword_indices.index(True)
+    # get index of the last target subword
+    rindex_target = lindex_target + n_target_subtokens - 1
+
+    if (lindex_target - tokens_before < 0):
+        # suppose n_target_subtokens = 2, lindex_target = 100. Then tokens_before = 255, in this case, get the first 512 tokens of the text
+        return 0, max_tokens
+    if (rindex_target + tokens_after + 1 > len_tokens):
+        # suppose n_target_subtokens = 2, rindex_target = 400, len_tokens = 600. Then tokens_after = 255 , in this case, get the last 512 tokens of the text
+        return len_tokens - 1 - max_tokens, len_tokens - 1
+
+    # this is for handeling the situations which do not fall into the above two categories. suppose n_target_subtokens = 2, lindex_target = 1000, len_tokens = 1500. Then tokens_before = 255, then lindex = 745, this means the pipeline should start to process the text since the 746th token, the 746th-1000th token would be tokens_before, this is the intended result
+    lindex = lindex_target - tokens_before
+    return lindex, lindex + max_tokens
+    
+    
+
+if __name__ == "__main__":
+    pass
+
