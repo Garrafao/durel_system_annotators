@@ -131,11 +131,11 @@ def get_input_ids_and_so_on(tokenizer, path_of_dataset, max_length):
         tokens_right.append(tokens)
 
     # Convert the lists into tensors.
-    input_ids_left = torch.cat(input_ids_left, dim=0)
-    attention_masks_left = torch.cat(attention_masks_left, dim=0)
+    # input_ids_left = torch.cat(input_ids_left)
+    # attention_masks_left = torch.cat(attention_masks_left, dim=0)
 
-    input_ids_right = torch.cat(input_ids_right, dim=0)
-    attention_masks_right = torch.cat(attention_masks_right, dim=0)
+    # input_ids_right = torch.cat(input_ids_right, dim=0)
+    # attention_masks_right = torch.cat(attention_masks_right, dim=0)
 
     # labels = torch.tensor(labels)
 
@@ -150,20 +150,23 @@ import numpy as np
 def save_embeddings(device, input_ids_list, attention_masks, subword_span_list, list_token_index_of_sentence, tokens_list, saving_path, model):
     print("enter save_embeddings function")
 
-    input_ids_list = input_ids_list.to(device)
-    attention_masks = attention_masks.to(device)
+    # input_ids_list = input_ids_list.to(device)
+    # attention_masks = attention_masks.to(device)
     model = model.to(device)
-    print("input ids are on cuda: " + str(input_ids_list.is_cuda))
-    print("attention masks are on cude: " + str(attention_masks.is_cuda))
+    # print("input ids are on cuda: " + str(input_ids_list.is_cuda))
+    # print("attention masks are on cude: " + str(attention_masks.is_cuda))
 
 
     token_embeddings_output = list()
     layers_list = [1, 12]
     # print(list_token_index_of_sentence)
-
     for i in range(len(input_ids_list)):
+        print("current line of csv that is being processed: " + str(i))
+
         input_ids = input_ids_list[i]
         subword_spans = subword_span_list[i]
+        # print(input_ids)
+        print(subword_spans)
         # print(subword_spans)
         # subwords_bool_mask = [
         #         span.start >= list_token_index_of_sentence[i][0] and span.end <= (list_token_index_of_sentence[i][1] + 1)
@@ -171,6 +174,7 @@ def save_embeddings(device, input_ids_list, attention_masks, subword_span_list, 
         #         else False
         #         for span in subword_spans
         #     ]
+        print(list_token_index_of_sentence[i])
         subwords_bool_mask = []
         for span in subword_spans:
             if span is not None:
@@ -190,15 +194,16 @@ def save_embeddings(device, input_ids_list, attention_masks, subword_span_list, 
         # truncate input if the model cannot handle it
         tokens = tokens_list[i]
         if len(tokens) > 512:
+            print("enter truncation function")
             lindex, rindex = truncation_indices(subwords_bool_mask, len(tokens))
             print("lindex and rindex: " + str((lindex, rindex)))
             tokens = tokens[lindex:rindex]
-            # print("input ids shape before truncation: " + str(input_ids.shape))
-            input_ids = input_ids[lindex:rindex]
-            # print("input ids shape after truncation: " + str(input_ids.shape))
+            print("input ids shape before truncation: " + str(input_ids.shape))
+            input_ids = input_ids[:, lindex:rindex]
+            print("input ids shape after truncation: " + str(input_ids.shape))
             print("attention mask shape before truncation:")
             print(current_attention_mask.shape)
-            current_attention_mask = attention_masks[i][lindex:rindex]
+            current_attention_mask = current_attention_mask[:, lindex:rindex]
             print("attention mask shape after truncation:")
             print(current_attention_mask.shape)
             subwords_bool_mask = subwords_bool_mask[lindex:rindex]
@@ -207,9 +212,14 @@ def save_embeddings(device, input_ids_list, attention_masks, subword_span_list, 
                 tokens_list[i][j] for j, value in enumerate(subwords_bool_mask) if value
                 ]
         # print(attention_masks[i])
-        # print(extracted_subwords)
+        print(extracted_subwords)
+
+
+        input_ids = input_ids.to(device)
+        current_attention_mask = current_attention_mask.to(device)
+
         with torch.no_grad():
-            outputs = model(input_ids.unsqueeze(0), token_type_ids=None,attention_mask=current_attention_mask.unsqueeze(0))        
+            outputs = model(input_ids, token_type_ids=None,attention_mask=current_attention_mask)        
 
         embedding = (
             torch.stack(outputs[2], dim=0)  # (layer, batch, subword, embedding)
