@@ -4,7 +4,7 @@ from typing import List
 
 def get_sentences_from_dataset(path_of_dataset):
     df = pd.read_csv(path_of_dataset, delimiter="\t",header=None, 
-                    names=["word", "sentence_left", "token_index_of_sentence_left", "sentence_right", "token_index_of_sentence_right"])
+                    names=["word", "sentence_left", "token_index_of_sentence_left", "sentence_right", "token_index_of_sentence_right"], quoting = 3)
     sentences_left = df.sentence_left.tolist()
     sentences_right = df.sentence_right.tolist()
     # print(df.sample)
@@ -32,7 +32,7 @@ def get_index_of_duplicates(seq):
 
 def get_max_sentence_length_of_a_dataset_by_tokenizer(tokenizer, path_of_dataset):
     df = pd.read_csv(path_of_dataset, delimiter="\t",header=None, 
-                    names=["word", "sentence_left", "token_index_of_sentence_left", "sentence_right", "token_index_of_sentence_right"])
+                    names=["word", "sentence_left", "token_index_of_sentence_left", "sentence_right", "token_index_of_sentence_right"], quoting = 3)
     sentences_left = df.sentence_left.tolist()
     sentences_right = df.sentence_right.tolist()
 
@@ -68,7 +68,7 @@ def get_word_from_id_for_XLMR(id):
 import ast
 def get_input_ids_and_so_on(tokenizer, path_of_dataset, max_length):
     df = pd.read_csv(path_of_dataset, delimiter="\t",header=None, 
-                    names=["word", "sentence_left", "token_index_of_sentence_left", "sentence_right", "token_index_of_sentence_right"])
+                    names=["word", "sentence_left", "token_index_of_sentence_left", "sentence_right", "token_index_of_sentence_right"], quoting = 3)
     sentences_left = df.sentence_left.tolist()
     sentences_right = df.sentence_right.tolist()
 
@@ -227,9 +227,9 @@ def save_embeddings(device, input_ids_list, attention_masks, subword_span_list, 
             token_embeddings_output.append(sum_vec)
         else:
             sum_vec = np.sum([np.array(embedding[0][layer].cpu()) for layer in layers_list], axis=0)
-            for i in range(1, len(embedding.shape[0])):
+            for i in range(1, embedding.shape[0]):
                 sum_vec = np.add(sum_vec, np.sum([np.array(embedding[i][layer].cpu()) for layer in layers_list], axis=0))
-            sum_vec = sum_vec/len(embedding.shape[0])
+            sum_vec = sum_vec/embedding.shape[0]
             # print(sum_vec.shape)
             token_embeddings_output.append(sum_vec)
 

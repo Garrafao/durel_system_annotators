@@ -31,7 +31,6 @@ def make_inference_for_dataset(path_of_dataset):
     model = XLMRobertaModel.from_pretrained('xlm-roberta-base', output_hidden_states=True)
     save_embeddings(device, input_ids_left, attention_masks_left, subword_spans_left, list_token_index_of_sentence_left, tokens_left, 'tmp/token_embeddings_left.npy', model)
 
-    model = XLMRobertaModel.from_pretrained('xlm-roberta-base', output_hidden_states=True)
     save_embeddings(device, input_ids_right, attention_masks_right, subword_spans_right, list_token_index_of_sentence_right, tokens_right, 'tmp/token_embeddings_right.npy', model)
 
     embeddings_left = np.load('tmp/token_embeddings_left.npy')

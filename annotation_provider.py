@@ -135,7 +135,8 @@ class AnnotationProvider:
         print("enter _load_uses")
         uses = {}
         with open(os.path.join(self._path, '{}uses{}'.format(self.prefix, self.FILE_EXTENSION)), 'r') as f:
-            reader = csv.DictReader(f, delimiter='\t',quoting=csv.QUOTE_NONE,strict=True)
+            reader = csv.DictReader(
+                f, delimiter='\t', quoting=csv.QUOTE_NONE, strict=True)
             data = list(reader)
             for row in data:
                 row["dataID"] = row.pop("identifier_system")
@@ -532,13 +533,14 @@ class AnnotationProvider:
         if path is None:
             path = self._path
 
-        with open(os.path.join(path, dest_file), 'w+') as f:
+        with open(os.path.join(path, dest_file), 'w+', encoding='utf-8') as f:
             # no need to write header file as wic data file does not have header
             for key, instance in self._instances_with_token_index.items():
                 # print(instance)
                 # print(instance)
-                f.write(
-                    f"{instance['lemma']}\t{instance['sentence_left']}\t{instance['token_index_of_sentence_left']}\t{instance['sentence_right']}\t{instance['token_index_of_sentence_right']}\n")
+                line = f"{instance['lemma']}\t{instance['sentence_left']}\t{instance['token_index_of_sentence_left']}\t{instance['sentence_right']}\t{instance['token_index_of_sentence_right']}\n"
+                f.write(line)
+                print(line)
 
     def flush_single_instance_wic(self, instance_id, path: str | None = None, filename: str = 'instances_wic_single.csv'):
         dest_file = "{}{}".format(self.prefix, filename)
