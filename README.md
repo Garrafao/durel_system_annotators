@@ -24,7 +24,6 @@ Then, set the huggingface cache location with nano:
 check if the line below is already in the the .bashrc file, if not you should add this line to the .bashrc file:
 
 `export HF_HOME=/mount/arbeitsdaten20/projekte/cik/shared/hf_cache`
-`
 
 Execute the `.bashrc`:
 
@@ -67,6 +66,8 @@ Also, we load all the sentences at one batch, it is unclear if this approach wil
 
 # Known issues
 The xlmr annotator could not process data row in which the index of the word is given wrongly, this happens with the dema word in the test_uug dataset and possibly other dataset not tested yet.
+
+The path to the huggingface cache is a source of potential errors - if this path is not reset huggingface will try to download to your home directory, which is not large enough for the xlmr model. If the xlmr annotator is failing, but the random annotator isn't, check the `HF_HOME` path in `cron_taskmng.sh` and `.bashrc`, and check the `subprocess_stderr.logs` to seee whether the model is loading correctly.
 
 # Notes 
 The xlmr annotator currently concatenates two word embeddings according to their order in the instances file, which means you concatenate the word embdding of the internal_identifier2 after the word embedding of the internal_identifier1. The future code might want to explore the effect of this ordering condition.
