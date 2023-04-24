@@ -23,8 +23,12 @@ Then, set the huggingface cache location with nano:
 
 check if the line below is already in the the .bashrc file, if not you should add this line to the .bashrc file:
 
-`export HF_HOME=/mount/arbeitsdaten20/projekte/cik/shared/huggingface_cache`
+`export HF_HOME=/mount/arbeitsdaten20/projekte/cik/shared/hf_cache`
 `
+
+Execute the `.bashrc`:
+
+`source ~/.bashrc`
 
 After the above process, first create a task in the durel web application.
 
