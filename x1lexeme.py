@@ -1,7 +1,8 @@
 import torch
 from model import Model
 from helper_functions import *
-from transformers import XLMRobertaModel
+#from transformers import XLMRobertaModel
+from transformers import AutoTokenizer, AutoModel
 from sklearn.preprocessing import StandardScaler
 
 
@@ -22,13 +23,14 @@ def make_inference_for_dataset(path_of_dataset):
         print('No GPU available, using the CPU instead.')
         device = torch.device("cpu")
     sentences_left_train, sentences_right_train = get_sentences_from_dataset(path_of_dataset)
-    tokenizer = get_XLMRTokenizer()
+    tokenizer = AutoTokenizer.from_pretrained('pierluigic/xl-lexeme')
+    #tokenizer = get_XLMRTokenizer()
     max_length = 512
     get_max_sentence_length_of_a_dataset_by_tokenizer(tokenizer, path_of_dataset)
     input_ids_left, input_ids_right, attention_masks_left, attention_masks_right, subword_spans_left, subword_spans_right, list_token_index_of_sentence_left, list_token_index_of_sentence_right,tokens_left, tokens_right = get_input_ids_and_so_on(tokenizer, path_of_dataset, max_length)
 
-
-    model = XLMRobertaModel.from_pretrained('xlm-roberta-base', output_hidden_states=True)
+    model = AutoModel.from_pretrained('pierluigic/xl-lexeme',output_hidden_states=True)
+    #model = XLMRobertaModel.from_pretrained('xlm-roberta-base', output_hidden_states=True)
     save_embeddings(device, input_ids_left, attention_masks_left, subword_spans_left, list_token_index_of_sentence_left, tokens_left, '/tmp/token_embeddings_left.npy', model)
 
     save_embeddings(device, input_ids_right, attention_masks_right, subword_spans_right, list_token_index_of_sentence_right, tokens_right, '/tmp/token_embeddings_right.npy', model)
@@ -61,7 +63,7 @@ def make_inference_for_dataset(path_of_dataset):
             cls_list[index] = 1
         elif label == 1:
             cls_list[index] = 4
-    print(cls_list)
+    print('x1-lexeme',cls_list)
     return cls_list
 
 if __name__ == "__main__":

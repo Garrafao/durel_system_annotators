@@ -3,7 +3,7 @@ from optparse import OptionParser
 import logging
 
 from annotation_provider import AnnotationProvider
-from inference import *
+from x1lexeme import *
 
 def main(usage_dir, custom_dir, custom_filename, prefix, debug):
 

@@ -41,6 +41,7 @@ class AnnotationProvider:
         --------
         >>> annotation_provider = AnnotationProvider('example_annotator/annotations')
         """
+
         self._DEBUG = DEBUG
         self.prefix = prefix
         if self._DEBUG:
@@ -48,12 +49,13 @@ class AnnotationProvider:
                 format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
         self._path = path
+        print('this',self._path)
         if not os.path.exists(self._path):
             if DEBUG:
                 logging.warning(f"Path '{self._path}' does not exist.")
             raise FileNotFoundError(f"Path '{self._path}' does not exist.")
         if not os.path.exists(os.path.join(self._path, '{}uses{}'.format(self.prefix, self.FILE_EXTENSION))):
-            # print(os.path.join(self._path, '{}uses{}'.format(self.prefix, self.FILE_EXTENSION)))
+            print(self.FILE_EXTENSION,self._path,[self.prefix],os.path.join(self._path, '{}uses{}'.format(self.prefix, self.FILE_EXTENSION)))
             if DEBUG:
                 logging.warning(
                     f"Path '{self._path}' does not contain a uses file.")
@@ -139,6 +141,7 @@ class AnnotationProvider:
                 f, delimiter='\t', quoting=csv.QUOTE_NONE, strict=True)
             data = list(reader)
             for row in data:
+                print(row)
                 row["dataID"] = row.pop("identifier_system")
                 row["indices_target_token"] = row.pop("indexes_target_token")
                 row["indices_target_sentence"] = row.pop(
@@ -222,7 +225,7 @@ class AnnotationProvider:
         Returns
         -------
         dict
-            The use or a dictionary containing all uses. 
+            The use or a dictionary containing all uses.
 
         Raises
         ------
@@ -469,7 +472,7 @@ class AnnotationProvider:
 
     def flush_judgement(self, path: str | None = None, filename: str = 'judgements.csv'):
         """Write the judgement set to the judgement file.
-        If a custom path is provided, the judgement file is written to this path, 
+        If a custom path is provided, the judgement file is written to this path,
             else it is written to the path where the uses & instance file.
         If a file with the provided name exists, the function appends to the existing file.
 
@@ -501,8 +504,9 @@ class AnnotationProvider:
         >>> })
         >>> annotation_provider.flush_judgement(path='custom/path', filename='custom_judgements.tsv')
         """
-
+        print(filename)
         dest_file = "{}{}".format(self.prefix, filename)
+
 
         if self._DEBUG:
             logging.info(

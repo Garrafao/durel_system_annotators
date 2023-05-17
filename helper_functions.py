@@ -3,7 +3,7 @@ import torch, pandas as pd
 from typing import List
 
 def get_sentences_from_dataset(path_of_dataset):
-    df = pd.read_csv(path_of_dataset, delimiter="\t",header=None, 
+    df = pd.read_csv(path_of_dataset, delimiter="\t",header=None,
                     names=["word", "sentence_left", "token_index_of_sentence_left", "sentence_right", "token_index_of_sentence_right"], quoting = 3)
     sentences_left = df.sentence_left.tolist()
     sentences_right = df.sentence_right.tolist()
@@ -31,7 +31,7 @@ def get_index_of_duplicates(seq):
     return tally
 
 def get_max_sentence_length_of_a_dataset_by_tokenizer(tokenizer, path_of_dataset):
-    df = pd.read_csv(path_of_dataset, delimiter="\t",header=None, 
+    df = pd.read_csv(path_of_dataset, delimiter="\t",header=None,
                     names=["word", "sentence_left", "token_index_of_sentence_left", "sentence_right", "token_index_of_sentence_right"], quoting = 3)
     sentences_left = df.sentence_left.tolist()
     sentences_right = df.sentence_right.tolist()
@@ -67,7 +67,7 @@ def get_word_from_id_for_XLMR(id):
 
 import ast
 def get_input_ids_and_so_on(tokenizer, path_of_dataset, max_length):
-    df = pd.read_csv(path_of_dataset, delimiter="\t",header=None, 
+    df = pd.read_csv(path_of_dataset, delimiter="\t",header=None,
                     names=["word", "sentence_left", "token_index_of_sentence_left", "sentence_right", "token_index_of_sentence_right"], quoting = 3)
     sentences_left = df.sentence_left.tolist()
     sentences_right = df.sentence_right.tolist()
@@ -100,10 +100,10 @@ def get_input_ids_and_so_on(tokenizer, path_of_dataset, max_length):
                             return_attention_mask = True,   # Construct attn. masks.
                             return_tensors = 'pt',     # Return pytorch tensors.
                     )
-        
-        # Add the encoded sentence to the list.    
+
+        # Add the encoded sentence to the list.
         input_ids_left.append(encoded_dict['input_ids'])
-        
+
         # And its attention mask (simply differentiates padding from non-padding).
         attention_masks_left.append(encoded_dict['attention_mask'])
 
@@ -121,10 +121,10 @@ def get_input_ids_and_so_on(tokenizer, path_of_dataset, max_length):
                             return_attention_mask = True,   # Construct attn. masks.
                             return_tensors = 'pt',     # Return pytorch tensors.
                     )
-        
+
         input_ids_right.append(encoded_dict['input_ids'])
         attention_masks_right.append(encoded_dict['attention_mask'])
-        
+
         tokens = encoded_dict.tokens()
         subword_spans = [encoded_dict.token_to_chars(i) for i in range(len(tokens))]
         subword_spans_right.append(subword_spans)
@@ -219,17 +219,20 @@ def save_embeddings(device, input_ids_list, attention_masks, subword_span_list, 
         current_attention_mask = current_attention_mask.to(device)
 
         with torch.no_grad():
-            outputs = model(input_ids, token_type_ids=None,attention_mask=current_attention_mask)        
+            outputs = model(input_ids, token_type_ids=None,attention_mask=current_attention_mask)
 
+        #print(outputs[2])
+        #print('='*100)
+        #print(outputs)
         embedding = (
-            torch.stack(outputs[2], dim=0)  # (layer, batch, subword, embedding)
+            torch.stack(outputs[2], dim=0)  # (layer, batch, subword, embedding) # changed 2 to 1 shafqat as it was giving error
             .squeeze(dim=1)  # (layer, subword, embedding)
             .permute(1, 0, 2)[  # (subword, layer, embedding)
                 torch.tensor(subwords_bool_mask), :, :
             ]
         )
         print(f"Size of pre-subword-agregated tensor: {embedding.shape}")
-        
+
         # embedding.shape[0] refers to the number of subwords
         if embedding.shape[0] == 1:
             # print(embedding[0].shape)
@@ -262,11 +265,11 @@ def get_index_of_keyword(keyword, sentence):
     for index, _ in enumerate(token_list):
         if keyword == token_list[index].lower():
             return index
-        
+
 def truncation_indices(target_subword_indices, len_tokens):
     n_target_subtokens = target_subword_indices.count(True)
 
-    # truncation_tokens_before_target is a ratio, this means the percentage of words to keep before target 
+    # truncation_tokens_before_target is a ratio, this means the percentage of words to keep before target
     truncation_tokens_before_target = 0.5
     max_tokens = 512
     tokens_before = int(
@@ -289,9 +292,8 @@ def truncation_indices(target_subword_indices, len_tokens):
     # this is for handeling the situations which do not fall into the above two categories. suppose n_target_subtokens = 2, lindex_target = 1000, len_tokens = 1500. Then tokens_before = 255, then lindex = 745, this means the pipeline should start to process the text since the 746th token, the 746th-1000th token would be tokens_before, this is the intended result
     lindex = lindex_target - tokens_before
     return lindex, lindex + max_tokens
-    
-    
+
+
 
 if __name__ == "__main__":
     pass
-
