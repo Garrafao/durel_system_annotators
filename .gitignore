@@ -9,3 +9,5 @@ computational-annotator-pilot/*
 !computational-annotator-pilot/X_train.npy
 !computational-annotator-pilot/weight
 test.py
+tests/datasets
+update-git.sh

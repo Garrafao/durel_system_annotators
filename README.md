@@ -84,3 +84,10 @@ Create a capabilities so the server application could create user account on the
 # Installation Known Issues
 - Tested installation on Python 3.10, might have some issues if you are trying with an earlier python version.
 - You might get 'No space left on device' error while installing. It might be that the temp dir is full. Try creating a temp-dir in your home dir, e.g. ~/tmp and prefix whatever command you're running with TMPDIR=~/tmp. For example, TMPDIR=~/tmp pip install somethingsomething.
+
+
+# Testing
+Please find integration tests under the folder `tests/`. Some tests rely on the data created by the script `tests/data.py`. Please run the script from the main directory, if you're missing any data with
+
+`python tests/data.py`
+	
