@@ -211,7 +211,7 @@ class AnnotationProvider:
                 #             instances[row['instanceID']][key] = [int(i) for i in row[key].split(',')]
                 #         except ValueError:
                 #             instances[row['instanceID']][key] = row[key].split(',')
-        # print(instances)
+        print('these are loaded instances',instances)
         return instances
 
     def get_use(self, index: int | None = None) -> dict:

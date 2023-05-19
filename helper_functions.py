@@ -164,6 +164,7 @@ def save_embeddings(device, input_ids_list, attention_masks, subword_span_list, 
         print("current line of csv that is being processed: " + str(i))
 
         input_ids = input_ids_list[i]
+        print('input_id::::',input_ids.shape)
         subword_spans = subword_span_list[i]
         # print(input_ids)
         print(subword_spans)
@@ -245,10 +246,11 @@ def save_embeddings(device, input_ids_list, attention_masks, subword_span_list, 
             sum_vec = sum_vec/embedding.shape[0]
             # print(sum_vec.shape)
             token_embeddings_output.append(sum_vec)
+            print('sum vec:',sum_vec)
 
     token_embeddings_output = np.array(token_embeddings_output)
     # print(token_embeddings_output.shape)
-    # print(token_embeddings_output)
+    #print('this',token_embeddings_output)
     np.save(saving_path, token_embeddings_output)
 
 import re

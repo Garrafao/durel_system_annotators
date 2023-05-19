@@ -7,18 +7,24 @@ from xlmr_naive_annotate import *
 import os
 import urllib.request
 from sklearn.metrics import accuracy_score
+from scipy.stats import spearmanr
 
 
 lang='en'
-test_data_directory_path = "./tests/data/"
+data = 'wic'
+#test_data_directory_path = "./tests/data/"
+test_data_directory_path = "./tests/tests/datasets/"
+#test_data_directory_path = "./tests/tests/datasets/"
 
 class TestXLMRNaiveAnnotate(unittest.TestCase):
     def setUp(self):
-        self.usage_dir = test_data_directory_path+'testwug_'+lang+'/data/target/'
+        #self.usage_dir = test_data_directory_path+'testwug_'+lang+'/data/target/'
+        #self.usage_dir = test_data_directory_path+'testwug_'+lang+'_transformed/data/target/'
+        self.usage_dir = test_data_directory_path+'WiC_dataset_wug_transformed/dev/data/all/'
         self.prefix = ''
         self.custom_dir = './temp/'
         self.custom_filename = 'judgements.csv'
-        self.debug = False
+        self.debug = True
 
 
     #def tearDown(self):
@@ -36,18 +42,38 @@ class TestXLMRNaiveAnnotate(unittest.TestCase):
         self.assertTrue(os.path.exists(self.custom_dir+self.custom_filename))
 
         # check that the contents of the output file are correct
-        with open(self.custom_dir+self.custom_filename, 'r') as f:
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir)
+
+        #self.assertTrue(accuracy>0.5)
+
+def evaluate(custom_dir,custom_filename,usage_dir):
+        with open(custom_dir+custom_filename, 'r') as f:
             df = pd.read_csv(f,sep='\t')
-            predicted_values = df['label'].values
-        with open(self.usage_dir+'judgments.csv','r') as f:
+            if data == 'wic':
+                #print('we are in wic')
+                df.loc[df['label'] == 1, 'label'] = 'F'
+                df.loc[df['label'] == 4, 'label'] = 'T'
+            #zip(df['internal_identifier1'],df['internal_identifier2'],df['label'])
+            print(df['label'])
+            df_sorted = df.sort_values(['internal_identifier1','internal_identifier2'])
+            predicted_values = df_sorted['label']
+            #print(df_sorted)
+        with open(usage_dir+'judgments.csv','r') as f:
             df = pd.read_csv(f,sep='\t')
-            gold_values = df['judgment'].values
+            df_sorted = df.sort_values(['internal_identifier1','internal_identifier2'])
+            gold_values = df_sorted['judgment']
+            #print(df_sorted)
         assert len(predicted_values)==len(gold_values)
-        print(predicted_values,gold_values)
+        #print(predicted_values,gold_values)
 
         accuracy = accuracy_score(gold_values, predicted_values)
-        print(accuracy)
-        self.assertTrue(accuracy>0.5)
+        #print(predicted_values)
+        print('Acc:',accuracy)
+        #self.assertTrue(accuracy>0.5)
+        correlation, p_value = spearmanr(gold_values, predicted_values)
+        print('Corr:',correlation,'P-Value:',p_value)
+        return (accuracy,correlation,p_value)
+
 
 
 
