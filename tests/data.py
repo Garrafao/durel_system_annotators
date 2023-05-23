@@ -67,12 +67,12 @@ def wic2wug(input_path, output_path):
                 indexes_target_token_end = indexes_target_token_start + len(target_token)
                 indexes_target_token = '{0}:{1}'.format(indexes_target_token_start,indexes_target_token_end)
                 indexes_target_sentence = '0:{0}'.format(len(context))
-                identifier_strict = row['lemma']+'\t'+indexes_target_token+'\t'+context
-                identifier_relaxed = lemma+'-'+str(j)
-                identifier2use[identifier_strict]={'lemma':lemma,'identifier':identifier_relaxed,'description':'','date':'','grouping':'1','context':context,'indexes_target_token':indexes_target_token,'indexes_target_sentence':indexes_target_sentence}
+                identifier_strict = row['lemma']+'%%'+indexes_target_token+'%%'+context
+                #identifier_relaxed = lemma+'-'+str(j) # not needed now
+                identifier2use[identifier_strict]={'lemma':lemma,'identifier':identifier_strict,'description':'','date':'','grouping':'1','context':context,'indexes_target_token':indexes_target_token,'indexes_target_sentence':indexes_target_sentence}
                 #print(context, context[indexes_target_token_start:indexes_target_token_end], context[0:len(context)])
                 lemmas.append(lemma)
-                pair.append(identifier_relaxed)
+                pair.append(identifier_strict)
                 #print(pair)
                 j+=1
             #print('--')
@@ -83,7 +83,7 @@ def wic2wug(input_path, output_path):
         print('total number of processed sentences versus number of extracted unique sentences:', j, len(identifier2use.keys()))
 
         lemmas = list(set(lemmas))
-        data = list(identifier2use.values())
+        uses = list(identifier2use.values())
 
         #for lemma in lemmas:
         #    data_output_path = output_path + '/data/{0}/'.format(lemma)
@@ -95,9 +95,9 @@ def wic2wug(input_path, output_path):
 
         # Export data
         with open(data_output_path + '{0}.csv'.format(datatype), 'w') as f:  
-            w = csv.DictWriter(f, data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+            w = csv.DictWriter(f, uses[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
             w.writeheader()
-            w.writerows(data)
+            w.writerows(uses)
 
         # Load gold annotations
         condition='gold'
@@ -105,7 +105,7 @@ def wic2wug(input_path, output_path):
             reader = csv.DictReader(csvfile, fieldnames=["judgment"], delimiter='\t',quoting=csv.QUOTE_NONE,strict=True)
             data = [row for row in reader]
 
-        data = [{'identifier1':identifier1,'identifier2':identifier2,'annotator':'gold','judgment':data[i]['judgment'],'comment':'','lemma':lemma} for i, (identifier1, identifier2, lemma) in enumerate(pairs)]
+        judgments = [{'identifier1':identifier1,'identifier2':identifier2,'annotator':'gold','judgment':data[i]['judgment'],'comment':'','lemma':lemma} for i, (identifier1, identifier2, lemma) in enumerate(pairs)]
 
         datatype='judgments'
 
@@ -113,11 +113,11 @@ def wic2wug(input_path, output_path):
 
         # Export data
         with open(data_output_path + '{0}.csv'.format(datatype), 'w') as f:  
-            w = csv.DictWriter(f, data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+            w = csv.DictWriter(f, judgments[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
             w.writeheader()
-            w.writerows(data)
+            w.writerows(judgments)
 
-        data = [{'lemma':lemma,'identifier1':identifier1,'identifier2':identifier2} for (identifier1, identifier2, lemma) in pairs]
+        instances = [{'lemma':lemma,'identifier1':identifier1,'identifier2':identifier2} for (identifier1, identifier2, lemma) in pairs]
 
         print('number of annotation instances:', len(data))
 
@@ -125,9 +125,13 @@ def wic2wug(input_path, output_path):
 
         # Export data
         with open(data_output_path + '{0}.csv'.format(datatype), 'w') as f:  
-            w = csv.DictWriter(f, data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+            w = csv.DictWriter(f, instances[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
             w.writeheader()
-            w.writerows(data)
+            w.writerows(instances)
+
+        # Check whether there is a mismatch between identifiers in uses and instances
+        #print(set([identifier for pair in pairs for identifier in pair[:3]]))
+        assert set([row['identifier'] for row in uses]) == set([identifier for pair in pairs for identifier in pair[:2]])
                     
 
 datasets_path = 'tests/datasets/'
