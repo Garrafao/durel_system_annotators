@@ -31,13 +31,13 @@ def make_inference_for_dataset(path_of_dataset):
 
     model = AutoModel.from_pretrained('pierluigic/xl-lexeme',output_hidden_states=True)
     #model = XLMRobertaModel.from_pretrained('xlm-roberta-base', output_hidden_states=True)
-    save_embeddings(device, input_ids_left, attention_masks_left, subword_spans_left, list_token_index_of_sentence_left, tokens_left, '/tmp/token_embeddings_left.npy', model)
+    save_embeddings(device, input_ids_left, attention_masks_left, subword_spans_left, list_token_index_of_sentence_left, tokens_left, './temp/token_embeddings_left.npy', model)
 
-    save_embeddings(device, input_ids_right, attention_masks_right, subword_spans_right, list_token_index_of_sentence_right, tokens_right, '/tmp/token_embeddings_right.npy', model)
+    save_embeddings(device, input_ids_right, attention_masks_right, subword_spans_right, list_token_index_of_sentence_right, tokens_right, './temp/token_embeddings_right.npy', model)
 
-    embeddings_left = np.load('tmp/token_embeddings_left.npy')
+    embeddings_left = np.load('./temp/token_embeddings_left.npy')
     # print(embeddings_left.shape)
-    embeddings_right = np.load('tmp/token_embeddings_right.npy')
+    embeddings_right = np.load('./temp/token_embeddings_right.npy')
     # print(embeddings_right.shape)
     concatenation = np.hstack((embeddings_left, embeddings_right))
     X_test = concatenation

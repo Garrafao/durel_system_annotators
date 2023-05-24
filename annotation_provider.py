@@ -49,13 +49,13 @@ class AnnotationProvider:
                 format='%(levelname)s:%(message)s', level=logging.DEBUG)
 
         self._path = path
-        print('this',self._path)
+        #print('this',self._path)
         if not os.path.exists(self._path):
             if DEBUG:
                 logging.warning(f"Path '{self._path}' does not exist.")
             raise FileNotFoundError(f"Path '{self._path}' does not exist.")
         if not os.path.exists(os.path.join(self._path, '{}uses{}'.format(self.prefix, self.FILE_EXTENSION))):
-            print(self.FILE_EXTENSION,self._path,[self.prefix],os.path.join(self._path, '{}uses{}'.format(self.prefix, self.FILE_EXTENSION)))
+            #print(self.FILE_EXTENSION,self._path,[self.prefix],os.path.join(self._path, '{}uses{}'.format(self.prefix, self.FILE_EXTENSION)))
             if DEBUG:
                 logging.warning(
                     f"Path '{self._path}' does not contain a uses file.")
@@ -134,14 +134,14 @@ class AnnotationProvider:
             }
         }
         """
-        print("enter _load_uses")
+        #print("enter _load_uses")
         uses = {}
         with open(os.path.join(self._path, '{}uses{}'.format(self.prefix, self.FILE_EXTENSION)), 'r') as f:
             reader = csv.DictReader(
                 f, delimiter='\t', quoting=csv.QUOTE_NONE, strict=True)
             data = list(reader)
             for row in data:
-                print(row)
+                #print(row)
                 row["dataID"] = row.pop("identifier_system")
                 row["indices_target_token"] = row.pop("indexes_target_token")
                 row["indices_target_sentence"] = row.pop(
@@ -211,7 +211,7 @@ class AnnotationProvider:
                 #             instances[row['instanceID']][key] = [int(i) for i in row[key].split(',')]
                 #         except ValueError:
                 #             instances[row['instanceID']][key] = row[key].split(',')
-        print('these are loaded instances',instances)
+        #print('these are loaded instances',instances)
         return instances
 
     def get_use(self, index: int | None = None) -> dict:
@@ -504,7 +504,7 @@ class AnnotationProvider:
         >>> })
         >>> annotation_provider.flush_judgement(path='custom/path', filename='custom_judgements.tsv')
         """
-        print(filename)
+        #print(filename)
         dest_file = "{}{}".format(self.prefix, filename)
 
 
@@ -544,7 +544,7 @@ class AnnotationProvider:
                 # print(instance)
                 line = f"{instance['lemma']}\t{instance['sentence_left']}\t{instance['token_index_of_sentence_left']}\t{instance['sentence_right']}\t{instance['token_index_of_sentence_right']}\n"
                 f.write(line)
-                print(line)
+                #print(line)
 
     def flush_single_instance_wic(self, instance_id, path: str | None = None, filename: str = 'instances_wic_single.csv'):
         dest_file = "{}{}".format(self.prefix, filename)

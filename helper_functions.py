@@ -11,7 +11,7 @@ def get_sentences_from_dataset(path_of_dataset):
     word_count_left = df.sentence_left.str.split(" ").str.len()
     word_count_right = df.sentence_right.str.split(" ").str.len()
     sentence_maximum_length = max(word_count_left.max(), word_count_right.max())
-    print("maximum sentence length of the dataset " + path_of_dataset.split("/")[-1] + " is: " + str(sentence_maximum_length))
+    #print("maximum sentence length of the dataset " + path_of_dataset.split("/")[-1] + " is: " + str(sentence_maximum_length))
     # print(df.sentence_left[word_count_left.idxmax()])
     # print(df.sentence_right[word_count_right.idxmax()])
     # print(word_count_left.idxmax())
@@ -45,7 +45,7 @@ def get_max_sentence_length_of_a_dataset_by_tokenizer(tokenizer, path_of_dataset
 
         # Update the maximum sentence length.
         max_len = max(max_len, len(input_ids))
-    print('Max sentence length of whole dataset by tokenizer is:', max_len)
+    #print('Max sentence length of whole dataset by tokenizer is:', max_len)
 
 from transformers import BertTokenizerFast, XLMRobertaTokenizerFast
 def get_BERT_tokenizer():
@@ -164,10 +164,10 @@ def save_embeddings(device, input_ids_list, attention_masks, subword_span_list, 
         print("current line of csv that is being processed: " + str(i))
 
         input_ids = input_ids_list[i]
-        print('input_id::::',input_ids.shape)
+        #print('input_id::::',input_ids.shape)
         subword_spans = subword_span_list[i]
         # print(input_ids)
-        print(subword_spans)
+        #print(subword_spans)
         # print(subword_spans)
         # subwords_bool_mask = [
         #         span.start >= list_token_index_of_sentence[i][0] and span.end <= (list_token_index_of_sentence[i][1] + 1)
@@ -175,14 +175,14 @@ def save_embeddings(device, input_ids_list, attention_masks, subword_span_list, 
         #         else False
         #         for span in subword_spans
         #     ]
-        print(list_token_index_of_sentence[i])
+        #print(list_token_index_of_sentence[i])
         subwords_bool_mask = []
         for span in subword_spans:
             if span is not None:
                 token_index = list_token_index_of_sentence[i]
                 if span.start >= token_index[0] and span.end <= (token_index[1] + 1):
                     subwords_bool_mask.append(True)
-                    print(span)
+                    #print(span)
                 else:
                     subwords_bool_mask.append(False)
             else:
@@ -213,7 +213,7 @@ def save_embeddings(device, input_ids_list, attention_masks, subword_span_list, 
                 tokens_list[i][j] for j, value in enumerate(subwords_bool_mask) if value
                 ]
         # print(attention_masks[i])
-        print(extracted_subwords)
+        #print(extracted_subwords)
 
 
         input_ids = input_ids.to(device)
@@ -235,9 +235,15 @@ def save_embeddings(device, input_ids_list, attention_masks, subword_span_list, 
         print(f"Size of pre-subword-agregated tensor: {embedding.shape}")
 
         # embedding.shape[0] refers to the number of subwords
-        if embedding.shape[0] == 1:
+        if embedding.shape[0] == 0: # this is to handle the case when subword index (wrongly put in the data file, an error basically) does not produce any subword
+
+            nan_sum_vec = np.full(embedding.shape[2], np.nan)
+            #print('nan sum vec', nan_sum_vec)
+            token_embeddings_output.append(nan_sum_vec)
+        elif embedding.shape[0] == 1:
             # print(embedding[0].shape)
             sum_vec = np.sum([np.array(embedding[0][layer].cpu()) for layer in layers_list], axis=0)
+            #print('this is sum vector',type(sum_vec),len(sum_vec))
             token_embeddings_output.append(sum_vec)
         else:
             sum_vec = np.sum([np.array(embedding[0][layer].cpu()) for layer in layers_list], axis=0)
@@ -246,7 +252,7 @@ def save_embeddings(device, input_ids_list, attention_masks, subword_span_list, 
             sum_vec = sum_vec/embedding.shape[0]
             # print(sum_vec.shape)
             token_embeddings_output.append(sum_vec)
-            print('sum vec:',sum_vec)
+            #print('sum vec:',sum_vec)
 
     token_embeddings_output = np.array(token_embeddings_output)
     # print(token_embeddings_output.shape)
