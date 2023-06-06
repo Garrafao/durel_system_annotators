@@ -4,13 +4,40 @@ from pathlib import Path
 import requests
 import csv
 import zipfile
+from collections import defaultdict
+import numpy as np
 
+def aggregate_wug(judgments, aggregation_mode='binarize-median'):
+    '''
+    Load WUG-formatted list of judgments as list of dictionaries and aggregate.
+    '''        
+    # Ignores order, maps all instances with median judgment below 2.5 to 1 and above or equal 2.5 to 4
+    if aggregation_mode == 'binarize-median':
+        pair2judgments = defaultdict(lambda: [])
+        for row in judgments:
+           judgment = float(row['judgment'])
+           if judgment != 0.0: # exclude 'cannot decide' judgments
+            pair2judgments[frozenset((row['identifier1'],row['identifier2']))].append(judgment) 
+        pair2label = {tuple(pair):np.median(judgments) for pair, judgments in pair2judgments.items()} # aggregate with median
+        pair2label = {pair:1 if label<2.5 else 4 for pair, label in pair2label.items()} # binarize
 
-def wug2anno(input_path, output_path, label_set='1,2,3,4',non_label='-'):
+    # Ignores order, takees median of judgments as label (special case: will not chaange judgment if there is only one) 
+    if aggregation_mode == 'median':
+        pair2judgments = defaultdict(lambda: [])
+        for row in judgments:
+           judgment = float(row['judgment'])
+           if judgment != 0.0: # exclude 'cannot decide' judgments
+            pair2judgments[frozenset((row['identifier1'],row['identifier2']))].append(judgment) 
+        pair2label = {tuple(pair):np.median(judgments) for pair, judgments in pair2judgments.items()} # aggregate with median
+
+    return pair2label
+
+def wug2anno(input_path, output_path, label_set='1,2,3,4',non_label='-',aggregation_mode='median'):
     '''
     Load WUG-formatted data set, transform it to format of DURel system annotators and export.
     '''        
-    for condition in ['uses','instances','judgments']:
+    print('input_path:', input_path, 'label_set:', label_set, 'non_label:', non_label, 'aggregation_mode:', aggregation_mode)
+    for condition in ['uses','judgments']:
         for p in Path(input_path+'/data').glob('*/{0}.csv'.format(condition)):
 
             with open(p, encoding='utf-8') as csvfile: 
@@ -18,26 +45,48 @@ def wug2anno(input_path, output_path, label_set='1,2,3,4',non_label='-'):
                 data = [row for row in reader]
 
             if condition == 'uses':
-                data = [{'lemma':row['lemma'],'identifier_system':row['identifier'],'context':row['context'],'indexes_target_token':row['indexes_target_token'],'indexes_target_sentence':row['indexes_target_sentence']} for row in data]
-            if condition == 'instances':
-                data = [{'id':i,'internal_identifier1':row['identifier1'],'internal_identifier2':row['identifier2'],'label_set':label_set,'non_label':non_label,'lemma':row['lemma']} for i, row in enumerate(data)]
+                output_data = [{'lemma':row['lemma'],'identifier_system':row['identifier'],'context':row['context'],'indexes_target_token':row['indexes_target_token'],'indexes_target_sentence':row['indexes_target_sentence']} for row in data]
 
             if condition == 'judgments':
-                data = [{'internal_identifier1':row['identifier1'],'internal_identifier2':row['identifier2'],'annotator':row['annotator'],'judgment':row['judgment'],'comment':row['comment'],'lemma':row['lemma']} for row in data]
+                lemma = data[0]['lemma'] # infer lemma from first row
+                pair2label = aggregate_wug(data, aggregation_mode=aggregation_mode)
+                output_data = [{'internal_identifier1':id1,'internal_identifier2':id2,'label':l,'lemma':lemma} for (id1, id2), l in pair2label.items()]
 
             data_output_path = output_path + '/data/{0}/'.format(str(p).split('/')[-2])
             Path(data_output_path).mkdir(parents=True, exist_ok=True)
-            
-            # Export data
-            with open(data_output_path + '{0}.csv'.format(condition), 'w') as f:  
-                w = csv.DictWriter(f, data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
-                w.writeheader()
-                w.writerows(data)
+
+            if condition == 'judgments':
+                # Export labels
+                with open(data_output_path + '{0}.csv'.format('gold'), 'w') as f:  
+                    w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+                    w.writeheader()
+                    w.writerows(output_data)
+
+                # Export instances
+                output_data_instances = [{'id':i,'internal_identifier1':row['internal_identifier1'],'internal_identifier2':row['internal_identifier2'],'label_set':label_set,'non_label':non_label,'lemma':row['lemma']} for i, row in enumerate(output_data)]
+                with open(data_output_path + '{0}.csv'.format('instances'), 'w') as f:  
+                    w = csv.DictWriter(f, output_data_instances[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+                    w.writeheader()
+                    w.writerows(output_data_instances)
+                    
+                # Check whether there is a mismatch between number of pairs in gold and instances
+                assert len(output_data) == len(output_data_instances)
+            else:            
+                # Export uses
+                with open(data_output_path + '{0}.csv'.format(condition), 'w') as f:  
+                    w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+                    w.writeheader()
+                    w.writerows(output_data)
+                    
+    print('-----')
+      
+          
                
-def wic2wug(input_path, output_path):
+def wic2anno(input_path, output_path, label_set='1,2,3,4',non_label='-'):
     '''
-    Load WiC data set, transform it to format WUG format and export.
+    Load WiC data set, transform it to format repository format and export.
     '''
+    print('input_path:', input_path, 'label_set:', label_set, 'non_label:', non_label)
     for split in ['dev', 'train', 'test']:
 
         print('split:', split)
@@ -69,7 +118,7 @@ def wic2wug(input_path, output_path):
                 indexes_target_sentence = '0:{0}'.format(len(context))
                 identifier_strict = row['lemma']+'%%'+indexes_target_token+'%%'+context
                 #identifier_relaxed = lemma+'-'+str(j) # not needed now
-                identifier2use[identifier_strict]={'lemma':lemma,'identifier':identifier_strict,'description':'','date':'','grouping':'1','context':context,'indexes_target_token':indexes_target_token,'indexes_target_sentence':indexes_target_sentence}
+                identifier2use[identifier_strict]={'lemma':lemma,'identifier_system':identifier_strict,'context':context,'indexes_target_token':indexes_target_token,'indexes_target_sentence':indexes_target_sentence}
                 #print(context, context[indexes_target_token_start:indexes_target_token_end], context[0:len(context)])
                 lemmas.append(lemma)
                 pair.append(identifier_strict)
@@ -102,24 +151,24 @@ def wic2wug(input_path, output_path):
         # Load gold annotations
         condition='gold'
         with open(input_path + split + '/{0}.{1}.txt'.format(split, condition), encoding='utf-8') as csvfile: 
-            reader = csv.DictReader(csvfile, fieldnames=["judgment"], delimiter='\t',quoting=csv.QUOTE_NONE,strict=True)
+            reader = csv.DictReader(csvfile, fieldnames=["label"], delimiter='\t',quoting=csv.QUOTE_NONE,strict=True)
             data = [row for row in reader]
 
-        judgments = [{'identifier1':identifier1,'identifier2':identifier2,'annotator':'gold','judgment':data[i]['judgment'],'comment':'','lemma':lemma} for i, (identifier1, identifier2, lemma) in enumerate(pairs)]
+        labels = [{'identifier1':identifier1,'identifier2':identifier2,'label':data[i]['label'],'lemma':lemma} for (identifier1, identifier2, lemma) in pairs]
 
-        datatype='judgments'
+        datatype='labels'
 
-        print('number of gold judgments:', len(data))
+        print('number of gold labels:', len(labels))
 
         # Export data
         with open(data_output_path + '{0}.csv'.format(datatype), 'w') as f:  
-            w = csv.DictWriter(f, judgments[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+            w = csv.DictWriter(f, labels[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
             w.writeheader()
-            w.writerows(judgments)
+            w.writerows(labels)
 
-        instances = [{'lemma':lemma,'identifier1':identifier1,'identifier2':identifier2} for (identifier1, identifier2, lemma) in pairs]
+        instances = [{'id':i,'identifier1':identifier1,'identifier2':identifier2,'label_set':label_set,'non_label':non_label,'lemma':lemma} for i, (identifier1, identifier2, lemma) in enumerate(pairs)]
 
-        print('number of annotation instances:', len(data))
+        print('number of annotation instances:', len(instances))
 
         datatype='instances'
 
@@ -131,27 +180,30 @@ def wic2wug(input_path, output_path):
 
         # Check whether there is a mismatch between identifiers in uses and instances
         #print(set([identifier for pair in pairs for identifier in pair[:3]]))
-        assert set([row['identifier'] for row in uses]) == set([identifier for pair in pairs for identifier in pair[:2]])
-                    
+        assert set([row['identifier_system'] for row in uses]) == set([identifier for pair in pairs for identifier in pair[:2]])
+    print('-----')
 
+
+aggregation_mode='binarize-median'
 datasets_path = 'tests/datasets/'
 Path(datasets_path).mkdir(parents=True, exist_ok=True)
 
-# testWUG EN (V1.0.0)
-dataset = 'https://zenodo.org/record/7946753/files/testwug_en.zip?download=1'
-r = requests.get(dataset, allow_redirects=True)
-f = datasets_path + 'testwug_en.zip'
-open(f, 'wb').write(r.content)
+# testWUG EN (V1.0.0),  DWUG EN (V2.0.1),  DWUG DE (V2.3.0),  DWUG DE (V2.0.1)
+sources_wug = [('testwug_en', 'https://zenodo.org/record/7946753/files/testwug_en.zip?download=1'), ('dwug_en','https://zenodo.org/record/7387261/files/dwug_en.zip?download=1'), ('dwug_de','https://zenodo.org/record/7441645/files/dwug_de.zip?download=1'), ('dwug_sv','https://zenodo.org/record/7389506/files/dwug_sv.zip?download=1')]
+for dataset, link in sources_wug:
+    r = requests.get(link, allow_redirects=True)
+    f = datasets_path + dataset + '.zip'
+    open(f, 'wb').write(r.content)
 
-with zipfile.ZipFile(f) as z:
-    z.extractall(path=datasets_path)
+    with zipfile.ZipFile(f) as z:
+        z.extractall(path=datasets_path)
 
-testwug_en_path = datasets_path + 'testwug_en/'
-testwug_en_transformed_path = datasets_path + 'testwug_en_transformed/'
-Path(testwug_en_transformed_path).mkdir(parents=True, exist_ok=True)
+    data_path = datasets_path + dataset + '/'
+    data_transformed_path = datasets_path + dataset + '_transformed/'
+    Path(data_transformed_path).mkdir(parents=True, exist_ok=True)
 
-# Load, transform and store data set
-wug2anno(input_path=testwug_en_path, output_path=testwug_en_transformed_path, label_set='1,2,3,4')
+    # Load, transform and store data set
+    wug2anno(input_path=data_path, output_path=data_transformed_path, label_set='1,4',non_label='-',aggregation_mode=aggregation_mode)
 
 
 # WiC data set (WUG version)
@@ -166,16 +218,9 @@ Path(wic_path).mkdir(parents=True, exist_ok=True)
 with zipfile.ZipFile(f) as z:
     z.extractall(path=wic_path)
 
-wic_wug_path = datasets_path + 'WiC_dataset_wug/'
+wic_transformed_path = datasets_path + 'WiC_dataset_transformed/'
 
-# Load, transform and store data set in WUG format (for dev, train, test)
-wic2wug(wic_path, wic_wug_path)
-
-wic_wug_transformed_path = datasets_path + 'WiC_dataset_wug_transformed/'
-
-# Load, transform and store data set
-for split in ['dev', 'train', 'test']:
-    Path(wic_wug_transformed_path+split).mkdir(parents=True, exist_ok=True)
-    wug2anno(input_path=wic_wug_path+split, output_path=wic_wug_transformed_path+split, label_set='F,T')
+# Load, transform and store data set (for dev, train, test)
+wic2anno(input_path=wic_path, output_path=wic_transformed_path, label_set='F,T',non_label='-')
 
 
