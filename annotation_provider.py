@@ -195,7 +195,8 @@ class AnnotationProvider:
             data = list(reader)
             for row in data:
                 row["instanceID"] = row.pop("id")
-                row["label_set"] = [1, 2, 3, 4]
+                #row["label_set"] = [1, 2, 3, 4]
+                row["label_set"] = [1,4]
 
             reader = data
             for row in reader:

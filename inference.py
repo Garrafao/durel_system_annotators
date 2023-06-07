@@ -37,15 +37,16 @@ def make_inference_for_dataset(path_of_dataset):
 
     #embeddings_left = np.load('tmp/token_embeddings_left.npy')
     embeddings_left = np.load('./temp/token_embeddings_left.npy')
-    # print(embeddings_left.shape)
+    #print(embeddings_left.shape)
     #embeddings_right = np.load('tmp/token_embeddings_right.npy')
     embeddings_right = np.load('./temp/token_embeddings_right.npy')
-    # print(embeddings_right.shape)
+    #print(embeddings_right.shape)
     concatenation = np.hstack((embeddings_left, embeddings_right))
     X_test = concatenation
     sc = StandardScaler()
 
     X_train = np.load('computational-annotator-pilot/X_train.npy')
+    #print(X_train.shape)
     X_train = sc.fit_transform(X_train)
     X_test = sc.transform(X_test)
 
@@ -67,7 +68,7 @@ def make_inference_for_dataset(path_of_dataset):
         elif label == 1:
             cls_list[index] = 4
             #cls_list[index] = 'T' # for wic
-    print(cls_list)
+    #print(cls_list)
     return cls_list
 
 if __name__ == "__main__":

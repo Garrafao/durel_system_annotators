@@ -5,6 +5,7 @@ import logging
 from annotation_provider import AnnotationProvider
 
 def main(usage_dir, custom_dir, custom_filename, prefix, debug):
+    print('Random Main')
     # note the logging module below would direct message to standard error
     if debug:
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
@@ -14,7 +15,7 @@ def main(usage_dir, custom_dir, custom_filename, prefix, debug):
         raise ValueError("usage_dir is None")
     if debug:
         logging.info(f"Using directory '{usage_dir}' for usage data.")
-    
+
     if custom_dir is None:
         custom_dir = usage_dir
     if debug:
@@ -27,8 +28,10 @@ def main(usage_dir, custom_dir, custom_filename, prefix, debug):
 
     # Example annotator that randomly annotates the given set
     annotation_provider = AnnotationProvider(usage_dir, prefix, DEBUG=debug)
+    print(usage_dir)
     for instance in annotation_provider.get_instances_iterator(RANDOM=True):
         # Randomly annotate the instance
+        #print(instance['label_set'])
         annotation_provider.add_judgement({'instanceID': instance['instanceID'], 'internal_identifier1': instance['internal_identifier1'], 'internal_identifier2': instance['internal_identifier2'], 'label':random.choice([*instance['label_set']]), 'comment': '-'})
 
     # Save the judgement

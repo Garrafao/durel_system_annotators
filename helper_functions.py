@@ -224,6 +224,7 @@ def save_embeddings(device, input_ids_list, attention_masks, subword_span_list, 
 
         #print(outputs[2])
         #print('='*100)
+        #sys.exit()
         #print(outputs)
         embedding = (
             torch.stack(outputs[2], dim=0)  # (layer, batch, subword, embedding) # changed 2 to 1 shafqat as it was giving error
