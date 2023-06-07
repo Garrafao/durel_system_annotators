@@ -80,6 +80,12 @@ def wug2anno(input_path, output_path, label_set='1,2,3,4',non_label='-',aggregat
                     w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
                     w.writeheader()
                     w.writerows(output_data)
+
+    # Create instances
+    instances_all = [{'id':i,'internal_identifier1':row['internal_identifier1'],'internal_identifier2':row['internal_identifier2'],'label_set':label_set,'non_label':non_label,'lemma':row['lemma']} for i, row in enumerate(labels_all)]       
+    
+    # Check whether there is a mismatch between number of pairs in gold and instances
+    assert len(labels_all) == len(instances_all)
     
     # Check identifier uniqueness
     ids = [row['identifier_system'] for row in uses_all]
