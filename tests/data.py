@@ -37,6 +37,7 @@ def wug2anno(input_path, output_path, label_set='1,2,3,4',non_label='-',aggregat
     Load WUG-formatted data set, transform it to format of DURel system annotators and export.
     '''        
     print('input_path:', input_path, 'label_set:', label_set, 'non_label:', non_label, 'aggregation_mode:', aggregation_mode)
+    uses_all, labels_all, instances_all = [], [], []
     for condition in ['uses','judgments']:
         for p in Path(input_path+'/data').glob('*/{0}.csv'.format(condition)):
 
@@ -46,24 +47,26 @@ def wug2anno(input_path, output_path, label_set='1,2,3,4',non_label='-',aggregat
 
             if condition == 'uses':
                 output_data = [{'lemma':row['lemma'],'identifier_system':row['identifier'],'context':row['context'],'indexes_target_token':row['indexes_target_token'],'indexes_target_sentence':row['indexes_target_sentence']} for row in data]
-
+                uses_all += output_data
             if condition == 'judgments':
                 lemma = data[0]['lemma'] # infer lemma from first row
                 pair2label = aggregate_wug(data, aggregation_mode=aggregation_mode)
                 output_data = [{'internal_identifier1':id1,'internal_identifier2':id2,'label':l,'lemma':lemma} for (id1, id2), l in pair2label.items()]
+                labels_all += output_data
 
-            data_output_path = output_path + '/data/{0}/'.format(str(p).split('/')[-2])
+            data_output_path = output_path + '/data_split/{0}/'.format(str(p).split('/')[-2])
             Path(data_output_path).mkdir(parents=True, exist_ok=True)
 
             if condition == 'judgments':
                 # Export labels
-                with open(data_output_path + '{0}.csv'.format('gold'), 'w') as f:  
+                with open(data_output_path + '{0}.csv'.format('labels'), 'w') as f:  
                     w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
                     w.writeheader()
                     w.writerows(output_data)
 
                 # Export instances
                 output_data_instances = [{'id':i,'internal_identifier1':row['internal_identifier1'],'internal_identifier2':row['internal_identifier2'],'label_set':label_set,'non_label':non_label,'lemma':row['lemma']} for i, row in enumerate(output_data)]
+                instances_all += output_data_instances
                 with open(data_output_path + '{0}.csv'.format('instances'), 'w') as f:  
                     w = csv.DictWriter(f, output_data_instances[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
                     w.writeheader()
@@ -77,6 +80,20 @@ def wug2anno(input_path, output_path, label_set='1,2,3,4',non_label='-',aggregat
                     w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
                     w.writeheader()
                     w.writerows(output_data)
+    
+    # Check identifier uniqueness
+    ids = [row['identifier_system'] for row in uses_all]
+    assert len(ids) == len(set(ids))
+    
+    # Export concatenated data 
+    data_output_path = output_path + '/data/{0}/'.format('all')
+    Path(data_output_path).mkdir(parents=True, exist_ok=True)
+    
+    for condition, output_data in [('uses',uses_all),('labels',labels_all), ('instances',instances_all)]:
+        with open(data_output_path + '{0}.csv'.format(condition), 'w') as f:  
+            w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+            w.writeheader()
+            w.writerows(output_data)
                     
     print('-----')
       
@@ -154,7 +171,7 @@ def wic2anno(input_path, output_path, label_set='1,2,3,4',non_label='-'):
             reader = csv.DictReader(csvfile, fieldnames=["label"], delimiter='\t',quoting=csv.QUOTE_NONE,strict=True)
             data = [row for row in reader]
 
-        labels = [{'identifier1':identifier1,'identifier2':identifier2,'label':data[i]['label'],'lemma':lemma} for (identifier1, identifier2, lemma) in pairs]
+        labels = [{'internal_identifier1':identifier1,'internal_identifier2':identifier2,'label':data[i]['label'],'lemma':lemma} for (identifier1, identifier2, lemma) in pairs]
 
         datatype='labels'
 
@@ -166,7 +183,7 @@ def wic2anno(input_path, output_path, label_set='1,2,3,4',non_label='-'):
             w.writeheader()
             w.writerows(labels)
 
-        instances = [{'id':i,'identifier1':identifier1,'identifier2':identifier2,'label_set':label_set,'non_label':non_label,'lemma':lemma} for i, (identifier1, identifier2, lemma) in enumerate(pairs)]
+        instances = [{'id':i,'internal_identifier1':identifier1,'internal_identifier2':identifier2,'label_set':label_set,'non_label':non_label,'lemma':lemma} for i, (identifier1, identifier2, lemma) in enumerate(pairs)]
 
         print('number of annotation instances:', len(instances))
 
