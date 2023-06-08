@@ -1,0 +1,29 @@
+Identifier1	Identifier2	Prediction	Gold
+target-A:previous. context context context context context target context context. following	target-B:previous. context context context context context target context context. following	1	target
+target-A:previous. context context context context context target context context. following	target-D:something something something target something something.	1	target
+target-A:previous. context context context context context target context context. following	target-E:something something something target something something.	1	target
+target-A:previous. context context context context context target context context. following	target-F:something something something target something something.	1	target
+target-A:previous. context context context context context target context context. following	target-H:Unfortunately, this is a random sentence.	4	target
+target-B:previous. context context context context context target context context. following	target-D:something something something target something something.	1	target
+target-B:previous. context context context context context target context context. following	target-E:something something something target something something.	1	target
+target-B:previous. context context context context context target context context. following	target-F:something something something target something something.	1	target
+target-B:previous. context context context context context target context context. following	target-H:Unfortunately, this is a random sentence.	4	target
+target-C:previous. context context context context context target context context. following	target-A:previous. context context context context context target context context. following	1	target
+target-C:previous. context context context context context target context context. following	target-B:previous. context context context context context target context context. following	1	target
+target-C:previous. context context context context context target context context. following	target-D:something something something target something something.	1	target
+target-C:previous. context context context context context target context context. following	target-E:something something something target something something.	1	target
+target-C:previous. context context context context context target context context. following	target-F:something something something target something something.	1	target
+target-C:previous. context context context context context target context context. following	target-G:Unfortunately, this is a random sentence.	4	target
+target-C:previous. context context context context context target context context. following	target-H:Unfortunately, this is a random sentence.	4	target
+target-E:something something something target something something.	target-D:something something something target something something.	1	target
+target-E:something something something target something something.	target-H:Unfortunately, this is a random sentence.	4	target
+target-F:something something something target something something.	target-D:something something something target something something.	1	target
+target-F:something something something target something something.	target-E:something something something target something something.	1	target
+target-F:something something something target something something.	target-H:Unfortunately, this is a random sentence.	4	target
+target-G:Unfortunately, this is a random sentence.	target-A:previous. context context context context context target context context. following	1	target
+target-G:Unfortunately, this is a random sentence.	target-B:previous. context context context context context target context context. following	1	target
+target-G:Unfortunately, this is a random sentence.	target-D:something something something target something something.	1	target
+target-G:Unfortunately, this is a random sentence.	target-E:something something something target something something.	1	target
+target-G:Unfortunately, this is a random sentence.	target-F:something something something target something something.	1	target
+target-G:Unfortunately, this is a random sentence.	target-H:Unfortunately, this is a random sentence.	4	target
+target-H:Unfortunately, this is a random sentence.	target-D:something something something target something something.	1	target

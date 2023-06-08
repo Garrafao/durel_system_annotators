@@ -7,6 +7,9 @@ import zipfile
 from collections import defaultdict
 import numpy as np
 
+class NotImplementedException(Exception):
+    pass
+
 def aggregate_wug(judgments, aggregation_mode='binarize-median'):
     '''
     Load WUG-formatted list of judgments as list of dictionaries and aggregate.
@@ -32,12 +35,13 @@ def aggregate_wug(judgments, aggregation_mode='binarize-median'):
 
     return pair2label
 
-def wug2anno(input_path, output_path, label_set='1,2,3,4',non_label='-',aggregation_mode='median'):
+def wug2anno(input_path, output_path, label_set='1,2,3,4',non_label='-',aggregation_mode='median',preprocessing_mode='raw'):
     '''
     Load WUG-formatted data set, transform it to format of DURel system annotators and export.
     '''        
-    print('input_path:', input_path, 'label_set:', label_set, 'non_label:', non_label, 'aggregation_mode:', aggregation_mode)
-    uses_all, labels_all, instances_all = [], [], []
+    print('input_path:', input_path, 'label_set:', label_set, 'non_label:', non_label, 'aggregation_mode:', aggregation_mode, 'preprocessing_mode:', preprocessing_mode)
+    uses_all, labels_all = [], []
+    normalization_errors = 0
     for condition in ['uses','judgments']:
         for p in Path(input_path+'/data').glob('*/{0}.csv'.format(condition)):
 
@@ -46,7 +50,84 @@ def wug2anno(input_path, output_path, label_set='1,2,3,4',non_label='-',aggregat
                 data = [row for row in reader]
 
             if condition == 'uses':
-                output_data = [{'lemma':row['lemma'],'identifier_system':row['identifier'],'context':row['context'],'indexes_target_token':row['indexes_target_token'],'indexes_target_sentence':row['indexes_target_sentence']} for row in data]
+                output_data = []
+                for row in data:
+                    row_out = {}
+                    row_out['lemma'] = row['lemma']
+                    row_out['identifier_system'] = row['identifier']
+                    context_raw = row['context']
+                    if preprocessing_mode=='raw':
+                        row_out['context'] = context_raw
+                        row_out['indexes_target_token'] = row['indexes_target_token']
+                        row_out['indexes_target_sentence'] = row['indexes_target_sentence']                    
+                    elif preprocessing_mode=='normalized':
+                        
+                        context_tokenized = row['context_tokenized']
+                        context_normalized = row['context_normalized']
+
+                        print('context_raw:', [context_raw])
+                        print('context_tokenized:', [context_tokenized])
+                        print('context_normalized:', [context_normalized])
+                        
+                        if context_normalized != '':
+                            # Catch normalization errors
+                            context = context_normalized
+                            try:
+                                assert len(context_tokenized.split(' ')) == len(context_normalized.split(' '))
+                            except AssertionError:
+                                #raise AssertionError
+                                print('normalization_error')
+                                context = context_tokenized
+                                normalization_errors += 1
+                        else:
+                            context = context_tokenized
+                            
+                        # Catch normalization errors
+                        if row['identifier'] == 'beyer_poetik01_1882-7284-11' or row['identifier'] == 'beyer_poetik01_1882-17923-12':
+                            row_out['context'] = row['context']
+                            row_out['indexes_target_token'] = row['indexes_target_token']
+                            row_out['indexes_target_sentence'] = row['indexes_target_sentence']                    
+                            output_data.append(row_out)
+                            normalization_errors += 1
+                            continue
+                            
+                        # Construct character indices from token indices
+                        indexes = row['indexes_target_sentence_tokenized'].split(':')
+                        index_start_sentence, index_end_sentence = int(indexes[0]), int(indexes[1])
+                        tokens = context.split(' ')
+                        index_start = int(np.sum([len(t)+1 for t in tokens[:index_start_sentence]])) if index_start_sentence!=0 else 0
+                        index_end = int(np.sum([len(t)+1 for t in tokens[:index_end_sentence]])) if index_end_sentence!=0 else 0
+                        index_target = int(row['indexes_target_token_tokenized'])
+                        #print(index_target)
+                        target_from_tokenized_or_normalized = tokens[index_target]
+                        index_target_start = int(np.sum([len(t)+1 for t in tokens[:index_target]])) if index_target!=0 else 0
+                        index_target_end = index_target_start+len(target_from_tokenized_or_normalized)
+                        #print(index_target_start, index_target_end, )
+                        row_out['context'] = context
+                        row_out['indexes_target_token'] = str(index_target_start)+':'+str(index_target_end)
+                        row_out['indexes_target_sentence'] = str(index_start)+':'+str(index_end)
+
+                        # Check output data
+                        context = row_out['context']
+                        index_target_start = int(row_out['indexes_target_token'].split(':')[0])
+                        index_target_end = int(row_out['indexes_target_token'].split(':')[1])
+                        target = context[index_target_start:index_target_end]
+                        print('context:', [context])
+                        print('context_original:', [row['context']])
+                        print('index_target_start, index_target_end:', index_target_start, index_target_end)
+                        print('target versus target_from_tokenized_or_normalized: ', [target, target_from_tokenized_or_normalized])
+                        # Check that constructed target tokens have desired properties
+                        assert 0 <= index_target_start <= len(context)
+                        assert 0 <= index_target_end <= len(context)
+                        assert len(target) > 0
+                        punctuation = [' ', '.', ',', '!', '"', '\'']
+                        assert not target[0] in punctuation
+                        assert not target[-1] in punctuation                        
+                        print('--')
+                    else:
+                        raise NotImplementedException("No valid reprocessing option provided with:", preprocessing_mode)                        
+                    output_data.append(row_out)
+                    
                 uses_all += output_data
             if condition == 'judgments':
                 lemma = data[0]['lemma'] # infer lemma from first row
@@ -66,7 +147,6 @@ def wug2anno(input_path, output_path, label_set='1,2,3,4',non_label='-',aggregat
 
                 # Export instances
                 output_data_instances = [{'id':i,'internal_identifier1':row['internal_identifier1'],'internal_identifier2':row['internal_identifier2'],'label_set':label_set,'non_label':non_label,'lemma':row['lemma']} for i, row in enumerate(output_data)]
-                instances_all += output_data_instances
                 with open(data_output_path + '{0}.csv'.format('instances'), 'w') as f:  
                     w = csv.DictWriter(f, output_data_instances[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
                     w.writeheader()
@@ -100,7 +180,8 @@ def wug2anno(input_path, output_path, label_set='1,2,3,4',non_label='-',aggregat
             w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
             w.writeheader()
             w.writerows(output_data)
-                    
+
+    print('number of normalization errors:', normalization_errors)        
     print('-----')
       
           
@@ -212,8 +293,8 @@ datasets_path = 'tests/datasets/'
 Path(datasets_path).mkdir(parents=True, exist_ok=True)
 
 # testWUG EN (V1.0.0),  DWUG EN (V2.0.1),  DWUG DE (V2.3.0),  DWUG DE (V2.0.1)
-sources_wug = [('testwug_en', 'https://zenodo.org/record/7946753/files/testwug_en.zip?download=1'), ('dwug_en','https://zenodo.org/record/7387261/files/dwug_en.zip?download=1'), ('dwug_de','https://zenodo.org/record/7441645/files/dwug_de.zip?download=1'), ('dwug_sv','https://zenodo.org/record/7389506/files/dwug_sv.zip?download=1')]
-for dataset, link in sources_wug:
+sources_wug = [('testwug_en', 'https://zenodo.org/record/7946753/files/testwug_en.zip?download=1','raw'), ('dwug_en','https://zenodo.org/record/7387261/files/dwug_en.zip?download=1','raw'), ('dwug_de','https://zenodo.org/record/7441645/files/dwug_de.zip?download=1','normalized'), ('dwug_sv','https://zenodo.org/record/7389506/files/dwug_sv.zip?download=1','raw')]
+for dataset, link, preprocessing_mode in sources_wug:
     r = requests.get(link, allow_redirects=True)
     f = datasets_path + dataset + '.zip'
     open(f, 'wb').write(r.content)
@@ -226,7 +307,7 @@ for dataset, link in sources_wug:
     Path(data_transformed_path).mkdir(parents=True, exist_ok=True)
 
     # Load, transform and store data set
-    wug2anno(input_path=data_path, output_path=data_transformed_path, label_set='1,4',non_label='-',aggregation_mode=aggregation_mode)
+    wug2anno(input_path=data_path, output_path=data_transformed_path, label_set='1,4',non_label='-',aggregation_mode=aggregation_mode, preprocessing_mode=preprocessing_mode)
 
 
 # WiC data set (WUG version)
