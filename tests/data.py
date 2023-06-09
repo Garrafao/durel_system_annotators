@@ -258,7 +258,7 @@ def wic2anno(input_path, output_path, label_set='1,2,3,4',non_label='-'):
             reader = csv.DictReader(csvfile, fieldnames=["label"], delimiter='\t',quoting=csv.QUOTE_NONE,strict=True)
             data = [row for row in reader]
 
-        labels = [{'internal_identifier1':identifier1,'internal_identifier2':identifier2,'label':data[i]['label'],'lemma':lemma} for (identifier1, identifier2, lemma) in pairs]
+        labels = [{'internal_identifier1':identifier1,'internal_identifier2':identifier2,'label':data[i]['label'],'lemma':lemma} for i, (identifier1, identifier2, lemma) in enumerate(pairs)]
 
         datatype='labels'
 
