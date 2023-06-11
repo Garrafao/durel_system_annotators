@@ -200,6 +200,7 @@ class AnnotationProvider:
 
             reader = data
             for row in reader:
+                #print(row)
                 if row['instanceID'] in instances:
                     raise ValueError(
                         f"Duplicate instanceID '{row['instanceID']}' in instances file.")

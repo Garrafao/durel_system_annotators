@@ -3,9 +3,10 @@ from optparse import OptionParser
 import logging
 
 from annotation_provider import AnnotationProvider
-from x1lexeme import *
+#from x1lexeme import *
+from lexeme import *
 
-def main(usage_dir, custom_dir, custom_filename, prefix, debug):
+def main(usage_dir, custom_dir, custom_filename, prefix, debug,subword_aggregation,prediction_type):
 
     if debug:
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
@@ -31,19 +32,12 @@ def main(usage_dir, custom_dir, custom_filename, prefix, debug):
 
     annotation_provider.flush_instance_with_token_index(path=custom_dir)
 
-    # instance_id = 34
-    # annotation_provider.flush_single_instance_wic(instance_id, path=custom_dir)
+    cls_result = make_inference_for_dataset(custom_dir+'/instances_with_token_index.csv',subword_aggregation,prediction_type)
 
-    #cls_result = make_inference_for_dataset('tmp/instances_with_token_index.csv')
-    cls_result = make_inference_for_dataset(custom_dir+'/instances_with_token_index.csv')
-
-    for i, instance in enumerate(annotation_provider.get_instances_iterator(RANDOM=True)):
+    for i, instance in enumerate(annotation_provider.get_instances_iterator(RANDOM=False)):
+        #print({'instanceID': instance['instanceID'], 'internal_identifier1': instance['internal_identifier1'], 'internal_identifier2': instance['internal_identifier2'], 'label': cls_result[i], 'comment': '-'})
         annotation_provider.add_judgement({'instanceID': instance['instanceID'], 'internal_identifier1': instance['internal_identifier1'], 'internal_identifier2': instance['internal_identifier2'], 'label': cls_result[i], 'comment': '-'})
 
-    # print(annotation_provider._uses)
-    # print(annotation_provider._instances)
-    # print(annotation_provider._judgements)
-    # print(annotation_provider._instances_in_wic_format)
     # Save the judgement
     annotation_provider.flush_judgement(path=custom_dir, filename=custom_filename)
 

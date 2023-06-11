@@ -37,10 +37,10 @@ def make_inference_for_dataset(path_of_dataset):
 
     #embeddings_left = np.load('tmp/token_embeddings_left.npy')
     embeddings_left = np.load('./temp/token_embeddings_left.npy')
-    #print(embeddings_left.shape)
+    print(embeddings_left[0])
     #embeddings_right = np.load('tmp/token_embeddings_right.npy')
     embeddings_right = np.load('./temp/token_embeddings_right.npy')
-    #print(embeddings_right.shape)
+    print(embeddings_right[0])
     concatenation = np.hstack((embeddings_left, embeddings_right))
     X_test = concatenation
     sc = StandardScaler()

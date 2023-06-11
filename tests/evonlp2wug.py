@@ -92,9 +92,9 @@ for row in table:
     #print(type(judgment))
     if judgment == '0':
         #print(judgment)
-        judgment = 1
-    else:
         judgment = 4
+    else:
+        judgment = 1
     annotator = np.nan
     data = {'identifier1':id1+'-tweet1','identifier2':id2+'-tweet2','annotator':annotator,'judgment':int(judgment),'comment':comment,'lemma':lemma}
     lemma2data[lemma].append(data)
