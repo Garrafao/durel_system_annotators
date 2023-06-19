@@ -48,8 +48,10 @@ if __name__ == '__main__':
     parser.add_option("-c", "--custom_dir", dest="custom_dir", help="Directory to store custom judgements")
     parser.add_option("-f", "--custom_filename", dest="custom_filename", help="Filename to store custom judgements")
     parser.add_option("-d", "--debug", dest="debug", action="store_true", help="Enable debug mode")
+    parser.add_option("-s", "--subword", dest="subword", help="provide subword subword_aggregation")
+    parser.add_option("-o", "--output", dest="output", help="output type either lable or distance")
     (options, args) = parser.parse_args()
     print(options)
-    main(options.usage_dir, options.custom_dir, options.custom_filename, options.prefix, options.debug)
+    main(options.usage_dir, options.custom_dir, options.custom_filename, options.prefix, options.debug, options.subword, options.output)
 
 # python xlmr_naive_annotate.py -u tmp -p "" -d
