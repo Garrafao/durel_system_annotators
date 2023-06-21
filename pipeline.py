@@ -73,6 +73,8 @@ if (annotator_type == "random"):
     annotation_script_to_use = "random_annotate.py"
 elif (annotator_type == "xlmr+mlp+binary"):
     annotation_script_to_use = "xlmr_naive_annotate.py"
+elif (annotator_type == "XL-Lexeme"):
+    annotation_script_to_use = "x1_lexeme_annotate.py"
 
 
 if word == None:
@@ -117,7 +119,10 @@ with open('tmp/instances.csv', 'w') as f:
 ######## ANNOTATION ########
 prefix = ""
 with open('logs/subprocess.logs', 'w') as f:
-    completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, "-d"], stdout=f, stderr=subprocess.PIPE)
+    if (annotator_type == "XL-Lexeme"):
+        completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, '-f' 'judgements.csv', '-o' 'distance'], stdout=f, stderr=subprocess.PIPE)
+    else:
+        completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, "-d"], stdout=f, stderr=subprocess.PIPE)
 
 
 
