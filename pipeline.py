@@ -115,12 +115,11 @@ if r.status_code != 200:
 with open('tmp/instances.csv', 'w') as f:
     f.write(r.content.decode('utf-8'))
 
-
 ######## ANNOTATION ########
 prefix = ""
 with open('logs/subprocess.logs', 'w') as f:
     if (annotator_type == "XL-Lexeme"):
-        completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, '-f' 'judgements.csv', '-o' 'distance'], stdout=f, stderr=subprocess.PIPE)
+        completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, '-f' 'judgements.csv', '-o' 'label'], stdout=f, stderr=subprocess.PIPE)
     else:
         completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, "-d"], stdout=f, stderr=subprocess.PIPE)
 
