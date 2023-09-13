@@ -69,11 +69,11 @@ project = task["projectName"]
 word = task["word"]
 annotator_type = task["annotatorType"]
 print("annotator_type is: " + annotator_type)
-if (annotator_type "Random"):
+if (annotator_type == "Random"):
     annotation_script_to_use = "random_annotate.py"
 elif (annotator_type == "XLMR+MLP+Binary"):
     annotation_script_to_use = "xlmr_naive_annotate.py"
-elif (annotator_type == "XL-Lexeme"):
+elif (annotator_type == "XL-Lexeme" or annotator_type == "XL-Lexeme-Cosine"):
     annotation_script_to_use = "x1_lexeme_annotate.py"
 
 
@@ -120,6 +120,8 @@ prefix = ""
 with open('logs/subprocess.logs', 'w') as f:
     if (annotator_type == "XL-Lexeme"):
         completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, '-f' 'judgements.csv', '-o' 'label'], stdout=f, stderr=subprocess.PIPE)
+    elif (annotator_type == "XL-Lexeme-Cosine"):
+        completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, '-f', 'judgements.csv', '-o', 'distance'], stdout=f, stderr=subprocess.PIPE)
     else:
         completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, "-d"], stdout=f, stderr=subprocess.PIPE)
 
