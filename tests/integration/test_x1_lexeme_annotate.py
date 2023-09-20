@@ -163,7 +163,7 @@ class TestX1LexemeAnnotate(unittest.TestCase):
 
 def suite():
     test_suite = unittest.TestSuite()
-    #test_suite.addTest(TestX1LexemeAnnotate('test_x1_lexeme_main_test_en_arm'))
+    test_suite.addTest(TestX1LexemeAnnotate('test_x1_lexeme_main_test_en_arm'))
     #test_suite.addTest(TestX1LexemeAnnotate('test_x1_lexeme_main_test_en_target'))
 
     #test_suite.addTest(TestX1LexemeAnnotate('test_x1_lexeme_main_wic_train'))
@@ -172,7 +172,7 @@ def suite():
 
     #test_suite.addTest(TestX1LexemeAnnotate('test_x1_lexeme_main_dwug_en'))
     #test_suite.addTest(TestX1LexemeAnnotate('test_x1_lexeme_main_dwug_de'))
-    test_suite.addTest(TestX1LexemeAnnotate('test_x1_lexeme_main_dwug_sv'))
+    #test_suite.addTest(TestX1LexemeAnnotate('test_x1_lexeme_main_dwug_sv'))
 
     #test_suite.addTest(TestX1LexemeAnnotate('test_x1_lexeme_main_tempowic_train'))
     #test_suite.addTest(TestX1LexemeAnnotate('test_x1_lexeme_main_tempowic_trial'))

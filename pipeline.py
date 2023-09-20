@@ -69,10 +69,12 @@ project = task["projectName"]
 word = task["word"]
 annotator_type = task["annotatorType"]
 print("annotator_type is: " + annotator_type)
-if (annotator_type == "random"):
+if (annotator_type "Random"):
     annotation_script_to_use = "random_annotate.py"
-elif (annotator_type == "xlmr+mlp+binary"):
+elif (annotator_type == "XLMR+MLP+Binary"):
     annotation_script_to_use = "xlmr_naive_annotate.py"
+elif (annotator_type == "XL-Lexeme"):
+    annotation_script_to_use = "x1_lexeme_annotate.py"
 
 
 if word == None:
@@ -113,11 +115,13 @@ if r.status_code != 200:
 with open('tmp/instances.csv', 'w') as f:
     f.write(r.content.decode('utf-8'))
 
-
 ######## ANNOTATION ########
 prefix = ""
 with open('logs/subprocess.logs', 'w') as f:
-    completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, "-d"], stdout=f, stderr=subprocess.PIPE)
+    if (annotator_type == "XL-Lexeme"):
+        completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, '-f' 'judgements.csv', '-o' 'label'], stdout=f, stderr=subprocess.PIPE)
+    else:
+        completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, "-d"], stdout=f, stderr=subprocess.PIPE)
 
 
 
@@ -148,7 +152,7 @@ r = requests.post(url, headers={
     'annotator': task["annotatorType"]
 })
 
-print(r)
+print(r.text)
 
 if r.status_code != 200:
     update_task_status(config, task['id'], StatusEnum.TASK_FAILED.value)
