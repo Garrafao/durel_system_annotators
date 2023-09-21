@@ -11,4 +11,5 @@ computational-annotator-pilot/*
 !computational-annotator-pilot/weight
 test.py
 tests/datasets
+tests/integration/.mypy_cache
 update-git.sh

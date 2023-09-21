@@ -5,7 +5,7 @@ import logging
 from annotation_provider import AnnotationProvider
 from inference import *
 
-def main(usage_dir, custom_dir, custom_filename, prefix, debug):
+def main(usage_dir, custom_dir, custom_filename, prefix, debug, annotator=None):
 
     if debug:
         logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)

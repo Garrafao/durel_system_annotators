@@ -4,7 +4,7 @@ import logging
 
 from annotation_provider import AnnotationProvider
 
-def main(usage_dir, custom_dir, custom_filename, prefix, debug, annotator):
+def main(usage_dir, custom_dir, custom_filename, prefix, debug, annotator=None):
     print('Random Main')
     # note the logging module below would direct message to standard error
     if debug:

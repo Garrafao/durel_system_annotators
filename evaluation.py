@@ -14,11 +14,11 @@ def evaluate(custom_dir,custom_filename,usage_dir,prediction_type,model_name,dat
 
             if dataset  in ['wic_test','wic_dev','wic_train']:
                 #print('we are in wic')
-                df.loc[df['label'] == 1, 'label'] = 'F'
-                df.loc[df['label'] == 4, 'label'] = 'T'
+                df.loc[df['judgment'] == 1, 'judgment'] = 'F'
+                df.loc[df['judgment'] == 4, 'judgment'] = 'T'
 
-            df_sorted_pred = df.sort_values(['internal_identifier1','internal_identifier2'])
-            predicted_values = df_sorted_pred['label']
+            df_sorted_pred = df.sort_values(['identifier1','identifier2'])
+            predicted_values = df_sorted_pred['judgment']
         #with open(usage_dir+'judgments.csv','r') as f:
         with open(usage_dir+'labels.csv','r') as f:
             df = pd.read_csv(f,sep='\t')
@@ -58,14 +58,14 @@ def save_detailed_results(df_sorted_gold,df_sorted_pred,usage_dir,custom_dir,pre
     results_df = pd.DataFrame(columns=columns)
     for index, row in df_sorted_pred.iterrows():
         try:
-            id1 = row['internal_identifier1']
-            id2 = row['internal_identifier2']
+            id1 = row['identifier1']
+            id2 = row['identifier2']
             #print(id1,id2)
             #print(df_uses.loc[(df_uses['identifier_system'] == id2)])
-            extracted_value = df_sorted_gold.loc[(df_sorted_gold['internal_identifier1'] == id1) & (df_sorted_gold['internal_identifier2'] == id2)].values[0]  # Extract value from df2 based on 'B' column
+            extracted_value = df_sorted_gold.loc[(df_sorted_gold['identifier1'] == id1) & (df_sorted_gold['identifier2'] == id2)].values[0]  # Extract value from df2 based on 'B' column
             extracted_use1 = df_uses.loc[(df_uses['identifier_system'] == id1)].values[0]  # Extract value from df2 based on 'B' column
             extracted_use2 = df_uses.loc[(df_uses['identifier_system'] == id2)].values[0]  # Extract value from df2 based on 'B' column
-            values = [id1+':'+extracted_use1[2],id2+':'+extracted_use2[2],row['label'],extracted_value[2]]
+            values = [id1+':'+extracted_use1[2],id2+':'+extracted_use2[2],row['judgment'],extracted_value[2]]
             #row = {'Column1': value[0], 'Column2': value[1], 'Column3': value[2]}
             row_data = dict(zip(columns, values))
             row_data = pd.DataFrame([row_data])
