@@ -472,7 +472,7 @@ class AnnotationProvider:
                 logging.warning(f"Judgement has too many keys: {judgement}")
             raise ValueError(f"Judgement '{judgement}' has more than 5 keys.")
 
-    def flush_judgement(self, path: str | None = None, filename: str = 'judgements.csv'):
+    def flush_judgement(self, path: str | None = None, filename: str = 'judgements.csv', annotator: str | None = None):
         """Write the judgement set to the judgement file.
         If a custom path is provided, the judgement file is written to this path,
             else it is written to the path where the uses & instance file.
@@ -486,6 +486,7 @@ class AnnotationProvider:
             The path to write the judgement file to, by default None
         filename : str, optional
             The name of the judgement file, by default 'judgements.tsv'
+        annotator: str, optional
 
         Example
         -------
@@ -521,11 +522,11 @@ class AnnotationProvider:
             # Write Header if file is empty
             if os.stat(os.path.join(path, dest_file)).st_size == 0:
                 f.write(
-                    'instanceID\tinternal_identifier1\tinternal_identifier2\tlabel\tcomment\n')
+                    'identifier1\tidentifier2\tannotator\tjudgment\tcomment\tlemma\ttimestamp\n')
             # Write Judgements
             for judgement in self._judgements:
                 f.write(
-                    f"{judgement['instanceID']}\t{judgement['internal_identifier1']}\t{judgement['internal_identifier2']}\t{judgement['label']}\t{judgement['comment']}\n")
+                    f"{judgement['internal_identifier1']}\t{judgement['internal_identifier2']}\t{annotator}\t{judgement['label']}\t{judgement['comment']}\t\t\n")
 
         self._judgements = []
 

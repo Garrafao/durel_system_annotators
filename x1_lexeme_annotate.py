@@ -27,6 +27,11 @@ def main(usage_dir, custom_dir, custom_filename, prefix, debug,subword_aggregati
     if debug:
         logging.info(f"Using filename '{custom_filename}' to store judgements.")
 
+    if prediction_type == "label":
+        annotator = "XL-Lexeme"
+    else:
+        annotator = "XL-Lexeme-Cosine"
+
     # Example annotator that randomly annotates the given set
     annotation_provider = AnnotationProvider(usage_dir, prefix, DEBUG=debug)
 
@@ -39,7 +44,7 @@ def main(usage_dir, custom_dir, custom_filename, prefix, debug,subword_aggregati
         annotation_provider.add_judgement({'instanceID': instance['instanceID'], 'internal_identifier1': instance['internal_identifier1'], 'internal_identifier2': instance['internal_identifier2'], 'label': cls_result[i], 'comment': '-'})
 
     # Save the judgement
-    annotation_provider.flush_judgement(path=custom_dir, filename=custom_filename)
+    annotation_provider.flush_judgement(path=custom_dir, filename=custom_filename, annotator=annotator)
 
 if __name__ == '__main__':
     parser = OptionParser()
