@@ -45,15 +45,15 @@ def make_inference_for_dataset(path_of_dataset,subword_aggregation,prediction_ty
     for (l,r) in zip(embeddings_left,embeddings_right):
         #print('left',l)
         #print('right',r)
-        #cls_list.append(cosine(l, r)) # for cosine distance 
+        #cls_list.append(cosine(l, r)) # for cosine distance
         cls_list.append(1-cosine(l, r)) # for cosine similarity
     # distance to labels
     if prediction_type == 'label':
         for index, d in enumerate(cls_list):
             if d >= 0.5:
-                cls_list[index] = 1
+                cls_list[index] = 4 # 1 for cosine distance
             else:
-                cls_list[index] = 4
+                cls_list[index] = 1 # 4 for cosine distance
     #print(cls_list)'''
     return cls_list
 
