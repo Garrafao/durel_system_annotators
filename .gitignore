@@ -1,6 +1,7 @@
 tmp/*
 !tmp/.gitkeep
 temp/
+temp4/
 logs/*
 !logs/.gitkeep
 random-annotator-venv

@@ -123,7 +123,7 @@ with open('logs/subprocess.logs', 'w') as f:
     elif (annotator_type == "XL-Lexeme-Cosine"):
         completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, '-f', 'judgements.csv', '-o', 'distance'], stdout=f, stderr=subprocess.PIPE)
     else:
-        completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, "-d", '-a' 'annotator_type'], stdout=f, stderr=subprocess.PIPE)
+        completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, "-d", '-a' 'Random'], stdout=f, stderr=subprocess.PIPE)
 
 
 
@@ -151,7 +151,7 @@ files = [("files", open('tmp/{}judgements.csv'.format(prefix), 'rb'))]
 r = requests.post(url, headers={
     'Authorization': auth
 }, files=files, data={
-    'annotator': task["annotatorType"]
+    'projectName': task["projectName"]
 })
 
 print(r.text)

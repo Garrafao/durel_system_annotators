@@ -5,8 +5,8 @@ from scipy.spatial.distance import cosine
 import sys
 import pandas as pd
 import numpy as np
-#from WordTransformer import WordTransformer
-#from InputExample import InputExample
+from WordTransformer import WordTransformer
+from InputExample import InputExample
 import ast
 
 
@@ -30,9 +30,9 @@ def make_inference_for_dataset(path_of_dataset,subword_aggregation,prediction_ty
 
     # comment/uncomment the following 3  lines as the WordTransformer module is not executing successfully because of installation issue with the sqlite3 on server for the moment i am computing embeddings on my local machine and copying the embeddings in the temp folder and loading them here
 
-    #model = WordTransformer('pierluigic/xl-lexeme')
-    #save_embeddings_lexeme(device, left_sentnece_and_token_index, './temp/token_embeddings_left.npy', model,subword_aggregation)
-    #save_embeddings_lexeme(device, right_sentnece_and_token_index, './temp/token_embeddings_right.npy', model,subword_aggregation)
+    model = WordTransformer('pierluigic/xl-lexeme')
+    save_embeddings_lexeme(device, left_sentnece_and_token_index, './temp/token_embeddings_left.npy', model,subword_aggregation)
+    save_embeddings_lexeme(device, right_sentnece_and_token_index, './temp/token_embeddings_right.npy', model,subword_aggregation)
 
     embeddings_left = np.load('./temp/token_embeddings_left.npy')
 
