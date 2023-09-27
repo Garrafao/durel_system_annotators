@@ -47,13 +47,13 @@ def make_inference_for_dataset(path_of_dataset,subword_aggregation,prediction_ty
         #print('right',r)
         #cls_list.append(cosine(l, r)) # for cosine distance
         cls_list.append(1-cosine(l, r)) # for cosine similarity
-    # distance to labels
+    # similarity to labels
     if prediction_type == 'label':
-        for index, d in enumerate(cls_list):
-            if d >= 0.5:
-                cls_list[index] = 4 # 1 for cosine distance
+        for index, s in enumerate(cls_list):
+            if s <= 1.5:
+                cls_list[index] = 1
             else:
-                cls_list[index] = 1 # 4 for cosine distance
+                cls_list[index] = 4
     #print(cls_list)'''
     return cls_list
 

@@ -175,16 +175,21 @@ def suite():
     test_suite.addTest(TestRandomAnnotate('test_random_main_test_en_target'))
 
     test_suite.addTest(TestRandomAnnotate('test_random_main_wic_train'))
+<<<<<<< Updated upstream
     test_suite.addTest(TestRandomAnnotate('test_random_main_wic_dev'))
     test_suite.addTest(TestRandomAnnotate('test_random_main_wic_test'))
+=======
+    #test_suite.addTest(TestRandomAnnotate('test_random_main_wic_dev'))
+    #test_suite.addTest(TestRandomAnnotate('test_random_main_wic_test'))
+>>>>>>> Stashed changes
 
     test_suite.addTest(TestRandomAnnotate('test_random_main_wug_en'))
     test_suite.addTest(TestRandomAnnotate('test_random_main_wug_sv'))
     test_suite.addTest(TestRandomAnnotate('test_random_main_wug_de'))
 
-    test_suite.addTest(TestRandomAnnotate('test_random_main_tempowic_train'))
-    test_suite.addTest(TestRandomAnnotate('test_random_main_tempowic_trial'))
-    test_suite.addTest(TestRandomAnnotate('test_random_main_tempowic_validation'))
+    #test_suite.addTest(TestRandomAnnotate('test_random_main_tempowic_train'))
+    #test_suite.addTest(TestRandomAnnotate('test_random_main_tempowic_trial'))
+    #test_suite.addTest(TestRandomAnnotate('test_random_main_tempowic_validation'))
 
     return test_suite
 

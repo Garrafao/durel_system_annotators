@@ -37,7 +37,7 @@ class TestX1LexemeAnnotate(unittest.TestCase):
         self.custom_filename = 'judgements.csv'
         self.debug = True
         self.subword_aggregation = 'average' # not implemented yet
-        self.prediction_type = 'distance' # or it could be 'distance' or 'label'
+        self.prediction_type = 'label' # or it could be 'distance' or 'label'
 
 
     #def tearDown(self):

@@ -4,6 +4,7 @@ from helper_functions import *
 #from transformers import XLMRobertaModel
 from transformers import AutoTokenizer, AutoModel
 from sklearn.preprocessing import StandardScaler
+from scipy.spatial.distance import cosine
 
 
 def make_inference_for_dataset(path_of_dataset):
@@ -36,14 +37,16 @@ def make_inference_for_dataset(path_of_dataset):
     save_embeddings(device, input_ids_right, attention_masks_right, subword_spans_right, list_token_index_of_sentence_right, tokens_right, './temp/token_embeddings_right.npy', model)
 
     embeddings_left = np.load('./temp/token_embeddings_left.npy')
-    # print(embeddings_left.shape)
+    #print(embeddings_left[0])
     embeddings_right = np.load('./temp/token_embeddings_right.npy')
-    # print(embeddings_right.shape)
+    #print(embeddings_right[0])
     concatenation = np.hstack((embeddings_left, embeddings_right))
+    '''
     X_test = concatenation
     sc = StandardScaler()
 
     X_train = np.load('computational-annotator-pilot/X_train.npy')
+    print(X_train.shape)
     X_train = sc.fit_transform(X_train)
     X_test = sc.transform(X_test)
 
@@ -57,11 +60,17 @@ def make_inference_for_dataset(path_of_dataset):
     with torch.no_grad():
         y_predicted = model(X_test)
         y_predicted_cls = y_predicted.round()
-    cls_list = y_predicted_cls[:, 0].tolist()
-    for index, label in enumerate(cls_list):
-        if label == 0:
+    cls_list = y_predicted_cls[:, 0].tolist()'''
+
+#t>0.5 == 1 and 0 otherwise for pierligue model the threshold 
+    cls_list = []
+    for (l,r) in zip(embeddings_left,embeddings_right):
+        cls_list.append(cosine(l, r))
+    print(cls_list)
+    for index, d in enumerate(cls_list):
+        if d >= 0.5:
             cls_list[index] = 1
-        elif label == 1:
+        else:
             cls_list[index] = 4
     print('x1-lexeme',cls_list)
     return cls_list

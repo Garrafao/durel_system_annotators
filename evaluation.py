@@ -32,7 +32,7 @@ def evaluate(custom_dir,custom_filename,usage_dir,prediction_type,model_name,dat
             df_sorted_gold = df.sort_values(['internal_identifier1','internal_identifier2'])
             #gold_values = df_sorted_gold['judgment']
             gold_values = df_sorted_gold['label']
-        print(predicted_values)
+        #print(predicted_values)
         assert len(predicted_values)==len(gold_values)
 
         if prediction_type == "label" or model_name == "random":

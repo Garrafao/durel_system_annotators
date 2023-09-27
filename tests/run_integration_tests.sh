@@ -24,5 +24,5 @@ fi
 
 # run tests
 #python ./tests/integration/test_random_annotate.py
-python ./tests/integration/test_xlmr_naive_annotate.py
-#python ./tests/integration/test_x1lexeme_annotate.py
+#python ./tests/integration/test_xlmr_naive_annotate.py
+python ./tests/integration/test_x1_lexeme_annotate.py

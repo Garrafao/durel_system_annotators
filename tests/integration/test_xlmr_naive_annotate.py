@@ -168,7 +168,7 @@ def suite():
     #test_suite.addTest(TestXLMRNaiveAnnotate('test_xlmr_main_test_en_arm'))
     #test_suite.addTest(TestXLMRNaiveAnnotate('test_xlmr_main_test_en_target'))
 
-    #test_suite.addTest(TestXLMRNaiveAnnotate('test_xlmr_main_wic_train'))
+    test_suite.addTest(TestXLMRNaiveAnnotate('test_xlmr_main_wic_train'))
     #test_suite.addTest(TestXLMRNaiveAnnotate('test_xlmr_main_wic_dev'))
     #test_suite.addTest(TestXLMRNaiveAnnotate('test_xlmr_main_wic_test'))
 
@@ -176,9 +176,9 @@ def suite():
     #test_suite.addTest(TestXLMRNaiveAnnotate('test_xlmr_main_dwug_en'))
     #test_suite.addTest(TestXLMRNaiveAnnotate('test_xlmr_main_dwug_sv'))
 
-    test_suite.addTest(TestXLMRNaiveAnnotate('test_xlmr_main_tempowic_train'))
-    test_suite.addTest(TestXLMRNaiveAnnotate('test_xlmr_main_tempowic_trial'))
-    test_suite.addTest(TestXLMRNaiveAnnotate('test_xlmr_main_tempowic_validation'))
+    #test_suite.addTest(TestXLMRNaiveAnnotate('test_xlmr_main_tempowic_train'))
+    #test_suite.addTest(TestXLMRNaiveAnnotate('test_xlmr_main_tempowic_trial'))
+    #test_suite.addTest(TestXLMRNaiveAnnotate('test_xlmr_main_tempowic_validation'))
 
     return test_suite
 
