@@ -41,7 +41,7 @@ def main(usage_dir, custom_dir, custom_filename, prefix, debug,subword_aggregati
 
     for i, instance in enumerate(annotation_provider.get_instances_iterator(RANDOM=False)):
         #print({'instanceID': instance['instanceID'], 'internal_identifier1': instance['internal_identifier1'], 'internal_identifier2': instance['internal_identifier2'], 'label': cls_result[i], 'comment': '-'})
-        annotation_provider.add_judgement({'instanceID': instance['instanceID'], 'internal_identifier1': instance['internal_identifier1'], 'internal_identifier2': instance['internal_identifier2'], 'label': cls_result[i], 'comment': '-'})
+        annotation_provider.add_judgement({'lemma': instance['lemma'], 'instanceID': instance['instanceID'], 'identifier1': instance['internal_identifier1'], 'identifier2': instance['internal_identifier2'], 'judgment': cls_result[i], 'comment': '-'})
 
     # Save the judgement
     annotation_provider.flush_judgement(path=custom_dir, filename=custom_filename, annotator=annotator)

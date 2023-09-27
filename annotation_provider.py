@@ -425,10 +425,11 @@ class AnnotationProvider:
         Simple Add:
         >>> judgement = {
         >>>     'instanceID': 0,
-        >>>     'label': 'use',
+        >>>     'judgment': 'use',
         >>>     'comment': 'This is a comment.',
-        >>>     'internal_identifier1': 'one of the two sentences in the instance',
-        >>>     'internal_identifier2': 'the other one of the two sentences in the instance',
+        >>>     'identifier1': 'one of the two sentences in the instance',
+        >>>     'identifier2': 'the other one of the two sentences in the instance',
+        >>>     'lemma': 'the lemma of the corresponding word'
         >>> }
         >>> annotation_provider.add_judgement(judgement)
         """
@@ -457,20 +458,25 @@ class AnnotationProvider:
                 logging.warning(f"Judgement has no instanceID: {judgement}")
             raise ValueError(
                 f"Judgement '{judgement}' does not contain the key 'instanceID'.")
-        if 'label' not in judgement:
+        if 'judgment' not in judgement:
             if self._DEBUG:
-                logging.warning(f"Judgement has no label: {judgement}")
+                logging.warning(f"Judgement has no judgement: {judgement}")
             raise ValueError(
-                f"Judgement '{judgement}' does not contain the key 'label'.")
+                f"Judgement '{judgement}' does not contain the key 'judgment'.")
         if 'comment' not in judgement:
             if self._DEBUG:
                 logging.warning(f"Judgement has no comment: {judgement}")
             raise ValueError(
                 f"Judgement '{judgement}' does not contain the key 'comment'.")
-        if len(judgement) != 5:
+        if 'lemma' not in judgement:
+            if self._DEBUG:
+                logging.warning(f"Judgement has no lemma: {judgement}")
+            raise ValueError(
+                f"Judgement '{judgement}' does not contain the key 'lemma'.")
+        if len(judgement) != 6:
             if self._DEBUG:
                 logging.warning(f"Judgement has too many keys: {judgement}")
-            raise ValueError(f"Judgement '{judgement}' has more than 5 keys.")
+            raise ValueError(f"Judgement '{judgement}' has more than 6 keys.")
 
     def flush_judgement(self, path: str | None = None, filename: str = 'judgements.csv', annotator: str | None = None):
         """Write the judgement set to the judgement file.
@@ -521,12 +527,11 @@ class AnnotationProvider:
         with open(os.path.join(path, dest_file), 'w+') as f:
             # Write Header if file is empty
             if os.stat(os.path.join(path, dest_file)).st_size == 0:
-                f.write(
-                    'identifier1\tidentifier2\tannotator\tjudgment\tcomment\tlemma\ttimestamp\n')
+                f.write('identifier1\tidentifier2\tannotator\tjudgment\tcomment\tlemma\ttimestamp\n')
             # Write Judgements
             for judgement in self._judgements:
                 f.write(
-                    f"{judgement['internal_identifier1']}\t{judgement['internal_identifier2']}\t{annotator}\t{judgement['label']}\t{judgement['comment']}\t\t\n")
+                    f"{judgement['identifier1']}\t{judgement['identifier2']}\t{annotator}\t{judgement['judgment']}\t{judgement['comment']}\t{judgement['lemma']}\t\t\n")
 
         self._judgements = []
 
