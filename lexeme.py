@@ -38,23 +38,18 @@ def make_inference_for_dataset(path_of_dataset,subword_aggregation,prediction_ty
 
     embeddings_right = np.load('./temp/token_embeddings_right.npy')
 
-    #print(embeddings_left)
-    #print(embeddings_right)
     #t>0.5 == 1 and 0 otherwise for pierligue model the threshold
     cls_list = []
     for (l,r) in zip(embeddings_left,embeddings_right):
-        #print('left',l)
-        #print('right',r)
         #cls_list.append(cosine(l, r)) # for cosine distance
         cls_list.append(1-cosine(l, r)) # for cosine similarity
-    # distance to labels
+    # similarity to labels
     if prediction_type == 'label':
         for index, s in enumerate(cls_list):
-            if s <= 1.5:
+            if s <= 0.5:
                 cls_list[index] = 1
             else:
                 cls_list[index] = 4
-    #print(cls_list)'''
     return cls_list
 
 
