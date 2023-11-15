@@ -3,6 +3,7 @@ import requests
 import subprocess
 from enum import Enum
 import os
+import random
 
 ######## ENUMS ########
 class StatusEnum(Enum):
@@ -64,6 +65,7 @@ if task['id'] == 0:
     print("no task to do on the durel server")
     exit(0)
 
+prefix = random.random()
 ######## USES ########
 project = task["projectName"]
 word = task["word"]
@@ -73,7 +75,7 @@ if (annotator_type == "Random"):
     annotation_script_to_use = "random_annotate.py"
 elif (annotator_type == "XLMR+MLP+Binary"):
     annotation_script_to_use = "xlmr_naive_annotate.py"
-elif (annotator_type == "XL-Lexeme" or annotator_type == "XL-Lexeme-Cosine"):
+elif (annotator_type == "XL-Lexeme-Binary" or annotator_type == "XL-Lexeme-Cosine"):
     annotation_script_to_use = "x1_lexeme_annotate.py"
 
 
@@ -92,7 +94,7 @@ if r.status_code != 200:
     update_task_status(config, task['id'], StatusEnum.TASK_FAILED.value)
     exit(1)
 
-with open('tmp/uses.csv', 'w') as f:
+with open('tmp/{}uses.csv'.format(prefix), 'w') as f:
     f.write(r.content.decode('utf-8'))
 
 ######## INSTANCES ########
@@ -112,13 +114,13 @@ if r.status_code != 200:
     update_task_status(config, task['id'], StatusEnum.TASK_FAILED.value)
     exit(1)
 
-with open('tmp/instances.csv', 'w') as f:
+with open('tmp/{}instances.csv'.format(prefix), 'w') as f:
     f.write(r.content.decode('utf-8'))
 
 ######## ANNOTATION ########
-prefix = ""
+
 with open('logs/subprocess.logs', 'w') as f:
-    if (annotator_type == "XL-Lexeme"):
+    if (annotator_type == "XL-Lexeme-Binary"):
         completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, '-f' 'judgements.csv', '-o' 'label'], stdout=f, stderr=subprocess.PIPE)
     elif (annotator_type == "XL-Lexeme-Cosine"):
         completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, '-f', 'judgements.csv', '-o', 'distance'], stdout=f, stderr=subprocess.PIPE)
@@ -151,14 +153,10 @@ files = [("files", open('tmp/{}judgements.csv'.format(prefix), 'rb'))]
 r = requests.post(url, headers={
     'Authorization': auth
 }, files=files, data={
-    'projectName': task["projectName"]
+    'projectName': task["projectName"], 'task_id': task['id']
 })
 
 print(r.text)
-
-if r.status_code != 200:
-    update_task_status(config, task['id'], StatusEnum.TASK_FAILED.value)
-    exit(1)
-
-# Set task status to completed
-update_task_status(config, task['id'], StatusEnum.TASK_COMPLETED.value)
+os.remove('tmp/{}uses.csv'.format(prefix))
+os.remove('tmp/{}instances.csv'.format(prefix))
+os.remove('tmp/{}judgements.csv'.format(prefix))
