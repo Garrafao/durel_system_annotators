@@ -65,7 +65,7 @@ if task['id'] == 0:
     print("no task to do on the durel server")
     exit(0)
 
-prefix = random.random()
+prefix = str(random.randint(0, 1000))
 ######## USES ########
 project = task["projectName"]
 word = task["word"]
@@ -121,9 +121,9 @@ with open('tmp/{}instances.csv'.format(prefix), 'w') as f:
 
 with open('logs/subprocess.logs', 'w') as f:
     if (annotator_type == "XL-Lexeme-Binary"):
-        completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, '-f' 'judgements.csv', '-o' 'label'], stdout=f, stderr=subprocess.PIPE)
+        completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, '-o' 'label'], stdout=f, stderr=subprocess.PIPE)
     elif (annotator_type == "XL-Lexeme-Cosine"):
-        completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, '-f', 'judgements.csv', '-o', 'distance'], stdout=f, stderr=subprocess.PIPE)
+        completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, '-o', 'distance'], stdout=f, stderr=subprocess.PIPE)
     else:
         completed_process = subprocess.run([python_env, annotation_script_to_use, '-u', 'tmp', '-p', prefix, "-d", '-a' 'Random'], stdout=f, stderr=subprocess.PIPE)
 
@@ -140,23 +140,24 @@ print("start annotation")
 
 if completed_process.returncode != 0:
     update_task_status(config, task['id'], StatusEnum.TASK_FAILED.value)
-    exit(1)
 
 ######## JUDGEMENT UPLOAD ########
 # Upload judgements
-url = config['SERVER']['url'] + config['JUDGEMENT-ROUTES']['judgement']
-print("url for upload votes: " + url)
-# build multipart form data for file upload with owner, project, phase and task id
-# files = {'file': ('judgements.csv', open('tmp/{}judgements.csv'.format(prefix), 'rb'), 'text/tab-separated-values')} 
-files = [("files", open('tmp/{}judgements.csv'.format(prefix), 'rb'))]
+else:
+    url = config['SERVER']['url'] + config['JUDGEMENT-ROUTES']['judgement']
+    print("url for upload votes: " + url)
+    # build multipart form data for file upload with owner, project, phase and task id
+    # files = {'file': ('judgements.csv', open('tmp/{}judgements.csv'.format(prefix), 'rb'), 'text/tab-separated-values')} 
+    files = [("files", open('tmp/{}judgements.csv'.format(prefix), 'rb'))]
 
-r = requests.post(url, headers={
-    'Authorization': auth
-}, files=files, data={
-    'projectName': task["projectName"], 'task_id': task['id']
-})
+    r = requests.post(url, headers={
+        'Authorization': auth
+    }, files=files, data={
+        'projectName': task["projectName"], 'task_id': task['id']
+    })
+    os.remove('tmp/{}judgements.csv'.format(prefix))
+    print(r.text)
 
-print(r.text)
 os.remove('tmp/{}uses.csv'.format(prefix))
 os.remove('tmp/{}instances.csv'.format(prefix))
-os.remove('tmp/{}judgements.csv'.format(prefix))
+os.remove('tmp/{}instances_with_token_index.csv'.format(prefix))

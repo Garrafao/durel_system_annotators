@@ -28,7 +28,7 @@ def main(usage_dir, custom_dir, custom_filename, prefix, debug,subword_aggregati
         logging.info(f"Using filename '{custom_filename}' to store judgements.")
 
     if prediction_type == "label":
-        annotator = "XL-Lexeme"
+        annotator = "XL-Lexeme-Binary"
     else:
         annotator = "XL-Lexeme-Cosine"
 
@@ -37,7 +37,7 @@ def main(usage_dir, custom_dir, custom_filename, prefix, debug,subword_aggregati
 
     annotation_provider.flush_instance_with_token_index(path=custom_dir)
 
-    cls_result = make_inference_for_dataset(custom_dir+'/instances_with_token_index.csv',subword_aggregation,prediction_type)
+    cls_result = make_inference_for_dataset(custom_dir+'/{}instances_with_token_index.csv'.format(prefix),subword_aggregation,prediction_type)
 
     for i, instance in enumerate(annotation_provider.get_instances_iterator(RANDOM=False)):
         #print({'instanceID': instance['instanceID'], 'internal_identifier1': instance['internal_identifier1'], 'internal_identifier2': instance['internal_identifier2'], 'label': cls_result[i], 'comment': '-'})
@@ -49,7 +49,7 @@ def main(usage_dir, custom_dir, custom_filename, prefix, debug,subword_aggregati
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-u", "--usage_dir", dest="usage_dir", help="Directory containing uses and instances data")
-    parser.add_option("-p", "--prefix", dest="prefix", help="Prefix for the usage and instances files")
+    parser.add_option("-p", "--prefix", dest="prefix", help="Prefix for the usage, instance and judgement files")
     parser.add_option("-c", "--custom_dir", dest="custom_dir", help="Directory to store custom judgements")
     parser.add_option("-f", "--custom_filename", dest="custom_filename", help="Filename to store custom judgements")
     parser.add_option("-d", "--debug", dest="debug", action="store_true", help="Enable debug mode")

@@ -40,7 +40,7 @@ def main(usage_dir, custom_dir, custom_filename, prefix, debug, annotator=None):
     # annotation_provider.flush_single_instance_wic(instance_id, path=custom_dir)
 
     #cls_result = make_inference_for_dataset('tmp/instances_with_token_index.csv')
-    cls_result = make_inference_for_dataset(custom_dir+'/instances_with_token_index.csv')
+    cls_result = make_inference_for_dataset(custom_dir+'/{}instances_with_token_index.csv'.format(prefix))
 
     for i, instance in enumerate(annotation_provider.get_instances_iterator(RANDOM=False)):
         annotation_provider.add_judgement({'instanceID': instance['instanceID'], 'identifier1': instance['internal_identifier1'], 'identifier2': instance['internal_identifier2'], 'judgment': cls_result[i], 'comment': '-', 'lemma': instance['lemma']})

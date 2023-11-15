@@ -48,12 +48,12 @@ url = config['SERVER']['url'] + config['JUDGEMENT-ROUTES']['judgement']
 print("url for upload votes: " + url)
 # build multipart form data for file upload with owner, project, phase and task id
 # files = {'file': ('judgements.csv', open('tmp/{}judgements.csv'.format(prefix), 'rb'), 'text/tab-separated-values')} 
-files = [("files", open('tmp/judgements.csv', 'rb'))]
+files = [("files", open('tmp/626judgements.csv', 'rb'))]
 
 r = requests.post(url, headers={
     'Authorization': auth
 }, files=files, data={
-    'projectName': PROJECTNAME, 'task_id': ID
+    'projectName': 'lexicographer_sv_rutten_lexeme', 'task_id': 44
 })
 
 print(r.text)

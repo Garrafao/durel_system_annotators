@@ -44,7 +44,7 @@ Execute the `.bashrc`:
 
 #### Annotator accounts
 We have created an account that logs into the server to retrieve and upload the data. This account is called AnnotatorServer.
-We also have created annotator accounts which correspond to the automatic annotators we currently have, the usernames are Random, XL-Lexeme and XLMR+MLP+Binary. The password for all accounts is !aSfFrH"#7e7WD#.
+We also have created annotator accounts which correspond to the automatic annotators we currently have, the usernames are Random, XL-Lexeme-Binary, Xl-Lexeme-Cosine and XLMR+MLP+Binary. The password for all accounts is !aSfFrH"#7e7WD#.
 
 #### Running the Pipeline
 
