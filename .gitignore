@@ -1,16 +1,1 @@
-tmp/*
-!tmp/.gitkeep
-temp/
-temp4/
-logs/*
-!logs/.gitkeep
-random-annotator-venv
-annotations
-__pycache__
-computational-annotator-pilot/*
-!computational-annotator-pilot/X_train.npy
-!computational-annotator-pilot/weight
-test.py
-tests/datasets
-tests/integration/.mypy_cache
-update-git.sh
+venv

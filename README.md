@@ -86,6 +86,37 @@ The cron_mng.sh execute two python pipelines:
 
 You should look at these logs for debugging purpose in case the pipeline fails or does not produce the intended result.
 
+# Section: Testing
+
+You can run integration tests on the following datasets (running /tests/data.py will build these datasets except tempowic, you need to run evonlp2wug.sh script before running data.py) using the random, xlmr, and lexeme models:
+
+- testwug_en_arm
+- testwug_en_target
+- wic_test
+- wic_dev
+- wic_train
+- dwug_de
+- dwug_en
+- dwug_sv
+- tempowic_train
+- tempowic_trial
+- tempowic_validation
+
+There is one script to test each of the three models. Run the following commands one by one from the root directory to run tests:
+
+1. `python ./tests/integration/test_random_annotate.py`
+2. `python ./tests/integration/test_xlmr_naive_annotate.py`
+3. `python ./tests/integration/test_x1_lexeme_annotate.py`
+
+To test the LEXEME model, you need  WordTransformer.py and InputExample.py files which are found in the root directory. The requirements2.txt contains a full list of required libraries for WordTransformer, InputExample together with the annotation tool requirements.
+
+
+Each of the test will also produce annotations and evaluation resutls which will be stored in the `self.custom_dir` mentioned in the test scripts above. Two result files will be produced for each test, one containing evaluation metrics and the other containing predictions. The *-labels.csv file contains predictions and *-output.csv contains evaluation scores.
+
+
+**Note:** The lexeme model has not been fully tested so errors are expected. However if you are able to install and import WordTransformer successfully, it is expected to work.
+
+
 # Troubleshooting
 
 ## Installation Known Issues
@@ -98,16 +129,3 @@ This pipeline will load large language models, so you should make sure the serve
 Because this server component will constantly retrive impending tasks from the durel application, this means multpile annotators could in theory run at the same time, currently there is no restriction in this regard so if too many annotators are running at the same time, this could lead to memeory overload. Decreasing the frequency of this component retriving tasks from the durel should mitigate this potential problem.
 
 Also, we load all the sentences at one batch, it is unclear if this approach will lead to memory overuse, you might want to have more sophisticated way of loading sentences.
-
-# Notes on XLMR
-
-## Known issues
-The xlmr annotator could not process data row in which the index of the word is given wrongly, this happens with the dema word in the test_uug dataset and possibly other dataset not tested yet.
-
-The path to the huggingface cache is a source of potential errors - if this path is not reset huggingface will try to download to your home directory, which is not large enough for the xlmr model. If the xlmr annotator is failing, but the random annotator isn't, check the `HF_HOME` path in `cron_taskmng.sh` and `.bashrc`, and check the `subprocess_stderr.logs` to seee whether the model is loading correctly.
-
-## Notes
-The xlmr annotator currently concatenates two word embeddings according to their order in the instances file, which means you concatenate the word embdding of the internal_identifier2 after the word embedding of the internal_identifier1. The future code might want to explore the effect of this ordering condition.
-
-## Performance Metrics
-The xlmr annotator currently achieves 60% accuracy on the dev set of the WiC dataset.
