@@ -5,4 +5,3 @@ tests/datasets
 update-git.sh
 __pycache__
 xl-lexeme/
-temp*
