@@ -1,12 +1,6 @@
-import sys
-sys.path.append('.')
-import unittest
-from annotation_provider import AnnotationProvider
-from x1_lexeme_annotate import *
 from scipy.stats import spearmanr
-import os
-import urllib.request
 from sklearn.metrics import accuracy_score
+import pandas as pd
 
 def evaluate(custom_dir,custom_filename,usage_dir,prediction_type,model_name,dataset):
         with open(custom_dir+custom_filename, 'r') as f:

@@ -1,9 +1,7 @@
-
 from optparse import OptionParser
 import logging
 
 from annotation_provider import AnnotationProvider
-#from x1lexeme import *
 from lexeme import *
 
 def main(usage_dir, custom_dir, custom_filename, prefix, debug,subword_aggregation,prediction_type,thresholds):

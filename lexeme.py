@@ -1,8 +1,5 @@
 import torch
-from model import Model
-from sklearn.preprocessing import StandardScaler
 from scipy.spatial.distance import cosine
-import sys
 import pandas as pd
 import numpy as np
 from WordTransformer import WordTransformer

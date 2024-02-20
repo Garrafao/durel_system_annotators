@@ -1,1 +1,7 @@
 venv
+install_packages.sh
+random-annotator-venv*
+tests/datasets
+update-git.sh
+__pycache__
+xl-lexeme/
