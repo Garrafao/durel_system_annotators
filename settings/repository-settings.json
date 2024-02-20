@@ -1,0 +1,7 @@
+{
+    "envName": "random-annotator-venv",
+    "logFilePath": "./logs/pipeline.log",
+    "logFormatting": "%(asctime)s - %(message)s",
+    "randomAnnotatorScript": "random_annotate.py",
+    "xl-lexemeAnnotatorScript": "xl-lexeme_annotate.py"
+}
