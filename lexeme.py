@@ -31,12 +31,16 @@ def make_inference_for_dataset(path_of_dataset,subword_aggregation,prediction_ty
     # comment/uncomment the following 3  lines as the WordTransformer module is not executing successfully because of installation issue with the sqlite3 on server for the moment i am computing embeddings on my local machine and copying the embeddings in the temp folder and loading them here
 
     model = WordTransformer('pierluigic/xl-lexeme')
-    save_embeddings_lexeme(device, left_sentnece_and_token_index, './temp/token_embeddings_left.npy', model,subword_aggregation)
-    save_embeddings_lexeme(device, right_sentnece_and_token_index, './temp/token_embeddings_right.npy', model,subword_aggregation)
+    #save_embeddings_lexeme(device, left_sentnece_and_token_index, './temp/token_embeddings_left.npy', model,subword_aggregation)
+    #save_embeddings_lexeme(device, right_sentnece_and_token_index, './temp/token_embeddings_right.npy', model,subword_aggregation)
 
-    embeddings_left = np.load('./temp/token_embeddings_left.npy')
+    #embeddings_left = np.load('./temp/token_embeddings_left.npy')
 
-    embeddings_right = np.load('./temp/token_embeddings_right.npy')
+    #embeddings_right = np.load('./temp/token_embeddings_right.npy')
+
+    embeddings_left = compute_embeddings_lexeme(device, left_sentnece_and_token_index, model,subword_aggregation)
+    embeddings_right = compute_embeddings_lexeme(device, right_sentnece_and_token_index, model,subword_aggregation)
+
 
     #t>0.5 == 1 and 0 otherwise for pierligue model the threshold
     cls_list = []
@@ -68,6 +72,23 @@ def make_inference_for_dataset(path_of_dataset,subword_aggregation,prediction_ty
             else:
                 cls_list[index] = 4
     return cls_list'''
+
+def compute_embeddings_lexeme(device, sentnece_and_token_index, model,subword_aggregation):
+
+    token_embeddings_output = list()
+    for i,(sen,idx) in enumerate(sentnece_and_token_index):
+        print("Sentence being processed:  "+str(i))
+        idx_tuple = ast.literal_eval(idx)
+
+        #print("Sentence being processed: "+ sen)
+        examples = InputExample(texts='"'+sen+'"', positions=[idx_tuple[0],idx_tuple[1]])
+        outputs = model.encode(examples)
+
+        token_embeddings_output.append(outputs)
+        #print(sen,idx,outputs)
+    #print(token_embeddings_output)
+    token_embeddings_output = np.array(token_embeddings_output)
+    return token_embeddings_output
 
 
 def save_embeddings_lexeme(device, sentnece_and_token_index, saving_path, model,subword_aggregation):
