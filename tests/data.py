@@ -141,14 +141,14 @@ def wug2anno(input_path, output_path, label_set='1,2,3,4',non_label='-',aggregat
             if condition == 'judgments':
                 # Export labels
                 with open(data_output_path + '{0}.csv'.format('labels'), 'w') as f:  
-                    w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+                    w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, escapechar='\\')
                     w.writeheader()
                     w.writerows(output_data)
 
                 # Export instances
                 output_data_instances = [{'id':i,'internal_identifier1':row['internal_identifier1'],'internal_identifier2':row['internal_identifier2'],'label_set':label_set,'non_label':non_label,'lemma':row['lemma']} for i, row in enumerate(output_data)]
                 with open(data_output_path + '{0}.csv'.format('instances'), 'w') as f:  
-                    w = csv.DictWriter(f, output_data_instances[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+                    w = csv.DictWriter(f, output_data_instances[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, escapechar='\\')
                     w.writeheader()
                     w.writerows(output_data_instances)
                     
@@ -157,7 +157,7 @@ def wug2anno(input_path, output_path, label_set='1,2,3,4',non_label='-',aggregat
             else:            
                 # Export uses
                 with open(data_output_path + '{0}.csv'.format(condition), 'w') as f:  
-                    w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='\\')
+                    w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, escapechar='\\')
                     w.writeheader()
                     w.writerows(output_data)
 
@@ -177,7 +177,7 @@ def wug2anno(input_path, output_path, label_set='1,2,3,4',non_label='-',aggregat
     
     for condition, output_data in [('uses',uses_all),('labels',labels_all), ('instances',instances_all)]:
         with open(data_output_path + '{0}.csv'.format(condition), 'w') as f:  
-            w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+            w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, escapechar='\\')
             w.writeheader()
             w.writerows(output_data)
 
@@ -248,7 +248,7 @@ def wic2anno(input_path, output_path, label_set='1,2,3,4',non_label='-'):
 
         # Export data
         with open(data_output_path + '{0}.csv'.format(datatype), 'w') as f:  
-            w = csv.DictWriter(f, uses[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+            w = csv.DictWriter(f, uses[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, escapechar='\\')
             w.writeheader()
             w.writerows(uses)
 
@@ -266,7 +266,7 @@ def wic2anno(input_path, output_path, label_set='1,2,3,4',non_label='-'):
 
         # Export data
         with open(data_output_path + '{0}.csv'.format(datatype), 'w') as f:  
-            w = csv.DictWriter(f, labels[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+            w = csv.DictWriter(f, labels[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, escapechar='\\')
             w.writeheader()
             w.writerows(labels)
 
@@ -278,7 +278,7 @@ def wic2anno(input_path, output_path, label_set='1,2,3,4',non_label='-'):
 
         # Export data
         with open(data_output_path + '{0}.csv'.format(datatype), 'w') as f:  
-            w = csv.DictWriter(f, instances[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+            w = csv.DictWriter(f, instances[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, escapechar='\\')
             w.writeheader()
             w.writerows(instances)
 
@@ -311,14 +311,14 @@ def tempowic2anno(input_path, output_path, label_set='1,4',non_label='-'):
             if condition == 'judgments':
                 # Export labels
                 with open(data_output_path + '{0}.csv'.format('labels'), 'w') as f:
-                    w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+                    w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, escapechar='\\')
                     w.writeheader()
                     w.writerows(output_data)
 
                 # Export instances
                 output_data_instances = [{'id':i,'internal_identifier1':row['internal_identifier1'],'internal_identifier2':row['internal_identifier2'],'label_set':label_set,'non_label':non_label,'lemma':row['lemma']} for i, row in enumerate(output_data)]
                 with open(data_output_path + '{0}.csv'.format('instances'), 'w') as f:
-                    w = csv.DictWriter(f, output_data_instances[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+                    w = csv.DictWriter(f, output_data_instances[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, escapechar='\\')
                     w.writeheader()
                     w.writerows(output_data_instances)
 
@@ -327,7 +327,7 @@ def tempowic2anno(input_path, output_path, label_set='1,4',non_label='-'):
             else:
                 # Export uses
                 with open(data_output_path + '{0}.csv'.format(condition), 'w') as f:
-                    w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+                    w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, escapechar='\\')
                     w.writeheader()
                     w.writerows(output_data)
 

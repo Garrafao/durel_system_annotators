@@ -121,7 +121,7 @@ if not os.path.exists(all_output_folder):
 # contents for 'all'
 
 with open(all_output_folder +'judgments.csv', 'w') as f:
-    w = csv.DictWriter(f, [lemma2data[lemma] for lemma in lemma2data][0][0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+    w = csv.DictWriter(f, [lemma2data[lemma] for lemma in lemma2data][0][0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, escapechar='\\')
     w.writeheader()
     for lemma in lemma2data:
         w.writerows(lemma2data[lemma])
@@ -133,7 +133,7 @@ with open(all_output_folder +'judgments.csv', 'w') as f:
 #        w.writerows(lemma2instances[lemma])
 
 with open(all_output_folder +'uses.csv', 'w') as f:
-    w = csv.DictWriter(f, [list(lemma2group2context[lemma].values()) for lemma in lemma2data][0][0]['1'].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+    w = csv.DictWriter(f, [list(lemma2group2context[lemma].values()) for lemma in lemma2data][0][0]['1'].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, escapechar='\\')
     w.writeheader()
     for lemma in lemma2data:
         contexts = list(lemma2group2context[lemma].values())

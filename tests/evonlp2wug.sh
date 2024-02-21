@@ -1,4 +1,7 @@
 echo $(tput bold)$BASH_SOURCE$(tput sgr0)
+#pip install spacy
+#python -m spacy download en_core_web_sm
+
 scriptsdir=${0%/*}
 dir=./tests/datasets/TempoWic/
 #mkdir -p $dir/source
