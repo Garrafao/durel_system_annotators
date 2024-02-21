@@ -3,7 +3,7 @@ from optparse import OptionParser
 import random
 
 from annotation_provider import AnnotationProvider
-from lexeme import *
+from code.xl_lexeme import *
 
 
 def main(annotator, usage_dir, custom_dir, custom_filename, prefix, debug, thresholds):
@@ -69,12 +69,14 @@ if __name__ == '__main__':
     parser.add_option("-a", "--annotator", dest="annotator", default="XL-Lexeme",
                       help="Should be XL-Lexeme or Random. Default XL-Lexeme.")
 
-    parser.add_option("-p", "--prefix", dest="prefix", help="Prefix for the usage, instance and judgement files.")
+    parser.add_option("-p", "--prefix", dest="prefix", type=str, default="",
+                      help="Prefix for the usage, instance and judgement files. Default empty string.")
     parser.add_option("-u", "--usage_dir", dest="usage_dir", required=True,
-                      help="Directory containing uses and instances data.")
-    parser.add_option("-c", "--custom_dir", dest="custom_dir", help="Directory to store custom judgements.")
-    parser.add_option("-f", "--custom_filename", dest="custom_filename", default="judgements.csv",
-                      help="Filename to store custom judgements.")
+                      help="Directory containing uses and instances data. Required.")
+    parser.add_option("-c", "--judgment_dir", dest="judgment_dir", type=str,
+                      help="Directory to store custom judgements. Defaults to the value given for usage_dir.")
+    parser.add_option("-f", "--judgment_filename", dest="judgment_filename", default="judgements.csv",
+                      help="Filename to store custom judgements. Default 'judgements.csv'.")
 
     parser.add_option("-d", "--debug", dest="debug", action="store_true", help="Enable debug mode.")
     parser.add_option("-t", "--thresholds", dest="thresholds", type=list[int], default=None,
