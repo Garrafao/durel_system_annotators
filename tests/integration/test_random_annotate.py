@@ -2,7 +2,7 @@ import sys
 sys.path.append('.')
 import unittest
 #from annotation_provider import AnnotationProvider
-from random_annotate import main as random_main
+from annotate import main as random_main
 import os
 import urllib.request
 from sklearn.metrics import accuracy_score
