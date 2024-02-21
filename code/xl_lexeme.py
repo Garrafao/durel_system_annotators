@@ -1,3 +1,5 @@
+import sys
+sys.path.append('./xl-lexeme/WordTransformer')
 import ast
 import logging
 

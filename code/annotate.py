@@ -1,13 +1,19 @@
 import json
+import sys
+sys.path.append('./code')
+sys.path.append('.')
 from optparse import OptionParser
 import random
 
 from annotation_provider import AnnotationProvider
-from code.xl_lexeme import *
+from xl_lexeme import *
 
 
 def main(annotator, usage_dir, custom_dir, custom_filename, prefix, debug, thresholds):
     check_annotation_input_and_logging(annotator, debug, usage_dir, custom_dir, custom_filename)
+
+    with open('settings/settings.json') as settings_file: # to do: should this be an input argument?
+        settings = json.load(settings_file)
 
     annotation_provider = AnnotationProvider(usage_dir, prefix, DEBUG=debug)
 
@@ -85,9 +91,6 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
     logging.info(options)
     default_thresholds = [0.2, 0.4, 0.6]
-
-    with open('settings.json') as settings_file:
-        settings = json.load(settings_file)
 
     main(options.annotator, options.usage_dir, options.custom_dir, options.custom_filename, options.prefix,
          options.debug, options.thresholds)
