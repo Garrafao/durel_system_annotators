@@ -157,7 +157,7 @@ def wug2anno(input_path, output_path, label_set='1,2,3,4',non_label='-',aggregat
             else:            
                 # Export uses
                 with open(data_output_path + '{0}.csv'.format(condition), 'w') as f:  
-                    w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='')
+                    w = csv.DictWriter(f, output_data[0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, quotechar='\\')
                     w.writeheader()
                     w.writerows(output_data)
 
