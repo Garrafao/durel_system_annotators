@@ -3,5 +3,7 @@
     "logFilePath": "./logs/pipeline.log",
     "logFormatting": "%(asctime)s - %(message)s",
     "randomAnnotatorScript": "random_annotate.py",
-    "xl-lexemeAnnotatorScript": "xl-lexeme_annotate.py"
+    "xl-lexemeAnnotatorScript": "xl-lexeme_annotate.py",
+    "judgment_columns": ["lemma", "instanceID", "identifier1", "identifier2", "judgment", "comment"],
+    "token_index_filename": "instances_with_token_index.csv"
 }
