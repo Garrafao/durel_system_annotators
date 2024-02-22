@@ -59,6 +59,15 @@ and:
 
 `python pipeline.py`
 
+## Models
+
+The repository currently contains these models:
+
+- Random: samples a random integer between 1 and 4 with uniform probability.
+- XL-Lexeme-Cosine: [XL-Lexeme](https://github.com/pierluigic/xl-lexeme) is a bi-encoder that vectorizes the input sequences using a XLMR-based Siamese Network. It is trained to minimize the contrastive loss with cosine distance on several WiC datasets. XL-Lexeme-Cosine returns the cosine similarity between word vectors.
+- XL-Lexeme-Multi: Predicts an integer between 1 and 4 based on thresholding cosine similarity between XL-Lexeme vectors at specified triple of thresholds (default is [0.2, 0.4, 0.6]).
+- XL-Lexeme-Binary: Predicts either value 1 or 4 based on thresholding cosine similarity between XL-Lexeme vectors at specified threshold (default is 0.5).
+
 ## Testing
 Please find integration tests under the folder `tests/`. Some tests rely on the data created by the script `tests/data.py`. Please run the script from the main directory, if you're missing any data with
 
