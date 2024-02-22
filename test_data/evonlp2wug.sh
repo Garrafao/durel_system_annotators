@@ -3,7 +3,7 @@ echo $(tput bold)$BASH_SOURCE$(tput sgr0)
 #python -m spacy download en_core_web_sm
 
 scriptsdir=${0%/*}
-dir=./tests/datasets/TempoWic/
+dir=./test_data/datasets/TempoWic/
 #mkdir -p $dir/source
 wget https://codalab.lisn.upsaclay.fr/my/datasets/download/3e22f138-ca00-4b10-a0fd-2e914892200d -nc -P $dir/source/
 mv $dir/source/3e22f138-ca00-4b10-a0fd-2e914892200d $dir/source/starting-kit.zip
@@ -20,7 +20,7 @@ do
   fi
   datadir=$dir
   #mkdir -p $datadir
-  python ./tests/evonlp2wug.py $dir/source/TempoWiC_Starting_Kit/data/$data.data.jl $dir/source/TempoWiC_Starting_Kit/data/$data.$label.tsv $datadir $data
+  python ./test_data/evonlp2wug.py $dir/source/TempoWiC_Starting_Kit/data/$data.data.jl $dir/source/TempoWiC_Starting_Kit/data/$data.$label.tsv $datadir $data
 done
 
 #rm -r $dir/source

@@ -1,7 +1,7 @@
 venv
 install_packages.sh
 random-annotator-venv*
-tests/datasets
+/test_data/datasets
 update-git.sh
 __pycache__
 xl-lexeme/
