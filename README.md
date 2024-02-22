@@ -12,17 +12,18 @@ After cloning, go into the repo and create a python env with the command:
 
 `python3 -m venv random-annotator-venv`
 
-activate the env with:
+Activate the env with:
 
 `source random-annotator-venv/bin/activate`
 
-after activating the env, install dependencies with:
+After activating the env, install dependencies with:
 
-`pip install -r requirements.txt`
-
-Also install the second requirements file:
-
-`pip install -r requirements2.txt`
+```
+git clone git@github.com:pierluigic/xl-lexeme.git
+cd xl-lexeme
+pip3 install .
+pip install pandas
+```
 
 Note you have to create the env just under the root directory of the project and with the name I have specified in the command, if you want to create the env elsewhere or change the env name, you have to change the code correspondingly in the cron_taskmng.sh and cron_auth.sh file.
 
@@ -104,10 +105,7 @@ You can run integration tests on the following datasets (running /tests/data.py 
 
 There is one script to test each of the three models. Run the following commands one by one from the root directory to run tests:
 
-1. `python ./tests/integration/test_random_annotate.py`
-2. `python ./tests/integration/test_xlmr_naive_annotate.py`
-3. `python ./tests/integration/test_xl_lexeme_annotate.py`
-python ./code/tests/integration/test_an_annotator.py
+1. `python ./code/tests/integration/test_an_annotator.py`
 
 To test the LEXEME model, you need  WordTransformer.py and InputExample.py files which are found in the root directory. The requirements2.txt contains a full list of required libraries for WordTransformer, InputExample together with the annotation tool requirements.
 

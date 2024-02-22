@@ -6,7 +6,7 @@ import unittest
 from annotate import main as annotator_main
 import os
 
-# from evaluation import *
+from evaluation import *
 
 test_data_directory_path = "./test_data/datasets/"
 
@@ -58,7 +58,7 @@ class TestAnAnnotator(unittest.TestCase):
         self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        # acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_en_arm, self.model,dataset='testwug_en_arm')
+        #acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_en_arm, self.model,dataset='testwug_en_arm')
 
     def test_xl_lexeme_main_test_en_target(self):
         # call the function to be tested
