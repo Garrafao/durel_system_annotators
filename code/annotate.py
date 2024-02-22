@@ -2,8 +2,8 @@ import json
 import random
 from optparse import OptionParser
 
-from code.annotation_provider import AnnotationProvider
-from code.xl_lexeme import *
+from annotation_provider import AnnotationProvider
+from xl_lexeme import *
 
 
 def main(annotator, usage_dir, custom_dir, custom_filename, prefix, debug, thresholds):

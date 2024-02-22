@@ -107,6 +107,7 @@ There is one script to test each of the three models. Run the following commands
 1. `python ./tests/integration/test_random_annotate.py`
 2. `python ./tests/integration/test_xlmr_naive_annotate.py`
 3. `python ./tests/integration/test_xl_lexeme_annotate.py`
+python ./code/tests/integration/test_an_annotator.py
 
 To test the LEXEME model, you need  WordTransformer.py and InputExample.py files which are found in the root directory. The requirements2.txt contains a full list of required libraries for WordTransformer, InputExample together with the annotation tool requirements.
 

@@ -1,6 +1,9 @@
+import sys
+sys.path.append('./code')
+
 import unittest
 
-from ...annotate import main as annotator_main
+from annotate import main as annotator_main
 import os
 
 # from evaluation import *
