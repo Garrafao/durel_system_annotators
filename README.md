@@ -68,12 +68,6 @@ The repository currently contains these models:
 - XL-Lexeme-Multi: Predicts an integer between 1 and 4 based on thresholding cosine similarity between XL-Lexeme vectors at specified triple of thresholds (default is [0.2, 0.4, 0.6]).
 - XL-Lexeme-Binary: Predicts either value 1 or 4 based on thresholding cosine similarity between XL-Lexeme vectors at specified threshold (default is 0.5).
 
-## Testing
-Please find integration tests under the folder `tests/`. Some tests rely on the data created by the script `tests/data.py`. Please run the script from the main directory, if you're missing any data with
-
-`python tests/data.py`
-
-Also have a look at README2.md.
 
 # Cronjobs
 The interaction with the DURel system is managed through cronjobs.
@@ -96,7 +90,7 @@ The cron_mng.sh execute two python pipelines:
 
 You should look at these logs for debugging purpose in case the pipeline fails or does not produce the intended result.
 
-# Section: Testing
+# Testing
 
 You can run integration tests on the following datasets (running /tests/data.py will build these datasets except tempowic, you need to run evonlp2wug.sh script before running data.py) using the random, xlmr, and lexeme models:
 

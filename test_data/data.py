@@ -26,6 +26,8 @@ def aggregate_wug(judgments, aggregation_mode='binarize-median'):
     # Ignores order, maps all instances with median judgment below 2.5 to 1 and above or equal 2.5 to 4
     if aggregation_mode == 'binarize-median':
         pair2label = {pair: 1 if label < 2.5 else 4 for pair, label in pair2label.items()}  # binarize
+    if aggregation_mode == 'median':
+        pair2label = pair2label  # median
 
     return pair2label
 
@@ -137,6 +139,7 @@ def wug2anno(input_path, output_path, label_set='1,2,3,4', non_label='-', aggreg
                 labels_all += output_data
 
             data_output_path = output_path + '/data_split/{0}/'.format(str(p).split('/')[-2])
+            Path(data_output_path).mkdir(parents=True, exist_ok=True)
             write(condition, data_output_path, output_data, non_label, label_set)
 
     # Create instances
@@ -337,7 +340,7 @@ def tempowic2anno(input_path, output_path, label_set='1,4', non_label='-'):
 
 
 if __name__ == '__main__':
-    aggregation_mode = 'binarize-median'
+    aggregation_modes = ['binarize-median', 'median']
     datasets_path = 'test_data/datasets/'
     Path(datasets_path).mkdir(parents=True, exist_ok=True)
 
@@ -355,12 +358,14 @@ if __name__ == '__main__':
             z.extractall(path=datasets_path)
 
         data_path = datasets_path + dataset + '/'
-        data_transformed_path = datasets_path + dataset + '_transformed/'
-        Path(data_transformed_path).mkdir(parents=True, exist_ok=True)
 
-        # Load, transform and store data set
-        wug2anno(input_path=data_path, output_path=data_transformed_path, label_set='1,4', non_label='-',
-                 aggregation_mode=aggregation_mode, preprocessing_mode=preprocessing_mode)
+        for aggregation_mode in aggregation_modes:
+            data_transformed_path = datasets_path + dataset + '_transformed_' + aggregation_mode
+            Path(data_transformed_path).mkdir(parents=True, exist_ok=True)
+
+            # Load, transform and store data set
+            wug2anno(input_path=data_path, output_path=data_transformed_path, label_set='1,4', non_label='-',
+                         aggregation_mode=aggregation_mode, preprocessing_mode=preprocessing_mode)
 
     # WiC data set (WUG version)
     dataset = 'https://pilehvar.github.io/wic/package/WiC_dataset.zip'
