@@ -20,16 +20,16 @@ class TestAnAnnotator(unittest.TestCase):
     def setUp(self):
         self.lexeme_annotator = 'XL-Lexeme'  # or 'Random'
         # self.random_annotator = 'Random'
-        self.usage_dir_test_en_arm = test_data_directory_path + 'testwug_en_transformed/data_split/arm/'
-        self.usage_dir_test_en_target = test_data_directory_path + 'testwug_en_transformed/data_split/target/'
+        self.usage_dir_test_en_arm = test_data_directory_path + 'testwug_en_transformed_binarize-median/data_split/arm/'
+        self.usage_dir_test_en_target = test_data_directory_path + 'testwug_en_transformed_binarize-median/data_split/target/'
 
         self.usage_dir_test_wic_train = test_data_directory_path + 'WiC_dataset_transformed/train/data/all/'
         self.usage_dir_test_wic_dev = test_data_directory_path + 'WiC_dataset_transformed/dev/data/all/'
         self.usage_dir_test_wic_test = test_data_directory_path + 'WiC_dataset_transformed/test/data/all/'
 
-        self.usage_dir_test_dwug_de = test_data_directory_path + 'dwug_de_transformed/data/all/'
-        self.usage_dir_test_dwug_en = test_data_directory_path + 'dwug_en_transformed/data/all/'
-        self.usage_dir_test_dwug_sv = test_data_directory_path + 'dwug_sv_transformed/data/all/'
+        self.usage_dir_test_dwug_de = test_data_directory_path + 'dwug_de_transformed_binarize-median/data/all/'
+        self.usage_dir_test_dwug_en = test_data_directory_path + 'dwug_en_transformed_binarize-median/data/all/'
+        self.usage_dir_test_dwug_sv = test_data_directory_path + 'dwug_sv_transformed_binarize-median/data/all/'
 
         self.usage_dir_test_tempowic_train = test_data_directory_path + 'TempoWic/tempowic_train_all_transformed/data/all/'
         self.usage_dir_test_tempowic_trial = test_data_directory_path + 'TempoWic/tempowic_trial_all_transformed/data/all/'
