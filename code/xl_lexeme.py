@@ -1,5 +1,3 @@
-import sys
-sys.path.append('./xl-lexeme/WordTransformer')
 import ast
 import logging
 
@@ -8,7 +6,7 @@ import pandas as pd
 import torch
 from scipy.spatial.distance import cosine
 
-from InputExample import InputExample
+from WordTransformer.InputExample import InputExample
 from WordTransformer import WordTransformer
 
 logger = logging.getLogger(__name__)

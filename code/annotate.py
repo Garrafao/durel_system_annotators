@@ -1,18 +1,15 @@
 import json
-import sys
-sys.path.append('./code')
-sys.path.append('.')
-from optparse import OptionParser
 import random
+from optparse import OptionParser
 
-from annotation_provider import AnnotationProvider
-from xl_lexeme import *
+from code.annotation_provider import AnnotationProvider
+from code.xl_lexeme import *
 
 
 def main(annotator, usage_dir, custom_dir, custom_filename, prefix, debug, thresholds):
     check_annotation_input_and_logging(annotator, debug, usage_dir, custom_dir, custom_filename)
 
-    with open('settings/settings.json') as settings_file: # to do: should this be an input argument?
+    with open('./settings/repository-settings.json') as settings_file:  # to do: should this be an input argument?
         settings = json.load(settings_file)
 
     annotation_provider = AnnotationProvider(usage_dir, prefix, DEBUG=debug)
@@ -21,8 +18,9 @@ def main(annotator, usage_dir, custom_dir, custom_filename, prefix, debug, thres
     if annotator == "XL-Lexeme":
         annotation_provider.flush_instance_with_token_index(path=custom_dir)
         # TODO fill in columns and delimiter
-        columns = None
-        delimiter = None
+        columns = ["word", "sentence_left", "token_index_of_sentence_left",
+                   "sentence_right", "token_index_of_sentence_right"]
+        delimiter = "\t"
         cls_result = make_inference_for_dataset(custom_dir + '/{}'.format(prefix) + settings['token_index_filename'],
                                                 delimiter, columns, thresholds)
         annotator = specify_xl_lexeme_annotator(thresholds)
@@ -41,7 +39,6 @@ def main(annotator, usage_dir, custom_dir, custom_filename, prefix, debug, thres
 
 
 def check_annotation_input_and_logging(annotator, debug, usage_dir, custom_dir, custom_filename):
-
     if debug:
         logging.info(f"Using annotator '{annotator}' to store judgements.")
 
