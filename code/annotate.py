@@ -46,7 +46,7 @@ def main(annotator, usage_dir, annotation_dir, annotation_filename, prefix, debu
         columns = settings['annotations_columns']
         delimiter = settings['delimiter']
         token_index_filepath = annotation_dir + '/{}'.format(prefix) + settings['token_index_filename']
-        judgments = make_inference_for_dataset(token_index_filepath, delimiter, columns, thresholds)
+        judgments = create_annotations_for_input_data(token_index_filepath, delimiter, columns, thresholds)
         annotator = specify_xl_lexeme_annotator(thresholds)
 
     # If you want to add another annotator, add the following here:
