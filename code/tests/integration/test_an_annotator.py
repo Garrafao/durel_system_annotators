@@ -36,10 +36,10 @@ class TestAnAnnotator(unittest.TestCase):
         self.usage_dir_test_tempowic_validation = test_data_directory_path + 'TempoWic/tempowic_validation_all_transformed/data/all/'
 
         self.prefix = ''
-        self.custom_dir = '../../temp/'
+        self.custom_dir = './temp'
         if not os.path.exists(self.custom_dir):
             os.makedirs(self.custom_dir)
-        self.custom_filename = 'judgements.csv'
+        self.custom_filename = 'annotations'
         self.debug = True
         # self.subword_aggregation = 'average' # not implemented yet
         # self.prediction_type = 'label' # or it could be 'distance' or 'label'
@@ -53,9 +53,8 @@ class TestAnAnnotator(unittest.TestCase):
     def test_xl_lexeme_main_test_en_arm(self):
         # call the function to be tested
         annotator_main(self.lexeme_annotator, self.usage_dir_test_en_arm, self.custom_dir, self.custom_filename,
-                       self.prefix, self.debug, self.thresholds)
-
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
+                       self.prefix, self.debug, self.thresholds, './settings/repository-settings.json')
+        self.assertTrue(os.path.exists(self.custom_dir + "/" + self.custom_filename + ".csv"))
 
         # check that the contents of the output file are correct
         #acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_en_arm, self.model,dataset='testwug_en_arm')

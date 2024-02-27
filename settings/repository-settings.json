@@ -1,8 +1,11 @@
 {
     "envName": "random-annotator-venv",
     "logFilePath": "./logs/pipeline.log",
-    "logFormatting": "%(asctime)s - %(message)s",
+    "log_formatting": "%(levelname)s: %(message)s",
     "delimiter": "\t",
-    "annotations_columns": ["lemma", "instanceID", "identifier1", "identifier2", "judgment", "comment"],
-    "token_index_filename": "instances_with_token_index.csv"
+    "file_extension": ".csv",
+    "annotations_columns": ["identifier1", "identifier2", "annotator","judgment", "comment", "lemma", "timestamp","instanceID"],
+    "annotations_filename": "annotations",
+    "token_index_columns": ["lemma", "sentence_left", "token_index_of_sentence_left", "sentence_right", "token_index_of_sentence_right"],
+    "token_index_filename": "instances_with_token_index"
 }

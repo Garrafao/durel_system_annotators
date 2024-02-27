@@ -1,11 +1,12 @@
 import json
 import random
+import logging
 from optparse import OptionParser
 
-from annotation_provider import AnnotationProvider
-from xl_lexeme import *
+from annotation_provider import AnnotationProvider, instance_to_annotation
+import xl_lexeme
 # For new annotators:
-# from NEW_ANNOTATOR_NAME import *
+# import NEW_ANNOTATOR_NAME
 
 """
 This script handles the main annotation process, i.e. reading the input files, calling the specified annotator and 
@@ -36,18 +37,19 @@ def main(annotator, usage_dir, annotation_dir, annotation_filename, prefix, debu
     with open(settings_location) as settings_file:
         settings = json.load(settings_file)
 
-    annotation_input_logging(annotator, debug, usage_dir, annotation_dir, annotation_filename)
-    annotation_provider = AnnotationProvider(usage_dir, prefix, debug=debug)
+    annotation_input_logging(annotator, debug, usage_dir, annotation_dir, annotation_filename, settings)
+    annotation_provider = AnnotationProvider(settings, usage_dir, prefix, debug=debug)
 
     # Get judgments for annotators other than random
     judgments = None
     if annotator == "XL-Lexeme":
         annotation_provider.flush_instance_with_token_index(path=annotation_dir)
-        columns = settings['annotations_columns']
+        columns = settings['token_index_columns']
         delimiter = settings['delimiter']
-        token_index_filepath = annotation_dir + '/{}'.format(prefix) + settings['token_index_filename']
-        judgments = create_annotations_for_input_data(token_index_filepath, delimiter, columns, thresholds)
-        annotator = specify_xl_lexeme_annotator(thresholds)
+        token_index_filepath = (annotation_dir + '/{}'.format(prefix) + settings['token_index_filename'] +
+                                settings['file_extension'])
+        judgments = xl_lexeme.create_annotations_for_input_data(token_index_filepath, delimiter, columns, thresholds)
+        annotator = xl_lexeme.specify_xl_lexeme_annotator(thresholds)
 
     # If you want to add another annotator, add the following here:
     # elif annotator == "NEW_ANNOTATOR_NAME":
@@ -56,18 +58,16 @@ def main(annotator, usage_dir, annotation_dir, annotation_filename, prefix, debu
 
     # Create annotations in the annotation provider
     for i, instance in enumerate(annotation_provider.get_instances_iterator(random_order=False)):
-        judgment = judgments[i] if judgments is not None else random.choice([*instance['label_set']])
-        columns = settings['annotations_columns']
-        annotation = annotation_provider.instance_to_annotation(instance, judgment, columns)
-        annotation_provider.add_annotation(annotation)
+        judgment = judgments[i] if judgments is not None else random.choice([1,4])
+        annotation_provider.add_annotation(instance, judgment, annotator)
 
     # Save the annotations
-    annotation_provider.flush_annotation(path=annotation_dir, filename=annotation_filename, annotator=annotator)
+    annotation_provider.flush_annotation(path=annotation_dir)
 
 
-def annotation_input_logging(annotator, debug, usage_dir, annotation_dir, annotation_filename):
+def annotation_input_logging(annotator, debug, usage_dir, annotation_dir, annotation_filename, settings):
     if debug:
-        logging.basicConfig(format='%(levelname)s:%(message)s', level=logging.DEBUG)
+        logging.basicConfig(format=settings['log_formatting'], level=logging.DEBUG)
         logging.info("Debug mode is on.")
         logging.info(f"Using annotator '{annotator}' to store annotations.")
         logging.info(f"Using directory '{usage_dir}' for usage data.")
