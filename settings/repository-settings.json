@@ -1,5 +1,5 @@
 {
-    "envName": "random-annotator-venv",
+    "envName": "annotator-venv",
     "logFilePath": "./logs/pipeline.log",
     "log_formatting": "%(levelname)s: %(message)s",
     "delimiter": "\t",

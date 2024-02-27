@@ -1,6 +1,6 @@
-venv
+annotator-venv
 install_packages.sh
-random-annotator-venv*
+annotator-venv*
 /test_data/datasets
 update-git.sh
 __pycache__
