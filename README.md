@@ -87,6 +87,16 @@ The repository currently contains these models:
 - XL-Lexeme-Multi: Predicts an integer between 1 and 4 based on thresholding cosine similarity between XL-Lexeme vectors at specified triple of thresholds (default is [0.2, 0.4, 0.6]).
 - XL-Lexeme-Binary: Predicts either value 1 or 4 based on thresholding cosine similarity between XL-Lexeme vectors at specified threshold (default is 0.5).
 
+## Running the models
+
+The models can be run using the `annotate.py` script. 
+
+```
+    python annotate.py --annotator <annotator> --prefix <prefix> --usage_dir <usage_directory> --annotation_dir <annotation_directory> --annotation_filename <annotation_filename> --debug --thresholds <thresholds> --settings_location <settings_location>
+   ```
+
+For more information see the README in the code folder.
+
 ## Adding new models
 
 In order to add new models you should follow these steps:
