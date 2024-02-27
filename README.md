@@ -23,6 +23,8 @@ git clone git@github.com:pierluigic/xl-lexeme.git
 cd xl-lexeme
 pip3 install .
 pip install pandas
+pip install spacy
+python -m spacy download en_core_web_sm
 ```
 
 Note you have to create the env just under the root directory of the project and with the name I have specified in the command, if you want to create the env elsewhere or change the env name, you have to change the code correspondingly in the cron_taskmng.sh and cron_auth.sh file.

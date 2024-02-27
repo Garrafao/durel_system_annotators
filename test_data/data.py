@@ -7,6 +7,13 @@ from pathlib import Path
 import numpy as np
 import requests
 
+# Needed because of TempoWiC
+import os
+import json
+import spacy
+nlp = spacy.load("en_core_web_sm")
+import re
+
 
 class NotImplementedException(Exception):
     pass
@@ -338,6 +345,117 @@ def tempowic2anno(input_path, output_path, label_set='1,4', non_label='-'):
 
     print('-----')
 
+def tempowic2wug(data, annotations, datadir, label):
+    """
+    Bring TempoWiC data set into WUG format.
+    """
+    print('data:', data, 'annotations:', annotations, 'datadir:', datadir, 'label:', label)
+ 
+    # parse an JSON file by name
+    with open(data) as jsonfile:
+        data_instances = [json.loads(line) for line in jsonfile.readlines()]
+
+    lemma2group2context = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: None)))
+    for data_instance in data_instances:
+        identifier = data_instance['id']
+        lemma = data_instance['word'] # this should be lematized
+        tweet1 = data_instance['tweet1']
+        context = data2context_tempowic(tweet1,'1',lemma,identifier)
+        lemma2group2context[lemma][identifier]['1'] = context
+        tweet2 = data_instance['tweet2']
+        context = data2context_tempowic(tweet2,'2',lemma,identifier)
+        lemma2group2context[lemma][identifier]['2'] = context
+
+
+    with open(annotations, encoding='utf-8') as csvfile:
+        table = [row for row in csv.reader(csvfile,delimiter='\t')]
+
+
+    lemma2data = defaultdict(lambda: [])
+    for row in table:
+        lemma = row[0].split('-')[1]
+        id1 = row[0]
+        id2 = row[0]
+        comment = ' '
+        judgment = row[1]
+        #print(type(judgment))
+        if judgment == '0':
+            #print(judgment)
+            judgment = 4
+        else:
+            judgment = 1
+        annotator = np.nan
+        data = {'identifier1':id1+'-tweet1','identifier2':id2+'-tweet2','annotator':annotator,'judgment':int(judgment),'comment':comment,'lemma':lemma}
+        lemma2data[lemma].append(data)
+
+    all_output_folder = datadir +'/tempowic_'+label+ '_all/data/all/'
+    if not os.path.exists(all_output_folder):
+        os.makedirs(all_output_folder)
+
+    with open(all_output_folder +'judgments.csv', 'w') as f:
+        w = csv.DictWriter(f, [lemma2data[lemma] for lemma in lemma2data][0][0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, escapechar='\\')
+        w.writeheader()
+        for lemma in lemma2data:
+            w.writerows(lemma2data[lemma])
+
+    with open(all_output_folder +'uses.csv', 'w') as f:
+        w = csv.DictWriter(f, [list(lemma2group2context[lemma].values()) for lemma in lemma2data][0][0]['1'].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, escapechar='\\')
+        w.writeheader()
+        for lemma in lemma2data:
+            contexts = list(lemma2group2context[lemma].values())
+            rows = [r['1'] for r in contexts] + [r['2'] for r in contexts]
+            w.writerows(rows)
+    
+    print('-----')
+
+
+def data2context_tempowic(tweet,grouping, lemma,identifier):
+    date = tweet['date']
+    text = tweet['text']
+    text_start = tweet['text_start']
+    text_end = tweet['text_end']
+    indexes_target_token = str(text_start)+':'+str(text_end)
+    annotated = annotate_text_word_tempowic(text,text[text_start:text_end])
+
+    context = {'lemma':lemma, 'pos':nlp(lemma)[0].pos_, 'date':date, 'grouping':grouping, 'identifier':identifier+'-tweet'+grouping, 'description':'-', 'context':text, 'indexes_target_token':indexes_target_token, 'context_tokenized':' '.join(annotated['context_tokenized']), 'indexes_target_token_tokenized':annotated['indexes_target_token_tokenized'],'indexes_target_sentence':annotated['indexes_target_sentence'],'indexes_target_sentence_tokenized':annotated['indexes_target_sentence_tokenized'],'context_lemmatized':' '.join(annotated['context_lemmatized']),'context_pos':' '.join(annotated['context_pos'])}
+
+    return(context)
+
+def annotate_text_word_tempowic(text,word):
+    annotations = nlp(text)
+    indexes_target_sentence = '-'
+    indexes_target_sentence_tokenized = '-'
+    indexes_target_sentence_tokenized_s = 0
+    indexes_target_sentence_tokenized_e = 0
+    word=word.replace('\'s','')
+    for n,sent in enumerate(annotations.sents):
+        if word in [t.text for t in sent]:
+            indexes_target_sentence_tokenized_e = indexes_target_sentence_tokenized_s + len([t.text for t in sent])
+            s = text.find(str(sent))
+            if s != -1:
+                e = s + len(str(sent))
+                indexes_target_sentence = str(s)+':'+str(e)
+                break
+        else:
+            indexes_target_sentence_tokenized_s += len([t.text for t in sent])
+
+
+    context_tokenized = [str(token) for token in annotations]
+    indexes_target_sentence_tokenized = str(indexes_target_sentence_tokenized_s)+':'+str(indexes_target_sentence_tokenized_e)
+    #print(n,indexes_target_sentence_tokenized_s,indexes_target_sentence_tokenized_e,word,context_tokenized)
+    assert context_tokenized[indexes_target_sentence_tokenized_s:indexes_target_sentence_tokenized_e] == [t.text for t in [sen for sen in annotations.sents][n]]
+
+    context_lemmatized = [str(token.lemma_.lower()) for token in annotations]
+    context_pos = [str(token.pos_) for token in annotations]
+
+    assert len(context_tokenized) == len (context_lemmatized) and len(context_tokenized) == len(context_pos)
+
+    indexes_target_token_tokenized = context_tokenized.index(word)
+
+
+    return {'context_lemmatized':context_lemmatized,'indexes_target_sentence':indexes_target_sentence,'context_pos':context_pos,'indexes_target_sentence_tokenized':indexes_target_sentence_tokenized,'context_lemmatized':context_lemmatized,'context_tokenized':context_tokenized,'indexes_target_token_tokenized':indexes_target_token_tokenized}
+    
+
 
 if __name__ == '__main__':
     aggregation_modes = ['binarize-median', 'median']
@@ -384,9 +502,27 @@ if __name__ == '__main__':
     # Load, transform and store data set (for dev, train, test)
     wic2anno(input_path=wic_path, output_path=wic_transformed_path, label_set='F,T', non_label='-')
 
+
+    # TempoWiC data set (WUG version)
+    dataset = 'https://codalab.lisn.upsaclay.fr/my/datasets/download/3e22f138-ca00-4b10-a0fd-2e914892200d'
+    r = requests.get(dataset, allow_redirects=True)
+    f = datasets_path + 'TempoWiC_Starting_Kit.zip'
+    open(f, 'wb').write(r.content)
+
+    tempowic_source_path = datasets_path + 'TempoWiC_dataset/TempoWiC_Starting_Kit/'
+    Path(tempowic_source_path).mkdir(parents=True, exist_ok=True)
+
+    with zipfile.ZipFile(f) as z:
+        z.extractall(path=tempowic_source_path)
+        
+    datasets_path = 'test_data/datasets/TempoWic/'
+    
+    # Transform dataset to WUG format    
+    for data, label in [('train','labels'), ('trial','gold'), ('validation','labels')]:
+        tempowic2wug(tempowic_source_path + '/data/' + data + '.data.jl', tempowic_source_path + '/data/' + data + '.' + label + '.tsv', datasets_path, label)
+
     # Tempowic to anno
     # run evonlp2wug.sh first to download data and convert it to wug format
-    datasets_path = 'test_data/datasets/TempoWic/'
     for dataset in ["tempowic_train_all", "tempowic_trial_all", "tempowic_validation_all"]:
         data_path = datasets_path + dataset + '/'
         data_transformed_path = datasets_path + dataset + '_transformed/'
