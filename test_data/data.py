@@ -509,17 +509,14 @@ if __name__ == '__main__':
     f = datasets_path + 'TempoWiC_Starting_Kit.zip'
     open(f, 'wb').write(r.content)
 
-    tempowic_source_path = datasets_path + 'TempoWiC_dataset/TempoWiC_Starting_Kit/'
-    Path(tempowic_source_path).mkdir(parents=True, exist_ok=True)
-
     with zipfile.ZipFile(f) as z:
-        z.extractall(path=tempowic_source_path)
+        z.extractall(path=datasets_path)
         
-    datasets_path = 'test_data/datasets/TempoWic/'
+    data_path = datasets_path + 'TempoWiC_Starting_Kit' + '/'
     
     # Transform dataset to WUG format    
     for data, label in [('train','labels'), ('trial','gold'), ('validation','labels')]:
-        tempowic2wug(tempowic_source_path + '/data/' + data + '.data.jl', tempowic_source_path + '/data/' + data + '.' + label + '.tsv', datasets_path, label)
+        tempowic2wug(data_path + 'data/' + data + '.data.jl', data_path + 'data/' + data + '.' + label + '.tsv', datasets_path, label)
 
     # Tempowic to anno
     # run evonlp2wug.sh first to download data and convert it to wug format
