@@ -323,6 +323,7 @@ def tempowic2anno(input_path, output_path, label_set='1,4', non_label='-'):
     print('input_path:', input_path, 'label_set:', label_set, 'non_label:', non_label)
     for condition in ['uses', 'judgments']:
         for p in Path(input_path + '/data').glob('*/{0}.csv'.format(condition)):
+            print('current path:',  p)
 
             with open(p, encoding='utf-8') as csvfile:
                 reader = csv.DictReader(csvfile, delimiter='\t', quoting=csv.QUOTE_NONE, strict=True)
@@ -340,8 +341,8 @@ def tempowic2anno(input_path, output_path, label_set='1,4', non_label='-'):
 
             data_output_path = output_path + '/data/{0}/'.format(str(p).split('/')[-2])
             Path(data_output_path).mkdir(parents=True, exist_ok=True)
-            if condition == 'judgments':
-                write(condition, data_output_path, output_data, non_label, label_set)
+            #if condition == 'judgments':
+            write(condition, data_output_path, output_data, non_label, label_set)
 
     print('-----')
 
@@ -468,6 +469,7 @@ if __name__ == '__main__':
                    ('dwug_de', 'https://zenodo.org/record/7441645/files/dwug_de.zip?download=1', 'normalized'),
                    ('dwug_sv', 'https://zenodo.org/record/7389506/files/dwug_sv.zip?download=1', 'raw')]
     for dataset, link, preprocessing_mode in sources_wug:
+        break
         r = requests.get(link, allow_redirects=True)
         f = datasets_path + dataset + '.zip'
         open(f, 'wb').write(r.content)
