@@ -105,7 +105,7 @@ def get_instances():
         update_task_status(task['id'], StatusEnum.TASK_FAILED.value)
         exit(1)
 
-    with open('tmp/{}instances.csv'.format(prefix), 'w') as f:
+    with open('tmp/{}instances_with_token_index.csv'.format(prefix), 'w') as f:
         f.write(r.content.decode('utf-8'))
 
 

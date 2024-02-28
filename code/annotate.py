@@ -1,10 +1,12 @@
 import json
-import random
 import logging
+import random
 from optparse import OptionParser
 
-from annotation_provider import AnnotationProvider, instance_to_annotation
+import pandas as pd
+
 import xl_lexeme
+
 # For new annotators:
 # import NEW_ANNOTATOR_NAME
 
@@ -37,40 +39,55 @@ def main(annotator, usage_dir, annotation_dir, annotation_filename, prefix, debu
     with open(settings_location) as settings_file:
         settings = json.load(settings_file)
 
-    annotation_input_logging(annotator, debug, usage_dir, annotation_dir, annotation_filename, settings)
-    annotation_provider = AnnotationProvider(settings, usage_dir, prefix, debug=debug)
+    annotation_input_logging(annotator, debug, annotation_dir, annotation_filename, settings)
 
-    # Get judgments for annotators other than random
+    df = load_dataframe(settings, prefix, usage_dir, annotation_filename)
+
+    # Get judgments
     judgments = None
     if annotator == "XL-Lexeme":
-        annotation_provider.flush_instance_with_token_index(path=annotation_dir)
-        columns = settings['token_index_columns']
-        delimiter = settings['delimiter']
-        token_index_filepath = (annotation_dir + '/{}'.format(prefix) + settings['token_index_filename'] +
-                                settings['file_extension'])
-        judgments = xl_lexeme.create_annotations_for_input_data(token_index_filepath, delimiter, columns, thresholds)
+        judgments = xl_lexeme.create_annotations_for_input_data(df, thresholds)
         annotator = xl_lexeme.specify_xl_lexeme_annotator(thresholds)
+
+    elif annotator == "Random":
+        judgments = random.choices([1, 4], k=len(df))
 
     # If you want to add another annotator, add the following here:
     # elif annotator == "NEW_ANNOTATOR_NAME":
     #       code here
     #       cls_result = some_function_in_NEW_ANNOTATOR_NAME.py()
 
-    # Create annotations in the annotation provider
-    for i, instance in enumerate(annotation_provider.get_instances_iterator(random_order=False)):
-        judgment = judgments[i] if judgments is not None else random.choice([1,4])
-        annotation_provider.add_annotation(instance, judgment, annotator)
+    df = complete_the_dataframe(df, annotator, judgments, settings)
 
-    # Save the annotations
-    annotation_provider.flush_annotation(path=annotation_dir)
+    df.to_csv(annotation_dir + '/{}'.format(prefix) + settings['annotations_filename'] +
+              settings['file_extension'], sep=settings['delimiter'], index=False)
 
 
-def annotation_input_logging(annotator, debug, usage_dir, annotation_dir, annotation_filename, settings):
+def load_dataframe(settings, prefix, usage_dir, annotation_filename):
+    delimiter = settings['delimiter']
+    token_index_filepath = (usage_dir + '/{}'.format(prefix) + annotation_filename +
+                            settings['file_extension'])
+    return pd.read_csv(token_index_filepath, header='infer', delimiter=delimiter, quoting=3)
+
+
+def complete_the_dataframe(df: pd.DataFrame, annotator: str, judgments: list, settings):
+    # Assign specific values
+    df['annotator'] = annotator
+    df['comment'] = ''
+    df['judgment'] = judgments
+
+    for col in settings['annotations_columns']:
+        if col not in df.columns:
+            df[col] = ''
+    # Drop the unwanted columns, sort and add necessary columns
+    return df[settings['annotations_columns']]
+
+
+def annotation_input_logging(annotator, debug, annotation_dir, annotation_filename, settings):
     if debug:
         logging.basicConfig(format=settings['log_formatting'], level=logging.DEBUG)
         logging.info("Debug mode is on.")
         logging.info(f"Using annotator '{annotator}' to store annotations.")
-        logging.info(f"Using directory '{usage_dir}' for usage data.")
         logging.info(f"Using directory '{annotation_dir}' to store annotations.")
         logging.info(f"Using filename '{annotation_filename}' to store annotations.")
 
@@ -82,10 +99,10 @@ if __name__ == '__main__':
 
     parser.add_option("-p", "--prefix", dest="prefix", type=str, default="",
                       help="Prefix for the usage, instance and annotation files. Default empty string.")
-    parser.add_option("-u", "--usage_dir", dest="usage_dir", required=True,
-                      help="Directory containing uses and instances data. Required.")
-    parser.add_option("-c", "--annotation_dir", dest="annotation_dir", type=str,
-                      help="Directory to store custom annotations. Defaults to the value given for usage_dir.")
+    parser.add_option("-u", "--usage_dir", dest="usage_dir", default='./temp', type=str,
+                      help="Directory containing uses and instances data. Default: './temp'.")
+    parser.add_option("-c", "--annotation_dir", dest="annotation_dir", default='./temp', type=str,
+                      help="Directory to store custom annotations. Default: './temp'.")
     parser.add_option("-f", "--annotation_filename", dest="annotation_filename", default="annotations.csv",
                       help="Filename to store custom annotations. Default 'annotations.csv'.")
 
@@ -96,9 +113,6 @@ if __name__ == '__main__':
                       dest="settings_location", type=str, help="Default: './settings/repository-settings.json'")
     (options, args) = parser.parse_args()
     logging.info(options)
-
-    if options.annotation_dir is None:
-        options.annotation_dir = options.usage_dir
 
     main(options.annotator, options.usage_dir, options.annotation_dir, options.annotation_filename, options.prefix,
          options.debug, options.thresholds, options.settings_location)
