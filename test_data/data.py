@@ -516,7 +516,7 @@ if __name__ == '__main__':
     
     # Transform dataset to WUG format    
     for data, label in [('train','labels'), ('trial','gold'), ('validation','labels')]:
-        tempowic2wug(data_path + 'data/' + data + '.data.jl', data_path + 'data/' + data + '.' + label + '.tsv', datasets_path, label)
+        tempowic2wug(data_path + 'data/' + data + '.data.jl', data_path + 'data/' + data + '.' + label + '.tsv', datasets_path, data)
 
     # Tempowic to anno
     # run evonlp2wug.sh first to download data and convert it to wug format
