@@ -1,10 +1,13 @@
 from scipy.stats import spearmanr
 from sklearn.metrics import accuracy_score
 import pandas as pd
+from xl_lexeme import specify_xl_lexeme_annotator
 
-def evaluate(custom_dir,custom_filename,usage_dir,prediction_type,model_name,dataset):
+
+def evaluate(custom_dir,custom_filename,usage_dir,thresholds,dataset):
+        annotator = specify_xl_lexeme_annotator(thresholds)
         with open(custom_dir+custom_filename, 'r') as f:
-            df = pd.read_csv(f,sep='\t')
+            df = pd.read_csv(f,sep='\t', index_col=False)
 
             if dataset  in ['wic_test','wic_dev','wic_train']:
                 #print('we are in wic')
@@ -15,7 +18,7 @@ def evaluate(custom_dir,custom_filename,usage_dir,prediction_type,model_name,dat
             predicted_values = df_sorted_pred['judgment']
         #with open(usage_dir+'judgments.csv','r') as f:
         with open(usage_dir+'labels.csv','r') as f:
-            df = pd.read_csv(f,sep='\t')
+            df = pd.read_csv(f,sep='\t', index_col=False)
 
             if dataset  in ['testwug_en_arm','testwug_en_target']:
                 #print('we are in wic')
@@ -26,10 +29,11 @@ def evaluate(custom_dir,custom_filename,usage_dir,prediction_type,model_name,dat
             df_sorted_gold = df.sort_values(['internal_identifier1','internal_identifier2'])
             #gold_values = df_sorted_gold['judgment']
             gold_values = df_sorted_gold['label']
-        #print(predicted_values)
+        #print(gold_values,predicted_values)
+        #print(usage_directory)
         assert len(predicted_values)==len(gold_values)
 
-        if prediction_type == "label" or model_name == "random":
+        if annotator in ["XL-Lexeme-Binary"]:
             accuracy = round(accuracy_score(gold_values, predicted_values),3)
             print("Accuracy:",round(accuracy,3))
         else:
@@ -37,14 +41,14 @@ def evaluate(custom_dir,custom_filename,usage_dir,prediction_type,model_name,dat
         correlation, p_value = spearmanr(gold_values, predicted_values)
         #print(predicted_values)
         print('Corr:',round(correlation,3),'P-Value:',round(p_value,3))
-        save_detailed_results(df_sorted_gold,df_sorted_pred,usage_dir,custom_dir,prediction_type,dataset,model_name,accuracy,correlation,p_value)
+        save_detailed_results(df_sorted_gold,df_sorted_pred,usage_dir,custom_dir,dataset,annotator,accuracy,correlation,p_value)
         return (accuracy,correlation,p_value)
 
 #def print_results(custom_dir,custom_filename,usage_dir):
-def save_detailed_results(df_sorted_gold,df_sorted_pred,usage_dir,custom_dir,prediction_type,dataset,model_name,accuracy,correlation,p_value):
+def save_detailed_results(df_sorted_gold,df_sorted_pred,usage_dir,custom_dir,dataset,annotator,accuracy,correlation,p_value):
     print(usage_dir)
     output_df =pd.DataFrame([dict(zip(['accuracy','correlation','p-value'],[accuracy,round(correlation,3),p_value]))])
-    output_df.to_csv(custom_dir+prediction_type+'-'+dataset+'-'+model_name+'-output.csv',index=False,sep='\t')
+    output_df.to_csv(custom_dir+dataset+'-'+annotator+'-output.csv',index=False,sep='\t')
     with open(usage_dir+'uses.csv','r') as f:
         df_uses = pd.read_csv(f,sep='\t', quoting=3)
     #print('\t'.join(['id1','id2','prediction','gold']))
@@ -68,4 +72,4 @@ def save_detailed_results(df_sorted_gold,df_sorted_pred,usage_dir,custom_dir,pre
             #results_df = results_df.append(row_data, ignore_index=True)
         except:
             continue
-    results_df.to_csv(custom_dir+prediction_type+'-'+dataset+'-'+model_name+'-output-labels.csv', index=False,sep='\t')
+    results_df.to_csv(custom_dir+dataset+'-'+annotator+'-output-labels.csv', index=False,sep='\t')
