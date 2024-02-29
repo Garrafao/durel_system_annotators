@@ -11,7 +11,7 @@ import xl_lexeme
 # import NEW_ANNOTATOR_NAME
 
 """
-This script handles the main annotation process, i.e. reading the input files, calling the specified annotator and 
+This script handles the main annotation process, i.e. reading the input file, calling the specified annotator and 
 writing the annotations to the output annotation file.
 """
 
@@ -41,7 +41,7 @@ def main(annotator, usage_dir, annotation_dir, annotation_filename, prefix, debu
 
     annotation_input_logging(annotator, debug, annotation_dir, annotation_filename, settings)
 
-    df = load_dataframe(settings, prefix, usage_dir, annotation_filename)
+    df = load_dataframe(settings, prefix, usage_dir)
 
     # Get judgments
     judgments = None
@@ -59,27 +59,41 @@ def main(annotator, usage_dir, annotation_dir, annotation_filename, prefix, debu
 
     df = complete_the_dataframe(df, annotator, judgments, settings)
 
-    df.to_csv(annotation_dir + '/{}'.format(prefix) + settings['annotations_filename'] +
-              settings['file_extension'], sep=settings['delimiter'], index=False)
+    df.to_csv(format_path(annotation_dir, prefix, annotation_filename, settings['file_extension']),
+              sep=settings['delimiter'], index=False)
 
 
-def load_dataframe(settings, prefix, usage_dir, annotation_filename):
+def load_dataframe(settings: dict, prefix: str, usage_dir: str):
     delimiter = settings['delimiter']
-    token_index_filepath = (usage_dir + '/{}'.format(prefix) + annotation_filename +
-                            settings['file_extension'])
+    token_index_filepath = format_path(usage_dir, prefix, settings['token_index_filename'], settings['file_extension'])
     return pd.read_csv(token_index_filepath, header='infer', delimiter=delimiter, quoting=3)
 
 
-def complete_the_dataframe(df: pd.DataFrame, annotator: str, judgments: list, settings):
+def format_path(directory: str, prefix: str, filename: str, file_extension: str) -> str:
+    return directory + '/{}'.format(prefix) + filename + file_extension
+
+
+def complete_the_dataframe(df: pd.DataFrame, annotator: str, judgments: list, settings: dict) -> pd.DataFrame:
+    """
+    Complete the dataframe with given parameters.
+
+    :param df: (pandas.DataFrame) The dataframe to be completed.
+    :param annotator: (str) The annotator value to assign to the 'annotator' column.
+    :param judgments: (list) The list of judgment values to assign to the 'judgment' column.
+    :param settings: (dict) A dictionary of settings for completing the dataframe.
+
+    :return: The completed dataframe.
+    :rtype: (pandas.DataFrame)
+    """
     # Assign specific values
     df['annotator'] = annotator
     df['comment'] = ''
     df['judgment'] = judgments
-
+    # Add absent columns
     for col in settings['annotations_columns']:
         if col not in df.columns:
             df[col] = ''
-    # Drop the unwanted columns, sort and add necessary columns
+    # Drop the unwanted columns, sort other columns
     return df[settings['annotations_columns']]
 
 

@@ -1,7 +1,7 @@
 import configparser
 import requests
 import subprocess
-from code.statusEnum import StatusEnum
+from status_enum import StatusEnum
 import os
 import logging
 import random
@@ -13,12 +13,11 @@ def update_task_status(task_id, status):
     """
     Update the status of a task with the given task ID.
 
-    Parameters:
-    task_id (int): The ID of the task to update the status for.
-    status (str): The new status of the task.
-
     Example:
     update_task_status(123, 'completed')
+
+    :param task_id: (int): The ID of the task to update the status for.
+    :param status: (str): The new status of the task.
     """
     url = config['SERVER']['url'] + config['TASK-ROUTES']['update_status'].format(task_id, status)
 
@@ -37,8 +36,7 @@ def get_tasks():
     This method sends a GET request to the server to retrieve the next task.
     It concatenates the server's URL with the 'next' route specified in the configuration file.
 
-    Returns:
-        The next task as a JSON object.
+    :returns: The next task as a JSON object.
 
     Exceptions:
         - If the status code of the response is not 200, the method will exit with status code 1.
@@ -62,29 +60,6 @@ def get_tasks():
     logging.info(new_task)
     logging.info("Annotator is: %s", task['annotatorType'])
     return new_task
-
-
-def get_uses():
-    """
-    Retrieve use information for a given project or word.
-    """
-    if word is None:
-        url = config['SERVER']['url'] + config['USAGE-ROUTES']['usage_with_project'].format(project)
-    else:
-        url = config['SERVER']['url'] + config['USAGE-ROUTES']['usage_with_word'].format(project, word)
-
-    logging.info("Request URL: %s", url)
-
-    r = requests.get(url, headers={
-        'Authorization': auth
-    })
-
-    if r.status_code != 200:
-        update_task_status(task['id'], StatusEnum.TASK_FAILED.value)
-        exit(1)
-
-    with open('tmp/{}uses.csv'.format(prefix), 'w') as f:
-        f.write(r.content.decode('utf-8'))
 
 
 def get_instances():
@@ -111,18 +86,17 @@ def get_instances():
 
 def annotate():
     """
-        This method is used to run an annotation process based on the given annotator type. It determines the annotation
-        script to use based on the annotator type and executes the script using subprocess.
-        The output is written to a log file.
+    This method is used to run an annotation process based on the given annotator type. It determines the annotation
+    script to use based on the annotator type and executes the script using subprocess.
+    The output is written to a log file.
 
-        :return: The subprocess result object.
-        """
+    :return: The subprocess result object.
+    """
     def determine_script():
         """
         Determine the script based on the annotator type.
 
-        Returns:
-            str: The script path.
+        :return: str: The script path.
         """
         if annotator_type == "Random":
             return settings['randomAnnotatorScript']
@@ -163,7 +137,7 @@ def finish_annotation():
         url = config['SERVER']['url'] + config['JUDGEMENT-ROUTES']['judgement']
         print("url for upload votes: " + url)
         # build multipart form data for file upload with owner, project, phase and task id
-        files = [("files", open('tmp/{}judgements.csv'.format(prefix), 'rb'))]
+        files = [("files", open('tmp/{}annotations.csv'.format(prefix), 'rb'))]
 
         r = requests.post(url,
                           headers={'Authorization': auth},
@@ -175,8 +149,6 @@ def finish_annotation():
 
 
 def delete_temporary_files():
-    os.remove('tmp/{}uses.csv'.format(prefix))
-    os.remove('tmp/{}instances.csv'.format(prefix))
     os.remove('tmp/{}instances_with_token_index.csv'.format(prefix))
 
 
@@ -205,6 +177,9 @@ project = task["projectName"]
 word = task["word"]
 annotator_type = task["annotatorType"]
 prefix = str(random.randint(0, 1000))
+
+logging.info("Start annotation")
+
 completed_process = annotate()
 # Capture stderr output from the completed process
 stderr_output = completed_process.stderr.decode('utf-8')
@@ -212,7 +187,5 @@ stderr_output = completed_process.stderr.decode('utf-8')
 # Print the stderr output if there is any
 if stderr_output:
     logging.error(stderr_output)
-
-logging.info("Start annotation")
 
 finish_annotation()
