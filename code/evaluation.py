@@ -4,12 +4,12 @@ import pandas as pd
 from xl_lexeme import specify_xl_lexeme_annotator
 
 
-def evaluate(custom_dir,custom_filename,usage_dir,thresholds,dataset):
+def evaluate(custom_dir,custom_filename,usage_dir,thresholds,dataset): # to do: it would be better to specify the metric as input
         annotator = specify_xl_lexeme_annotator(thresholds)
         with open(custom_dir+custom_filename, 'r') as f:
             df = pd.read_csv(f,sep='\t', index_col=False)
 
-            if dataset  in ['wic_test','wic_dev','wic_train']:
+            if dataset in ['wic_test','wic_dev','wic_train']: # to do: this seems old code, maybe remove
                 #print('we are in wic')
                 df.loc[df['judgment'] == 1, 'judgment'] = 'F'
                 df.loc[df['judgment'] == 4, 'judgment'] = 'T'
@@ -20,13 +20,13 @@ def evaluate(custom_dir,custom_filename,usage_dir,thresholds,dataset):
         with open(usage_dir+'labels.csv','r') as f:
             df = pd.read_csv(f,sep='\t', index_col=False)
 
-            if dataset  in ['testwug_en_arm','testwug_en_target']:
+            if dataset  in ['testwug_en_arm','testwug_en_target']: # to do: Do we need this condition?
                 #print('we are in wic')
                 #df.loc[df['judgment'] == 2, 'judgment'] = 1
                 #df.loc[df['judgment'] == 3, 'judgment'] = 4
                 df.loc[df['label'] == 2, 'label'] = 1
                 df.loc[df['label'] == 3, 'label'] = 4
-            df_sorted_gold = df.sort_values(['internal_identifier1','internal_identifier2'])
+            df_sorted_gold = df.sort_values(['identifier1','identifier2'])
             #gold_values = df_sorted_gold['judgment']
             gold_values = df_sorted_gold['label']
         #print(gold_values,predicted_values)
