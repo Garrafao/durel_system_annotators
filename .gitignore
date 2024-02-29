@@ -1,5 +1,6 @@
 annotator-venv
 install_packages.sh
+run_integration_tests.sh
 annotator-venv*
 /test_data/datasets
 update-git.sh

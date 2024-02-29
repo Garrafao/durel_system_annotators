@@ -20,8 +20,8 @@ class TestAnAnnotator(unittest.TestCase):
     def setUp(self):
         self.lexeme_annotator = 'Random'  # or 'Random'
         # self.random_annotator = 'Random'
-        self.usage_dir_test_en_arm = test_data_directory_path + 'testwug_en_transformed_binarize-median/data_split/arm/'
-        self.usage_dir_test_en_target = test_data_directory_path + 'testwug_en_transformed_binarize-median/data_split/target/'
+        self.usage_dir_test_en_arm = test_data_directory_path + 'testwug_en_transformed_binarize-median/data/all'
+        self.usage_dir_test_en_target = test_data_directory_path + 'testwug_en_transformed_binarize-median/data/all'
 
         self.usage_dir_test_wic_train = test_data_directory_path + 'WiC_dataset_transformed/train/data/all/'
         self.usage_dir_test_wic_dev = test_data_directory_path + 'WiC_dataset_transformed/dev/data/all/'
