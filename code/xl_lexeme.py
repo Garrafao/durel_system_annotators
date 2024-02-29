@@ -21,7 +21,7 @@ def specify_xl_lexeme_annotator(thresholds: list[int]) -> str:
         return "XL-Lexeme-Cosine"
 
 
-def create_annotations_for_input_data(path_of_dataset: str, delimiter: str, columns: list[str],
+def create_annotations_for_input_data(df: pd.DataFrame,
                                       thresholds: list[float] = None, model_dir: str = None) -> list[int]:
     def select_torch():
         # If there's a GPU available...
@@ -57,7 +57,7 @@ def create_annotations_for_input_data(path_of_dataset: str, delimiter: str, colu
     # Setup
     select_torch()
     left_sentence_and_token_index, right_sentence_and_token_index = (
-        get_left_right_sentences_and_token_index(path_of_dataset, delimiter, columns))
+        get_left_right_sentences_and_token_index(df))
 
     # Compute embeddings
     model = WordTransformer('pierluigic/xl-lexeme', cache_folder=model_dir)
@@ -115,22 +115,18 @@ def save_embeddings_lexeme(sentence_and_token_index: list[tuple], saving_path: s
     np.save(saving_path, token_embeddings_output)
 
 
-def get_left_right_sentences_and_token_index(path_of_dataset: str, delimiter: str, columns: list[str]):
+def get_left_right_sentences_and_token_index(df: pd.DataFrame) -> tuple:
     """
     Get the left and right sentences along with their corresponding token index from a dataset.
 
-    :param path_of_dataset: The path to the dataset file.
-    :param delimiter: The delimiter used to separate the columns in the dataset file.
-    :param columns: A list of column names for the dataset.
+    :param df: The dataset.
 
     :return: A tuple containing two iterators. The first iterator provides (sentence_left, token_index_of_sentence_left)
     pairs, and the second iterator provides (sentence_right, token_index_of_sentence_right) pairs.
     """
-    df = pd.read_csv(path_of_dataset, delimiter=delimiter, header=None,
-                     names=columns, quoting=3)
-    sentences_left = df.sentence_left.tolist()
-    token_index_of_sentence_left = df.token_index_of_sentence_left.tolist()
-    sentences_right = df.sentence_right.tolist()
-    token_index_of_sentence_right = df.token_index_of_sentence_right.tolist()
+    sentences_left = df['sentence_left'].tolist()
+    token_index_of_sentence_left = df['token_index_of_sentence_left'].tolist()
+    sentences_right = df['sentence_right'].tolist()
+    token_index_of_sentence_right = df['token_index_of_sentence_right'].tolist()
 
     return zip(sentences_left, token_index_of_sentence_left), zip(sentences_right, token_index_of_sentence_right)

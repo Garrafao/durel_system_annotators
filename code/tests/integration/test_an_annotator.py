@@ -18,7 +18,7 @@ test_data_directory_path = "./test_data/datasets/"
 
 class TestAnAnnotator(unittest.TestCase):
     def setUp(self):
-        self.lexeme_annotator = 'XL-Lexeme'  # or 'Random'
+        self.lexeme_annotator = 'Random'  # or 'Random'
         # self.random_annotator = 'Random'
         self.usage_dir_test_en_arm = test_data_directory_path + 'testwug_en_transformed_binarize-median/data_split/arm/'
         self.usage_dir_test_en_target = test_data_directory_path + 'testwug_en_transformed_binarize-median/data_split/target/'
@@ -50,7 +50,7 @@ class TestAnAnnotator(unittest.TestCase):
 
     def test_xl_lexeme_main_test_en_arm(self):
         # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_en_arm, self.custom_dir, self.custom_filename,
+        annotator_main(self.lexeme_annotator, self.custom_dir, self.custom_filename,
                        self.prefix, self.debug, self.thresholds, './settings/repository-settings.json')
         self.assertTrue(os.path.exists(self.custom_dir + "/" + self.custom_filename + ".csv"))
 
@@ -59,7 +59,7 @@ class TestAnAnnotator(unittest.TestCase):
 
     def test_xl_lexeme_main_test_en_target(self):
         # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_en_target, self.custom_dir, self.custom_filename,
+        annotator_main(self.lexeme_annotator, self.custom_dir, self.custom_filename,
                        self.prefix, self.debug, self.thresholds)
 
         self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))

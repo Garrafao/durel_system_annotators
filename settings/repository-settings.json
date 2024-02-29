@@ -5,8 +5,8 @@
     "log_formatting": "%(levelname)s: %(message)s",
     "delimiter": "\t",
     "file_extension": ".csv",
-    "annotations_columns": ["identifier1", "identifier2", "annotator","judgment", "comment", "lemma", "timestamp","instanceID"],
+    "annotations_columns": ["identifier1", "identifier2", "annotator", "judgment", "comment", "lemma", "timestamp"],
     "annotations_filename": "annotations",
-    "token_index_columns": ["lemma", "sentence_left", "token_index_of_sentence_left", "sentence_right", "token_index_of_sentence_right"],
+    "token_index_columns": ["lemma","identifier1", "sentence_left", "token_index_of_sentence_left", "identifier2", "sentence_right", "token_index_of_sentence_right"],
     "token_index_filename": "instances_with_token_index"
 }
