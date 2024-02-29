@@ -22,7 +22,7 @@ def specify_xl_lexeme_annotator(thresholds: list[int]) -> str:
 
 
 def create_annotations_for_input_data(path_of_dataset: str, delimiter: str, columns: list[str],
-                                      thresholds: list[float] = None) -> list[int]:
+                                      thresholds: list[float] = None, model_dir: str = None) -> list[int]:
     def select_torch():
         # If there's a GPU available...
         if torch.cuda.is_available():
@@ -60,7 +60,7 @@ def create_annotations_for_input_data(path_of_dataset: str, delimiter: str, colu
         get_left_right_sentences_and_token_index(path_of_dataset, delimiter, columns))
 
     # Compute embeddings
-    model = WordTransformer('pierluigic/xl-lexeme')
+    model = WordTransformer('pierluigic/xl-lexeme', cache_folder=model_dir)
     embeddings_left = compute_embeddings_lexeme(left_sentence_and_token_index, model)
     embeddings_right = compute_embeddings_lexeme(right_sentence_and_token_index, model)
 

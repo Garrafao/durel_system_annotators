@@ -41,8 +41,6 @@ class TestAnAnnotator(unittest.TestCase):
             os.makedirs(self.custom_dir)
         self.custom_filename = 'annotations'
         self.debug = True
-        # self.subword_aggregation = 'average' # not implemented yet
-        # self.prediction_type = 'label' # or it could be 'distance' or 'label'
         self.thresholds = [0.2, 0.4, 0.6]  # for multi-threshold
 
     # def tearDown(self):

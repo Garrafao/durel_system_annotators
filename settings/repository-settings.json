@@ -1,5 +1,6 @@
 {
     "envName": "annotator-venv",
+    "model_dir": "./model",
     "logFilePath": "./logs/pipeline.log",
     "log_formatting": "%(levelname)s: %(message)s",
     "delimiter": "\t",

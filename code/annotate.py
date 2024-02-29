@@ -1,6 +1,6 @@
 import json
-import random
 import logging
+import random
 from optparse import OptionParser
 
 from annotation_provider import AnnotationProvider, instance_to_annotation
@@ -48,7 +48,7 @@ def main(annotator, usage_dir, annotation_dir, annotation_filename, prefix, debu
         delimiter = settings['delimiter']
         token_index_filepath = (annotation_dir + '/{}'.format(prefix) + settings['token_index_filename'] +
                                 settings['file_extension'])
-        judgments = xl_lexeme.create_annotations_for_input_data(token_index_filepath, delimiter, columns, thresholds)
+        judgments = xl_lexeme.create_annotations_for_input_data(token_index_filepath, delimiter, columns, thresholds, settings['model_dir'])
         annotator = xl_lexeme.specify_xl_lexeme_annotator(thresholds)
 
     # If you want to add another annotator, add the following here:

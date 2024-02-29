@@ -7,4 +7,5 @@ __pycache__
 code/__pycache__
 xl-lexeme/
 temp*
+model
 random-annotator-venv*
