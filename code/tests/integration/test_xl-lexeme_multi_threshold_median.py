@@ -26,19 +26,16 @@ class TestAnAnnotator(unittest.TestCase):
         self.usage_dir_test_dwug_en = test_data_directory_path + 'dwug_en_transformed_median/data/all/'
         self.usage_dir_test_dwug_sv = test_data_directory_path + 'dwug_sv_transformed_median/data/all/'
 
-        self.usage_dir_test_tempowic_train = test_data_directory_path + 'TempoWic/tempowic_train_all_transformed/data/all/'
-        self.usage_dir_test_tempowic_trial = test_data_directory_path + 'TempoWic/tempowic_trial_all_transformed/data/all/'
-        self.usage_dir_test_tempowic_validation = test_data_directory_path + 'TempoWic/tempowic_validation_all_transformed/data/all/'
+        self.usage_dir_test_tempowic_train = test_data_directory_path + 'tempowic_train_all_transformed/data/all/'
+        self.usage_dir_test_tempowic_trial = test_data_directory_path + 'tempowic_trial_all_transformed/data/all/'
+        self.usage_dir_test_tempowic_validation = test_data_directory_path + 'tempowic_validation_all_transformed/data/all/'
 
         self.prefix = ''
         self.custom_dir = '../../temp/'
         if not os.path.exists(self.custom_dir):
             os.makedirs(self.custom_dir)
-        #self.custom_filename = 'judgements.csv'
         self.custom_filename = 'annotations.csv'
         self.debug = True
-        # self.subword_aggregation = 'average' # not implemented yet
-        # self.prediction_type = 'label' # or it could be 'distance' or 'label'
         self.thresholds = [0.4, 0.6, 0.8]  # for multi-threshold
 
     # def tearDown(self):
@@ -177,10 +174,10 @@ def suite():
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_dwug_de'))
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_dwug_sv'))
 
-    #test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_train'))
-    #test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_trial'))
-    #test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_validation'))
-    
+    test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_train'))
+    test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_trial'))
+    test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_validation'))
+
 
     return test_suite
 

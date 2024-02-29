@@ -44,11 +44,8 @@ class TestAnAnnotator(unittest.TestCase):
         self.custom_dir = './temp/'
         if not os.path.exists(self.custom_dir):
             os.makedirs(self.custom_dir)
-        #self.custom_filename = 'judgements.csv'
         self.custom_filename = 'annotations.csv'
         self.debug = True
-        # self.subword_aggregation = 'average' # not implemented yet
-        # self.prediction_type = 'label' # or it could be 'distance' or 'label'
         self.thresholds = None
 
     # def tearDown(self):
@@ -248,10 +245,10 @@ def suite():
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_dwug_de_median'))
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_dwug_sv_median'))
 
-    #test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_train'))
-    #test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_trial'))
-    #test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_validation'))
-    
+    test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_train'))
+    test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_trial'))
+    test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_validation'))
+
 
     return test_suite
 
