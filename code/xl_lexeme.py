@@ -90,7 +90,9 @@ def compute_embeddings_lexeme(sentence_and_token_index: list[tuple], model) -> n
     """
     token_embeddings_output = list()
     for i, (sen, idx) in enumerate(sentence_and_token_index):
-        idx_tuple = ast.literal_eval(idx)
+        #print(type(idx))
+        idx_tuple = (int(idx.split(':')[0]),int(idx.split(':')[1]))
+        #idx_tuple = ast.literal_eval(idx.split(':'))
         examples = InputExample(texts='"' + sen + '"', positions=[idx_tuple[0], idx_tuple[1]])
         outputs = model.encode(examples)
 
@@ -106,6 +108,7 @@ def save_embeddings_lexeme(sentence_and_token_index: list[tuple], saving_path: s
 
     token_embeddings_output = list()
     for (sen, idx) in sentence_and_token_index:
+        #print(idx)
         idx_tuple = ast.literal_eval(idx)
         examples = InputExample(texts='"' + sen + '"', positions=[idx_tuple[0], idx_tuple[1]])
         outputs = model.encode(examples)
@@ -124,9 +127,15 @@ def get_left_right_sentences_and_token_index(df: pd.DataFrame) -> tuple:
     :return: A tuple containing two iterators. The first iterator provides (sentence_left, token_index_of_sentence_left)
     pairs, and the second iterator provides (sentence_right, token_index_of_sentence_right) pairs.
     """
-    sentences_left = df['sentence_left'].tolist()
-    token_index_of_sentence_left = df['token_index_of_sentence_left'].tolist()
-    sentences_right = df['sentence_right'].tolist()
-    token_index_of_sentence_right = df['token_index_of_sentence_right'].tolist()
+    #print(df)
+    #sentences_left = df['sentence_left'].tolist()
+    #token_index_of_sentence_left = df['token_index_of_sentence_left'].tolist()
+    #sentences_right = df['sentence_right'].tolist()
+    #token_index_of_sentence_right = df['token_index_of_sentence_right'].tolist()
+    #print(df['indexes_target_token1'])
+    sentences_left = df['context1'].tolist()
+    token_index_of_sentence_left = df['indexes_target_token1'].tolist()
+    sentences_right = df['context2'].tolist()
+    token_index_of_sentence_right = df['indexes_target_token2'].tolist()
 
     return zip(sentences_left, token_index_of_sentence_left), zip(sentences_right, token_index_of_sentence_right)
