@@ -57,7 +57,7 @@ def create_annotations_for_input_data(df: pd.DataFrame,
     # Setup
     select_torch()
     left_sentence_and_token_index, right_sentence_and_token_index = (
-        get_left_right_sentences_and_token_index(df))
+        get_contexts_and_token_indices(df))
 
     # Compute embeddings
     model = WordTransformer('pierluigic/xl-lexeme', cache_folder=model_dir)
@@ -118,7 +118,7 @@ def save_embeddings_lexeme(sentence_and_token_index: list[tuple], saving_path: s
     np.save(saving_path, token_embeddings_output)
 
 
-def get_left_right_sentences_and_token_index(df: pd.DataFrame) -> tuple:
+def get_contexts_and_token_indices(df: pd.DataFrame) -> tuple:
     """
     Get the left and right sentences along with their corresponding token index from a dataset.
 
@@ -127,12 +127,6 @@ def get_left_right_sentences_and_token_index(df: pd.DataFrame) -> tuple:
     :return: A tuple containing two iterators. The first iterator provides (sentence_left, token_index_of_sentence_left)
     pairs, and the second iterator provides (sentence_right, token_index_of_sentence_right) pairs.
     """
-    #print(df)
-    #sentences_left = df['sentence_left'].tolist()
-    #token_index_of_sentence_left = df['token_index_of_sentence_left'].tolist()
-    #sentences_right = df['sentence_right'].tolist()
-    #token_index_of_sentence_right = df['token_index_of_sentence_right'].tolist()
-    #print(df['indexes_target_token1'])
     sentences_left = df['context1'].tolist()
     token_index_of_sentence_left = df['indexes_target_token1'].tolist()
     sentences_right = df['context2'].tolist()
