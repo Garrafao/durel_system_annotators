@@ -88,7 +88,7 @@ def compute_embeddings_lexeme(sentence_and_token_index: list[tuple], batch_size:
     :rtype: np.ndarray
     """
     token_embeddings_output = [InputExample(texts=sen,
-                                            positions=[int(idx.split(':')[0]), int(idx.split(':')[0])])
+                                            positions=[int(idx.split(':')[0]), int(idx.split(':')[1])])
                                for sen, idx in sentence_and_token_index]
 
     token_embeddings_output = model.encode(token_embeddings_output, batch_size=batch_size)
