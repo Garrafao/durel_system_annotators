@@ -46,7 +46,8 @@ def main(annotator, usage_dir, annotation_dir, annotation_filename, prefix, debu
     # Get judgments
     judgments = None
     if annotator == "XL-Lexeme":
-        judgments = xl_lexeme.create_annotations_for_input_data(df, thresholds, settings['model_dir'])
+        judgments = xl_lexeme.create_annotations_for_input_data(df, settings['batch_size'],
+                                                                thresholds, settings['model_dir'])
         annotator = xl_lexeme.specify_xl_lexeme_annotator(thresholds)
 
     elif annotator == "Random":

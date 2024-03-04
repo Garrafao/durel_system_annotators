@@ -1,13 +1,11 @@
-import ast
 import logging
 
 import numpy as np
 import pandas as pd
 import torch
-from scipy.spatial.distance import cosine
-
-from WordTransformer.InputExample import InputExample
 from WordTransformer import WordTransformer
+from WordTransformer.InputExample import InputExample
+from scipy.spatial.distance import cosine
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +19,7 @@ def specify_xl_lexeme_annotator(thresholds: list[int]) -> str:
         return "XL-Lexeme-Cosine"
 
 
-def create_annotations_for_input_data(df: pd.DataFrame,
+def create_annotations_for_input_data(df: pd.DataFrame, batch_size: int,
                                       thresholds: list[float] = None, model_dir: str = None) -> list[int]:
     def select_torch():
         # If there's a GPU available...
@@ -61,8 +59,8 @@ def create_annotations_for_input_data(df: pd.DataFrame,
 
     # Compute embeddings
     model = WordTransformer('pierluigic/xl-lexeme', cache_folder=model_dir)
-    embeddings_left = compute_embeddings_lexeme(left_sentence_and_token_index, model)
-    embeddings_right = compute_embeddings_lexeme(right_sentence_and_token_index, model)
+    embeddings_left = compute_embeddings_lexeme(left_sentence_and_token_index, batch_size, model)
+    embeddings_right = compute_embeddings_lexeme(right_sentence_and_token_index, batch_size, model)
 
     # Calculate cosine similarity judgments
     judgment_list = []
@@ -77,45 +75,25 @@ def create_annotations_for_input_data(df: pd.DataFrame,
     return judgment_list
 
 
-def compute_embeddings_lexeme(sentence_and_token_index: list[tuple], model) -> np.ndarray:
+def compute_embeddings_lexeme(sentence_and_token_index: list[tuple], batch_size: int, model) -> np.ndarray:
     """
     This function computes embeddings for given sentences and token indices.
 
     :param sentence_and_token_index: A list of tuples, each containing a sentence and a corresponding token index.
+    :param batch_size: The batch size for computing embeddings.
     :type sentence_and_token_index: list[tuple]
     :param model: The model that will be used to encode the given sentences.
 
     :return: Embeddings for the given sentences and token indices.
     :rtype: np.ndarray
     """
-    token_embeddings_output = list()
-    for i, (sen, idx) in enumerate(sentence_and_token_index):
-        #print(type(idx))
-        idx_tuple = (int(idx.split(':')[0]),int(idx.split(':')[1]))
-        #idx_tuple = ast.literal_eval(idx.split(':'))
-        examples = InputExample(texts='"' + sen + '"', positions=[idx_tuple[0], idx_tuple[1]])
-        outputs = model.encode(examples)
+    token_embeddings_output = [InputExample(texts=sen,
+                                            positions=[int(idx.split(':')[0]), int(idx.split(':')[0])])
+                               for sen, idx in sentence_and_token_index]
 
-        token_embeddings_output.append(outputs)
-        # print(sen,idx,outputs)
-    # print(token_embeddings_output)
+    token_embeddings_output = model.encode(token_embeddings_output, batch_size=batch_size)
     token_embeddings_output = np.array(token_embeddings_output)
     return token_embeddings_output
-
-
-def save_embeddings_lexeme(sentence_and_token_index: list[tuple], saving_path: str, model):
-    logger.info("Saving embeddings to %s", saving_path)
-
-    token_embeddings_output = list()
-    for (sen, idx) in sentence_and_token_index:
-        #print(idx)
-        idx_tuple = ast.literal_eval(idx)
-        examples = InputExample(texts='"' + sen + '"', positions=[idx_tuple[0], idx_tuple[1]])
-        outputs = model.encode(examples)
-        token_embeddings_output.append(outputs)
-
-    token_embeddings_output = np.array(token_embeddings_output)
-    np.save(saving_path, token_embeddings_output)
 
 
 def get_contexts_and_token_indices(df: pd.DataFrame) -> tuple:

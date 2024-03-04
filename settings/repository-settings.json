@@ -9,6 +9,7 @@
     "annotations_filename": "annotations",
     "token_index_columns": ["lemma","identifier1", "sentence_left", "token_index_of_sentence_left", "identifier2", "sentence_right", "token_index_of_sentence_right"],
     "token_index_filename": "instances",
+    "batch_size": 32,
     "next_task_route": "/tasks/next",
     "update_status_route": "/tasks/{}/update-status/{}",
     "instance_with_project_route": "/{}/instances",
