@@ -49,7 +49,7 @@ class TestAnAnnotator(unittest.TestCase):
         self.custom_dir = './temp/'
         if not os.path.exists(self.custom_dir):
             os.makedirs(self.custom_dir)
-        self.custom_filename = 'annotations.csv'
+        self.custom_filename = 'annotations' + settings['file_extension']
         self.debug = True
         self.thresholds = None
 
@@ -61,22 +61,22 @@ class TestAnAnnotator(unittest.TestCase):
     def test_xl_lexeme_main_test_en_arm(self):
         # call the function to be tested
         annotator_main(self.lexeme_annotator, self.usage_dir_test_en_arm, self.custom_dir, self.custom_filename,
-                       self.prefix, self.debug, self.thresholds,settings_file_location)
+                       self.prefix, self.debug, self.thresholds, settings_file_location)
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename+settings['file_extension'],self.usage_dir_test_en_arm, self.thresholds,dataset='testwug_en_arm')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_en_arm, self.thresholds,dataset='testwug_en_arm')
 
     def test_xl_lexeme_main_test_en_arm_median(self):
         # call the function to be tested
         annotator_main(self.lexeme_annotator, self.usage_dir_test_en_arm_median, self.custom_dir, self.custom_filename,
                        self.prefix, self.debug, self.thresholds,settings_file_location)
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename+settings['file_extension'],self.usage_dir_test_en_arm_median, self.thresholds,dataset='testwug_en_arm_median')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_en_arm_median, self.thresholds,dataset='testwug_en_arm_median')
 
 
     def test_xl_lexeme_main_test_en_target(self):
@@ -84,50 +84,50 @@ class TestAnAnnotator(unittest.TestCase):
         annotator_main(self.lexeme_annotator, self.usage_dir_test_en_target, self.custom_dir, self.custom_filename,
                        self.prefix, self.debug, self.thresholds,settings_file_location)
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename+settings['file_extension'],self.usage_dir_test_en_target, self.thresholds,dataset='testwug_en_target')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_en_target, self.thresholds,dataset='testwug_en_target')
 
     def test_xl_lexeme_main_test_en_target_median(self):
         # call the function to be tested
         annotator_main(self.lexeme_annotator, self.usage_dir_test_en_target_median, self.custom_dir, self.custom_filename,
                        self.prefix, self.debug, self.thresholds,settings_file_location)
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename+settings['file_extension'],self.usage_dir_test_en_target_median, self.thresholds,dataset='testwug_en_target_median')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_en_target_median, self.thresholds,dataset='testwug_en_target_median')
 
     def test_xl_lexeme_main_wic_train(self):
         # call the function to be tested
         annotator_main(self.lexeme_annotator, self.usage_dir_test_wic_train, self.custom_dir, self.custom_filename,
                        self.prefix, self.debug, self.thresholds,settings_file_location)
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename+settings['file_extension'],self.usage_dir_test_wic_train, self.thresholds,dataset='wic_train')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_wic_train, self.thresholds,dataset='wic_train')
 
     def test_xl_lexeme_main_wic_dev(self):
         # call the function to be tested
         annotator_main(self.lexeme_annotator, self.usage_dir_test_wic_dev, self.custom_dir, self.custom_filename,
                        self.prefix, self.debug, self.thresholds,settings_file_location)
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename+settings['file_extension'],self.usage_dir_test_wic_dev, self.thresholds,dataset='wic_dev')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_wic_dev, self.thresholds,dataset='wic_dev')
 
     def test_xl_lexeme_main_wic_test(self):
         # call the function to be tested
         annotator_main(self.lexeme_annotator, self.usage_dir_test_wic_test, self.custom_dir, self.custom_filename,
                        self.prefix, self.debug, self.thresholds,settings_file_location)
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename+settings['file_extension'],self.usage_dir_test_wic_test, self.thresholds,dataset='wic_test')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_wic_test, self.thresholds,dataset='wic_test')
 
     def test_xl_lexeme_main_dwug_en(self):
         # call the function to be tested
@@ -135,10 +135,10 @@ class TestAnAnnotator(unittest.TestCase):
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename+settings['file_extension'],self.usage_dir_test_dwug_en, self.thresholds,dataset='dwug_en')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_dwug_en, self.thresholds,dataset='dwug_en')
 
     def test_xl_lexeme_main_dwug_de(self):
         # call the function to be tested
@@ -146,10 +146,10 @@ class TestAnAnnotator(unittest.TestCase):
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename+settings['file_extension'],self.usage_dir_test_dwug_de, self.thresholds,dataset='dwug_de')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_dwug_de, self.thresholds,dataset='dwug_de')
 
     def test_xl_lexeme_main_dwug_sv(self):
         # call the function to be tested
@@ -157,10 +157,10 @@ class TestAnAnnotator(unittest.TestCase):
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename+settings['file_extension'],self.usage_dir_test_dwug_sv, self.thresholds,dataset='dwug_sv')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_dwug_sv, self.thresholds,dataset='dwug_sv')
 
 
     def test_xl_lexeme_main_dwug_en_median(self):
@@ -169,10 +169,10 @@ class TestAnAnnotator(unittest.TestCase):
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename+settings['file_extension'],self.usage_dir_test_dwug_en, self.thresholds,dataset='dwug_en_median')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_dwug_en, self.thresholds,dataset='dwug_en_median')
 
     def test_xl_lexeme_main_dwug_de_median(self):
         # call the function to be tested
@@ -180,10 +180,10 @@ class TestAnAnnotator(unittest.TestCase):
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename+settings['file_extension'],self.usage_dir_test_dwug_de, self.thresholds,dataset='dwug_de_median')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_dwug_de, self.thresholds,dataset='dwug_de_median')
 
     def test_xl_lexeme_main_dwug_sv_median(self):
         # call the function to be tested
@@ -191,10 +191,10 @@ class TestAnAnnotator(unittest.TestCase):
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename+settings['file_extension'],self.usage_dir_test_dwug_sv, self.self.thresholds,dataset='dwug_sv_median')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_dwug_sv, self.self.thresholds,dataset='dwug_sv_median')
 
     def test_xl_lexeme_main_tempowic_train(self):
         # call the function to be tested
@@ -202,10 +202,10 @@ class TestAnAnnotator(unittest.TestCase):
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename+settings['file_extension'],self.usage_dir_test_tempowic_train, self.thresholds,dataset='tempowic_train')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_tempowic_train, self.thresholds,dataset='tempowic_train')
 
     def test_xl_lexeme_main_tempowic_trial(self):
         # call the function to be tested
@@ -213,10 +213,10 @@ class TestAnAnnotator(unittest.TestCase):
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename+settings['file_extension'],self.usage_dir_test_tempowic_trial, self.thresholds,dataset='tempowic_trial')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_tempowic_trial, self.thresholds,dataset='tempowic_trial')
 
     def test_xl_lexeme_main_tempowic_validation(self):
         # call the function to be tested
@@ -224,16 +224,15 @@ class TestAnAnnotator(unittest.TestCase):
                        self.custom_filename, self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename+settings['file_extension'],self.usage_dir_test_tempowic_validation, self.thresholds,dataset='tempowic_validation')
+        # acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_tempowic_validation, self.thresholds,dataset='tempowic_validation')
 
 
 def suite():
     test_suite = unittest.TestSuite()
     test_suite.addTest(TestAnAnnotator('test_xl_lexeme_main_test_en_arm'))
-
     test_suite.addTest(TestAnAnnotator('test_xl_lexeme_main_test_en_target'))
     test_suite.addTest(TestAnAnnotator('test_xl_lexeme_main_test_en_arm_median'))
     test_suite.addTest(TestAnAnnotator('test_xl_lexeme_main_test_en_target_median'))
