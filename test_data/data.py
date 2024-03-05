@@ -1,5 +1,6 @@
 # Get external data sets for integration testing and transform them into our format
 import csv
+import shutil
 import zipfile
 from collections import defaultdict
 from pathlib import Path
@@ -11,15 +12,16 @@ import requests
 import os
 import json
 import spacy
+from requests import RequestException
+
 nlp = spacy.load("en_core_web_sm")
-import re
 
 
 class NotImplementedException(Exception):
     pass
 
 
-def aggregate_wug(judgments, aggregation_mode='binarize-median'):
+def aggregate_wug(judgments):
     """
     Load WUG-formatted list of judgments as list of dictionaries and aggregate.
     """
@@ -39,8 +41,7 @@ def aggregate_wug(judgments, aggregation_mode='binarize-median'):
     return pair2label
 
 
-def wug2anno(input_path, output_path, aggregation_mode='median',
-             preprocessing_mode='raw'):
+def wug2anno(input_path, output_path):
     """
     Load WUG-formatted data set, transform it to format of DURel system annotators and export.
     """
@@ -140,31 +141,36 @@ def wug2anno(input_path, output_path, aggregation_mode='median',
                 uses_all += output_data
             if condition == 'judgments':
                 lemma = data[0]['lemma']  # infer lemma from first row
-                pair2label = aggregate_wug(data, aggregation_mode=aggregation_mode)
+                pair2label = aggregate_wug(data)
+                # to do: new instance construction needs access to judgments and uses and thus cannot
+                # be calculated by itself
                 output_data = [{'identifier1': id1, 'identifier2': id2, 'label': l, 'lemma': lemma}
-                               for (id1, id2), l in pair2label.items()] # to do: new instance construction needs access to judgments and uses and thus cannot be calculated by itself
+                               for (id1, id2), l in
+                               pair2label.items()]
                 labels_all += output_data
-                
+
             # to do: data export for split data currently not possible
-            #data_output_path = output_path + '/data_split/{0}/'.format(str(p).split('/')[-2])
-            #Path(data_output_path).mkdir(parents=True, exist_ok=True)
-            #name = 'labels' if condition == 'judgments' else condition
+            # data_output_path = output_path + '/data_split/{0}/'.format(str(p).split('/')[-2])
+            # Path(data_output_path).mkdir(parents=True, exist_ok=True)
+            # name = 'labels' if condition == 'judgments' else condition
             # Export data
-            #with open(data_output_path + '{0}.csv'.format(name), 'w') as file:
+            # with open(data_output_path + '{0}.csv'.format(name), 'w') as file:
             #    w = csv.DictWriter(file, output_data[0].keys(), delimiter='\t', quoting=csv.QUOTE_NONE,
             #                           escapechar='\\')
             #    w.writeheader()
             #    w.writerows(output_data)
 
-    #print(uses_all)
+    # print(uses_all)
     # Get mapping from identifiers to uses        
-    id2use_all = {row['identifier']:row for row in uses_all}
+    id2use_all = {row['identifier']: row for row in uses_all}
 
     # Create instances
     instances_all = [{'lemma': row['lemma'], 'identifier1': id2use_all[row['identifier1']]['identifier'],
-                      'context1': id2use_all[row['identifier1']]['context'], 'indexes_target_token1': id2use_all[row['identifier1']]['indexes_target_token'],
+                      'context1': id2use_all[row['identifier1']]['context'],
+                      'indexes_target_token1': id2use_all[row['identifier1']]['indexes_target_token'],
                       'identifier2': id2use_all[row['identifier2']]['identifier'],
-                      'context2': id2use_all[row['identifier2']]['context'], 'indexes_target_token2': id2use_all[row['identifier2']]['indexes_target_token'],
+                      'context2': id2use_all[row['identifier2']]['context'],
+                      'indexes_target_token2': id2use_all[row['identifier2']]['indexes_target_token'],
                       } for row in labels_all]
 
     # Check whether there is a mismatch between number of pairs in gold and instances
@@ -180,7 +186,8 @@ def wug2anno(input_path, output_path, aggregation_mode='median',
 
     for condition, output_data in [('uses', uses_all), ('labels', labels_all), ('instances', instances_all)]:
         with open(data_output_path + '{0}.csv'.format(condition), 'w') as file:
-            w = csv.DictWriter(file, output_data[0].keys(), delimiter='\t', quoting=csv.QUOTE_NONE, escapechar='\\') # to do: this is dangerous! It can introduce additional characters and make the target word indices wrong. I did not yet find a good way to solve this.
+            w = csv.DictWriter(file, output_data[0].keys(), delimiter='\t', quoting=csv.QUOTE_NONE,
+                               escapechar='\\')  # to do: this is dangerous! It can introduce additional characters and make the target word indices wrong. I did not yet find a good way to solve this.
             w.writeheader()
             w.writerows(output_data)
 
@@ -265,7 +272,7 @@ def wic2anno(input_path, output_path):
             data = [row for row in reader]
 
         labels_all = [{'identifier1': identifier1, 'identifier2': identifier2, 'label': data[i]['label'],
-                   'lemma': lemma} for i, (identifier1, identifier2, lemma) in enumerate(pairs)]
+                       'lemma': lemma} for i, (identifier1, identifier2, lemma) in enumerate(pairs)]
 
         datatype = 'labels'
 
@@ -278,13 +285,15 @@ def wic2anno(input_path, output_path):
             w.writerows(labels_all)
 
         # Get mapping from identifiers to uses        
-        id2use_all = identifier2use # exists already, renaming for compatibility
+        id2use_all = identifier2use  # exists already, renaming for compatibility
 
         # Create instances
         instances_all = [{'lemma': row['lemma'], 'identifier1': id2use_all[row['identifier1']]['identifier'],
-                          'context1': id2use_all[row['identifier1']]['context'], 'indexes_target_token1': id2use_all[row['identifier1']]['indexes_target_token'],
+                          'context1': id2use_all[row['identifier1']]['context'],
+                          'indexes_target_token1': id2use_all[row['identifier1']]['indexes_target_token'],
                           'identifier2': id2use_all[row['identifier2']]['identifier'],
-                          'context2': id2use_all[row['identifier2']]['context'], 'indexes_target_token2': id2use_all[row['identifier2']]['indexes_target_token'],
+                          'context2': id2use_all[row['identifier2']]['context'],
+                          'indexes_target_token2': id2use_all[row['identifier2']]['indexes_target_token'],
                           } for row in labels_all]
 
         # Check whether there is a mismatch between number of pairs in gold and instances
@@ -293,7 +302,7 @@ def wic2anno(input_path, output_path):
         # Check identifier uniqueness
         ids = [row['identifier'] for row in uses_all]
         assert len(ids) == len(set(ids))
-          
+
         print('number of annotation instances:', len(instances_all))
 
         datatype = 'instances'
@@ -319,21 +328,21 @@ def tempowic2anno(input_path, output_path):
     uses_all = []
     labels_all = []
     for p in Path(input_path + '/data').glob('*/{0}.csv'.format('uses')):
-        print('current path:',  p)
+        print('current path:', p)
 
         with open(p, encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile, delimiter='\t', quoting=csv.QUOTE_NONE, strict=True)
             data = [row for row in reader]
 
         output_data = [{'lemma': row['lemma'], 'identifier': row['identifier'], 'context': row['context'],
-                 'indexes_target_token': row['indexes_target_token'],
-                 'indexes_target_sentence': row['indexes_target_sentence']} for row in data]
+                        'indexes_target_token': row['indexes_target_token'],
+                        'indexes_target_sentence': row['indexes_target_sentence']} for row in data]
 
         uses_all += output_data
         # to do: export data here per lemma (split)
 
     for p in Path(input_path + '/data').glob('*/{0}.csv'.format('labels')):
-        print('current path:',  p)
+        print('current path:', p)
 
         with open(p, encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile, delimiter='\t', quoting=csv.QUOTE_NONE, strict=True)
@@ -343,18 +352,20 @@ def tempowic2anno(input_path, output_path):
                             'label': row['label'], 'lemma': row['lemma']} for row in data]
 
         labels_all += output_data
-        
-        #data_output_path = output_path + '/data/{0}/'.format(str(p).split('/')[-2])
-        #Path(data_output_path).mkdir(parents=True, exist_ok=True)
+
+        # data_output_path = output_path + '/data/{0}/'.format(str(p).split('/')[-2])
+        # Path(data_output_path).mkdir(parents=True, exist_ok=True)
 
     # Get mapping from identifiers to uses        
-    id2use_all = {row['identifier']:row for row in uses_all}
+    id2use_all = {row['identifier']: row for row in uses_all}
 
     # Create instances
     instances_all = [{'lemma': row['lemma'], 'identifier1': id2use_all[row['identifier1']]['identifier'],
-                      'context1': id2use_all[row['identifier1']]['context'], 'indexes_target_token1': id2use_all[row['identifier1']]['indexes_target_token'],
+                      'context1': id2use_all[row['identifier1']]['context'],
+                      'indexes_target_token1': id2use_all[row['identifier1']]['indexes_target_token'],
                       'identifier2': id2use_all[row['identifier2']]['identifier'],
-                      'context2': id2use_all[row['identifier2']]['context'], 'indexes_target_token2': id2use_all[row['identifier2']]['indexes_target_token'],
+                      'context2': id2use_all[row['identifier2']]['context'],
+                      'indexes_target_token2': id2use_all[row['identifier2']]['indexes_target_token'],
                       } for row in labels_all]
 
     # Check whether there is a mismatch between number of pairs in gold and instances
@@ -370,18 +381,20 @@ def tempowic2anno(input_path, output_path):
 
     for condition, output_data in [('uses', uses_all), ('labels', labels_all), ('instances', instances_all)]:
         with open(data_output_path + '{0}.csv'.format(condition), 'w') as file:
-            w = csv.DictWriter(file, output_data[0].keys(), delimiter='\t', quoting=csv.QUOTE_NONE, escapechar='\\') # to do: this is dangerous! It can introduce additional characters and make the target word indices wrong. I did not yet find a good way to solve this.
+            w = csv.DictWriter(file, output_data[0].keys(), delimiter='\t', quoting=csv.QUOTE_NONE,
+                               escapechar='\\')  # to do: this is dangerous! It can introduce additional characters and make the target word indices wrong. I did not yet find a good way to solve this.
             w.writeheader()
             w.writerows(output_data)
-            
+
     print('-----')
+
 
 def tempowic2wug(data, labels, datadir, split):
     """
     Bring TempoWiC data set into WUG format.
     """
     print('data:', data, 'labels:', labels, 'datadir:', datadir, 'split:', split)
- 
+
     # parse an JSON file by name
     with open(data) as jsonfile:
         data_instances = [json.loads(line) for line in jsonfile.readlines()]
@@ -389,18 +402,16 @@ def tempowic2wug(data, labels, datadir, split):
     lemma2group2context = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: None)))
     for data_instance in data_instances:
         identifier = data_instance['id']
-        lemma = data_instance['word'] # this should be lematized
+        lemma = data_instance['word']  # this should be lematized
         tweet1 = data_instance['tweet1']
-        context = data2context_tempowic(tweet1,'1',lemma,identifier)
+        context = data2context_tempowic(tweet1, '1', lemma, identifier)
         lemma2group2context[lemma][identifier]['1'] = context
         tweet2 = data_instance['tweet2']
-        context = data2context_tempowic(tweet2,'2',lemma,identifier)
+        context = data2context_tempowic(tweet2, '2', lemma, identifier)
         lemma2group2context[lemma][identifier]['2'] = context
 
-
     with open(labels, encoding='utf-8') as csvfile:
-        table = [row for row in csv.reader(csvfile,delimiter='\t')]
-
+        table = [row for row in csv.reader(csvfile, delimiter='\t')]
 
     lemma2data = defaultdict(lambda: [])
     for row in table:
@@ -409,83 +420,109 @@ def tempowic2wug(data, labels, datadir, split):
         id2 = row[0]
         comment = ' '
         judgment = row[1]
-        #print(type(judgment))
+        # print(type(judgment))
         if judgment == '0':
-            #print(judgment)
+            # print(judgment)
             judgment = 4
         else:
             judgment = 1
         annotator = np.nan
-        data = {'identifier1':id1+'-tweet1','identifier2':id2+'-tweet2','annotator':annotator,'label':int(judgment),'comment':comment,'lemma':lemma} # todo: this could be considerably simplified as it does not have to have the judgment file structure 
+        data = {'identifier1': id1 + '-tweet1', 'identifier2': id2 + '-tweet2', 'annotator': annotator,
+                'label': int(judgment), 'comment': comment,
+                'lemma': lemma}  # todo: this could be considerably simplified as it does not have to have the judgment file structure
         lemma2data[lemma].append(data)
 
-    all_output_folder = datadir +'/tempowic_'+split+ '_all/data/all/'
+    all_output_folder = datadir + '/tempowic_' + split + '_all/data/all/'
     if not os.path.exists(all_output_folder):
         os.makedirs(all_output_folder)
 
-    with open(all_output_folder +'labels.csv', 'w') as f:
-        w = csv.DictWriter(f, [lemma2data[lemma] for lemma in lemma2data][0][0].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, escapechar='\\')
+    with open(all_output_folder + 'labels.csv', 'w') as f:
+        w = csv.DictWriter(f, [lemma2data[lemma] for lemma in lemma2data][0][0].keys(), delimiter='\t',
+                           quoting=csv.QUOTE_NONE, escapechar='\\')
         w.writeheader()
         for lemma in lemma2data:
             w.writerows(lemma2data[lemma])
 
-    with open(all_output_folder +'uses.csv', 'w') as f:
-        w = csv.DictWriter(f, [list(lemma2group2context[lemma].values()) for lemma in lemma2data][0][0]['1'].keys(), delimiter='\t', quoting = csv.QUOTE_NONE, escapechar='\\')
+    with open(all_output_folder + 'uses.csv', 'w') as f:
+        w = csv.DictWriter(f, [list(lemma2group2context[lemma].values()) for lemma in lemma2data][0][0]['1'].keys(),
+                           delimiter='\t', quoting=csv.QUOTE_NONE, escapechar='\\')
         w.writeheader()
         for lemma in lemma2data:
             contexts = list(lemma2group2context[lemma].values())
             rows = [r['1'] for r in contexts] + [r['2'] for r in contexts]
             w.writerows(rows)
-    
+
     print('-----')
 
 
-def data2context_tempowic(tweet,grouping, lemma,identifier):
+def data2context_tempowic(tweet, grouping, lemma, identifier):
     date = tweet['date']
     text = tweet['text']
     text_start = tweet['text_start']
     text_end = tweet['text_end']
-    indexes_target_token = str(text_start)+':'+str(text_end)
-    annotated = annotate_text_word_tempowic(text,text[text_start:text_end])
+    indexes_target_token = str(text_start) + ':' + str(text_end)
+    annotated = annotate_text_word_tempowic(text, text[text_start:text_end])
 
-    context = {'lemma':lemma, 'pos':nlp(lemma)[0].pos_, 'date':date, 'grouping':grouping, 'identifier':identifier+'-tweet'+grouping, 'description':'-', 'context':text, 'indexes_target_token':indexes_target_token, 'context_tokenized':' '.join(annotated['context_tokenized']), 'indexes_target_token_tokenized':annotated['indexes_target_token_tokenized'],'indexes_target_sentence':annotated['indexes_target_sentence'],'indexes_target_sentence_tokenized':annotated['indexes_target_sentence_tokenized'],'context_lemmatized':' '.join(annotated['context_lemmatized']),'context_pos':' '.join(annotated['context_pos'])}
+    context = {'lemma': lemma, 'pos': nlp(lemma)[0].pos_, 'date': date, 'grouping': grouping,
+               'identifier': identifier + '-tweet' + grouping, 'description': '-', 'context': text,
+               'indexes_target_token': indexes_target_token,
+               'context_tokenized': ' '.join(annotated['context_tokenized']),
+               'indexes_target_token_tokenized': annotated['indexes_target_token_tokenized'],
+               'indexes_target_sentence': annotated['indexes_target_sentence'],
+               'indexes_target_sentence_tokenized': annotated['indexes_target_sentence_tokenized'],
+               'context_lemmatized': ' '.join(annotated['context_lemmatized']),
+               'context_pos': ' '.join(annotated['context_pos'])}
 
-    return(context)
+    return (context)
 
-def annotate_text_word_tempowic(text,word):
+
+def annotate_text_word_tempowic(text, word):
     annotations = nlp(text)
     indexes_target_sentence = '-'
     indexes_target_sentence_tokenized = '-'
     indexes_target_sentence_tokenized_s = 0
     indexes_target_sentence_tokenized_e = 0
-    word=word.replace('\'s','')
-    for n,sent in enumerate(annotations.sents):
+    word = word.replace('\'s', '')
+    for n, sent in enumerate(annotations.sents):
         if word in [t.text for t in sent]:
             indexes_target_sentence_tokenized_e = indexes_target_sentence_tokenized_s + len([t.text for t in sent])
             s = text.find(str(sent))
             if s != -1:
                 e = s + len(str(sent))
-                indexes_target_sentence = str(s)+':'+str(e)
+                indexes_target_sentence = str(s) + ':' + str(e)
                 break
         else:
             indexes_target_sentence_tokenized_s += len([t.text for t in sent])
 
-
     context_tokenized = [str(token) for token in annotations]
-    indexes_target_sentence_tokenized = str(indexes_target_sentence_tokenized_s)+':'+str(indexes_target_sentence_tokenized_e)
-    #print(n,indexes_target_sentence_tokenized_s,indexes_target_sentence_tokenized_e,word,context_tokenized)
-    assert context_tokenized[indexes_target_sentence_tokenized_s:indexes_target_sentence_tokenized_e] == [t.text for t in [sen for sen in annotations.sents][n]]
+    indexes_target_sentence_tokenized = str(indexes_target_sentence_tokenized_s) + ':' + str(
+        indexes_target_sentence_tokenized_e)
+    # print(n,indexes_target_sentence_tokenized_s,indexes_target_sentence_tokenized_e,word,context_tokenized)
+    assert context_tokenized[indexes_target_sentence_tokenized_s:indexes_target_sentence_tokenized_e] == [t.text for t
+                                                                                                          in
+                                                                                                          [sen for sen
+                                                                                                           in
+                                                                                                           annotations.sents][
+                                                                                                              n]]
 
     context_lemmatized = [str(token.lemma_.lower()) for token in annotations]
     context_pos = [str(token.pos_) for token in annotations]
 
-    assert len(context_tokenized) == len (context_lemmatized) and len(context_tokenized) == len(context_pos)
+    assert len(context_tokenized) == len(context_lemmatized) and len(context_tokenized) == len(context_pos)
 
     indexes_target_token_tokenized = context_tokenized.index(word)
 
+    return {'context_lemmatized': context_lemmatized, 'indexes_target_sentence': indexes_target_sentence,
+            'context_pos': context_pos, 'indexes_target_sentence_tokenized': indexes_target_sentence_tokenized,
+            'context_lemmatized': context_lemmatized, 'context_tokenized': context_tokenized,
+            'indexes_target_token_tokenized': indexes_target_token_tokenized}
 
-    return {'context_lemmatized':context_lemmatized,'indexes_target_sentence':indexes_target_sentence,'context_pos':context_pos,'indexes_target_sentence_tokenized':indexes_target_sentence_tokenized,'context_lemmatized':context_lemmatized,'context_tokenized':context_tokenized,'indexes_target_token_tokenized':indexes_target_token_tokenized}
-    
+
+def remove_extracted_dir():
+    try:
+        shutil.rmtree(data_path)
+    except OSError as e:
+        print("Error: %s : %s" % (data_path, e.strerror))
 
 
 if __name__ == '__main__':
@@ -497,63 +534,71 @@ if __name__ == '__main__':
     sources_wug = [('testwug_en', 'https://zenodo.org/record/7946753/files/testwug_en.zip?download=1', 'raw'),
                    ('dwug_en', 'https://zenodo.org/record/7387261/files/dwug_en.zip?download=1', 'raw'),
                    ('dwug_de', 'https://zenodo.org/record/7441645/files/dwug_de.zip?download=1', 'normalized'),
-                   ('dwug_sv', 'https://zenodo.org/record/7389506/files/dwug_sv.zip?download=1', 'raw')]
+                   ('dwug_sv', 'https://zenodo.org/record/7389506/files/dwug_sv.zip?download=1', 'raw'),
+                   ('WiC_dataset','https://pilehvar.github.io/wic/package/WiC_dataset.zip', ''),
+                   ('TempoWiC_Starting_Kit',
+                    'https://codalab.lisn.upsaclay.fr/my/datasets/download/3e22f138-ca00-4b10-a0fd-2e914892200d', '')]
+
     for dataset, link, preprocessing_mode in sources_wug:
-        r = requests.get(link, allow_redirects=True)
         f = datasets_path + dataset + '.zip'
-        open(f, 'wb').write(r.content)
 
-        with zipfile.ZipFile(f) as z:
-            z.extractall(path=datasets_path)
+        # 1 - Get zip file
+        if not os.path.exists(f):
+            try:
+                r = requests.get(link, allow_redirects=True)
+            except RequestException as e:
+                print(f"Request Exception occurred: {e}")
+                continue
+            with open(f, 'wb') as fp:
+                fp.write(r.content)
 
+        # 2 - Extract zip file
+        if dataset == 'WiC_dataset':
+            wic_path = datasets_path + 'WiC_dataset/'
+            Path(wic_path).mkdir(parents=True, exist_ok=True)
+            extraction_path = wic_path
+        else:
+            extraction_path = datasets_path
+
+        try:
+            with zipfile.ZipFile(f) as z:
+                z.extractall(path=extraction_path)
+        except zipfile.BadZipFile as e:
+            print(f"Bad zip file: {e}. Zenodo download could be broken.")
+            os.remove(f)
+            continue
+
+        # 3 - Transform
         data_path = datasets_path + dataset + '/'
 
-        for aggregation_mode in aggregation_modes:
-            data_transformed_path = datasets_path + dataset + '_transformed_' + aggregation_mode
-            Path(data_transformed_path).mkdir(parents=True, exist_ok=True)
+        if dataset == 'WiC_dataset':
+            data_transformed_path = datasets_path + dataset + '_transformed/'
+            # Load, transform and store data set (for dev, train, test)
+            wic2anno(input_path=extraction_path, output_path=data_transformed_path)
+            remove_extracted_dir()
 
-            # Load, transform and store data set
-            wug2anno(input_path=data_path, output_path=data_transformed_path,
-                         aggregation_mode=aggregation_mode, preprocessing_mode=preprocessing_mode)
+        elif dataset == 'TempoWiC_Starting_Kit':
+            # Transform dataset to WUG format
+            for data, name in [('train', 'labels'), ('trial', 'gold'), ('validation', 'labels')]:
+                tempowic2wug(data_path + 'data/' + data + '.data.jl', data_path + 'data/' + data + '.' + name + '.tsv',
+                             datasets_path, data)
 
-    # WiC data set (WUG version)
-    dataset = 'https://pilehvar.github.io/wic/package/WiC_dataset.zip'
-    r = requests.get(dataset, allow_redirects=True)
-    f = datasets_path + 'WiC_dataset.zip'
-    open(f, 'wb').write(r.content)
+            # Tempowic to anno
+            # run evonlp2wug.sh first to download data and convert it to wug format
+            for dataset_part in ["tempowic_train_all", "tempowic_trial_all", "tempowic_validation_all"]:
+                data_path = datasets_path + dataset_part + '/'
+                data_transformed_path = datasets_path + dataset_part + '_transformed/'
+                Path(data_transformed_path).mkdir(parents=True, exist_ok=True)
 
-    wic_path = datasets_path + 'WiC_dataset/'
-    Path(wic_path).mkdir(parents=True, exist_ok=True)
+                # Load, transform and store data set
+                tempowic2anno(input_path=data_path, output_path=data_transformed_path)
+                remove_extracted_dir()
 
-    with zipfile.ZipFile(f) as z:
-        z.extractall(path=wic_path)
+        else:  # WUGs
+            for aggregation_mode in aggregation_modes:
+                data_transformed_path = datasets_path + dataset + '_transformed_' + aggregation_mode
+                Path(data_transformed_path).mkdir(parents=True, exist_ok=True)
 
-    wic_transformed_path = datasets_path + 'WiC_dataset_transformed/'
-
-    # Load, transform and store data set (for dev, train, test)
-    wic2anno(input_path=wic_path, output_path=wic_transformed_path)
-
-    # TempoWiC data set (WUG version)
-    dataset = 'https://codalab.lisn.upsaclay.fr/my/datasets/download/3e22f138-ca00-4b10-a0fd-2e914892200d'
-    r = requests.get(dataset, allow_redirects=True)
-    f = datasets_path + 'TempoWiC_Starting_Kit.zip'
-    open(f, 'wb').write(r.content)
-
-    with zipfile.ZipFile(f) as z:
-        z.extractall(path=datasets_path)
-        
-    data_path = datasets_path + 'TempoWiC_Starting_Kit' + '/'
-    
-    # Transform dataset to WUG format    
-    for data, name in [('train','labels'), ('trial','gold'), ('validation','labels')]:
-        tempowic2wug(data_path + 'data/' + data + '.data.jl', data_path + 'data/' + data + '.' + name + '.tsv', datasets_path, data)
-
-    # Tempowic to anno
-    # run evonlp2wug.sh first to download data and convert it to wug format
-    for dataset in ["tempowic_train_all", "tempowic_trial_all", "tempowic_validation_all"]:
-        data_path = datasets_path + dataset + '/'
-        data_transformed_path = datasets_path + dataset + '_transformed/'
-        Path(data_transformed_path).mkdir(parents=True, exist_ok=True)
-
-        # Load, transform and store data set
-        tempowic2anno(input_path=data_path, output_path=data_transformed_path)
+                # Load, transform and store data set
+                wug2anno(input_path=data_path, output_path=data_transformed_path)
+                remove_extracted_dir()
