@@ -294,7 +294,7 @@ def wic2anno(input_path, output_path):
             w.writeheader()
             w.writerows(labels_all)
 
-        # Get mapping from identifiers to uses        
+        # Get mapping from identifiers to uses
         id2use_all = identifier2use  # exists already, renaming for compatibility
 
         instances_all = create_instance(id2use_all, labels_all, uses_all)
@@ -425,7 +425,7 @@ def tempowic2wug(data, labels, datadir, split):
     print('-----')
 
 
-def data2context_tempowic(tweet, grouping, lemma, identifier):
+def data2context_tempowic(tweet, grouping, lemma, identifier) -> dict:
     date = tweet['date']
     text = tweet['text']
     text_start = tweet['text_start']
@@ -567,4 +567,4 @@ if __name__ == '__main__':
 
                 # Load, transform and store data set
                 wug2anno(input_path=data_path, output_path=data_transformed_path)
-                remove_extracted_dir()
+            remove_extracted_dir()
