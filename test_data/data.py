@@ -160,10 +160,33 @@ def wug2anno(input_path, output_path):
             #    w.writeheader()
             #    w.writerows(output_data)
 
+    create_and_save_output_data(uses_all, labels_all, output_path)
+    print('number of normalization errors:', normalization_errors)
+    print('-----')
+
+
+def create_and_save_output_data(uses_all, labels_all, output_path):
     # print(uses_all)
-    # Get mapping from identifiers to uses        
+    # Get mapping from identifiers to uses
     id2use_all = {row['identifier']: row for row in uses_all}
 
+    instances_all = create_instance(id2use_all, labels_all, uses_all)
+
+    # Export concatenated data
+    data_output_path = output_path + '/data/{0}/'.format('all')
+    Path(data_output_path).mkdir(parents=True, exist_ok=True)
+
+    for condition, output_data in [('uses', uses_all), ('labels', labels_all), ('instances', instances_all)]:
+        with open(data_output_path + '{0}.csv'.format(condition), 'w') as file:
+            w = csv.DictWriter(file, output_data[0].keys(), delimiter='\t', quoting=csv.QUOTE_NONE,
+                               escapechar='\\')
+            # to do: this is dangerous! It can introduce additional characters and make the target word indices wrong.
+            # I did not yet find a good way to solve this.
+            w.writeheader()
+            w.writerows(output_data)
+
+
+def create_instance(id2use_all, labels_all, uses_all):
     # Create instances
     instances_all = [{'lemma': row['lemma'], 'identifier1': id2use_all[row['identifier1']]['identifier'],
                       'context1': id2use_all[row['identifier1']]['context'],
@@ -179,20 +202,7 @@ def wug2anno(input_path, output_path):
     # Check identifier uniqueness
     ids = [row['identifier'] for row in uses_all]
     assert len(ids) == len(set(ids))
-
-    # Export concatenated data 
-    data_output_path = output_path + '/data/{0}/'.format('all')
-    Path(data_output_path).mkdir(parents=True, exist_ok=True)
-
-    for condition, output_data in [('uses', uses_all), ('labels', labels_all), ('instances', instances_all)]:
-        with open(data_output_path + '{0}.csv'.format(condition), 'w') as file:
-            w = csv.DictWriter(file, output_data[0].keys(), delimiter='\t', quoting=csv.QUOTE_NONE,
-                               escapechar='\\')  # to do: this is dangerous! It can introduce additional characters and make the target word indices wrong. I did not yet find a good way to solve this.
-            w.writeheader()
-            w.writerows(output_data)
-
-    print('number of normalization errors:', normalization_errors)
-    print('-----')
+    return instances_all
 
 
 def wic2anno(input_path, output_path):
@@ -287,21 +297,7 @@ def wic2anno(input_path, output_path):
         # Get mapping from identifiers to uses        
         id2use_all = identifier2use  # exists already, renaming for compatibility
 
-        # Create instances
-        instances_all = [{'lemma': row['lemma'], 'identifier1': id2use_all[row['identifier1']]['identifier'],
-                          'context1': id2use_all[row['identifier1']]['context'],
-                          'indexes_target_token1': id2use_all[row['identifier1']]['indexes_target_token'],
-                          'identifier2': id2use_all[row['identifier2']]['identifier'],
-                          'context2': id2use_all[row['identifier2']]['context'],
-                          'indexes_target_token2': id2use_all[row['identifier2']]['indexes_target_token'],
-                          } for row in labels_all]
-
-        # Check whether there is a mismatch between number of pairs in gold and instances
-        assert len(labels_all) == len(instances_all)
-
-        # Check identifier uniqueness
-        ids = [row['identifier'] for row in uses_all]
-        assert len(ids) == len(set(ids))
+        instances_all = create_instance(id2use_all, labels_all, uses_all)
 
         print('number of annotation instances:', len(instances_all))
 
@@ -356,35 +352,7 @@ def tempowic2anno(input_path, output_path):
         # data_output_path = output_path + '/data/{0}/'.format(str(p).split('/')[-2])
         # Path(data_output_path).mkdir(parents=True, exist_ok=True)
 
-    # Get mapping from identifiers to uses        
-    id2use_all = {row['identifier']: row for row in uses_all}
-
-    # Create instances
-    instances_all = [{'lemma': row['lemma'], 'identifier1': id2use_all[row['identifier1']]['identifier'],
-                      'context1': id2use_all[row['identifier1']]['context'],
-                      'indexes_target_token1': id2use_all[row['identifier1']]['indexes_target_token'],
-                      'identifier2': id2use_all[row['identifier2']]['identifier'],
-                      'context2': id2use_all[row['identifier2']]['context'],
-                      'indexes_target_token2': id2use_all[row['identifier2']]['indexes_target_token'],
-                      } for row in labels_all]
-
-    # Check whether there is a mismatch between number of pairs in gold and instances
-    assert len(labels_all) == len(instances_all)
-
-    # Check identifier uniqueness
-    ids = [row['identifier'] for row in uses_all]
-    assert len(ids) == len(set(ids))
-
-    # Export concatenated data 
-    data_output_path = output_path + '/data/{0}/'.format('all')
-    Path(data_output_path).mkdir(parents=True, exist_ok=True)
-
-    for condition, output_data in [('uses', uses_all), ('labels', labels_all), ('instances', instances_all)]:
-        with open(data_output_path + '{0}.csv'.format(condition), 'w') as file:
-            w = csv.DictWriter(file, output_data[0].keys(), delimiter='\t', quoting=csv.QUOTE_NONE,
-                               escapechar='\\')  # to do: this is dangerous! It can introduce additional characters and make the target word indices wrong. I did not yet find a good way to solve this.
-            w.writeheader()
-            w.writerows(output_data)
+    create_and_save_output_data(uses_all, labels_all, output_path)
 
     print('-----')
 
@@ -402,7 +370,7 @@ def tempowic2wug(data, labels, datadir, split):
     lemma2group2context = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: None)))
     for data_instance in data_instances:
         identifier = data_instance['id']
-        lemma = data_instance['word']  # this should be lematized
+        lemma = data_instance['word']  # this should be lemmatized
         tweet1 = data_instance['tweet1']
         context = data2context_tempowic(tweet1, '1', lemma, identifier)
         lemma2group2context[lemma][identifier]['1'] = context
@@ -429,27 +397,29 @@ def tempowic2wug(data, labels, datadir, split):
         annotator = np.nan
         data = {'identifier1': id1 + '-tweet1', 'identifier2': id2 + '-tweet2', 'annotator': annotator,
                 'label': int(judgment), 'comment': comment,
-                'lemma': lemma}  # todo: this could be considerably simplified as it does not have to have the judgment file structure
+                'lemma': lemma}
+        # todo: this could be considerably simplified as it does not have to have the judgment file structure
         lemma2data[lemma].append(data)
 
     all_output_folder = datadir + '/tempowic_' + split + '_all/data/all/'
     if not os.path.exists(all_output_folder):
         os.makedirs(all_output_folder)
 
-    with open(all_output_folder + 'labels.csv', 'w') as f:
-        w = csv.DictWriter(f, [lemma2data[lemma] for lemma in lemma2data][0][0].keys(), delimiter='\t',
+    with open(all_output_folder + 'labels.csv', 'w') as output_file:
+        w = csv.DictWriter(output_file, [lemma2data[lemma] for lemma in lemma2data][0][0].keys(), delimiter='\t',
                            quoting=csv.QUOTE_NONE, escapechar='\\')
         w.writeheader()
         for lemma in lemma2data:
             w.writerows(lemma2data[lemma])
 
-    with open(all_output_folder + 'uses.csv', 'w') as f:
-        w = csv.DictWriter(f, [list(lemma2group2context[lemma].values()) for lemma in lemma2data][0][0]['1'].keys(),
+    with open(all_output_folder + 'uses.csv', 'w') as output_file:
+        w = csv.DictWriter(output_file,
+                           [list(lemma2group2context[lemma].values()) for lemma in lemma2data][0][0]['1'].keys(),
                            delimiter='\t', quoting=csv.QUOTE_NONE, escapechar='\\')
         w.writeheader()
         for lemma in lemma2data:
             contexts = list(lemma2group2context[lemma].values())
-            rows = [r['1'] for r in contexts] + [r['2'] for r in contexts]
+            rows = [context['1'] for context in contexts] + [context['2'] for context in contexts]
             w.writerows(rows)
 
     print('-----')
@@ -473,13 +443,12 @@ def data2context_tempowic(tweet, grouping, lemma, identifier):
                'context_lemmatized': ' '.join(annotated['context_lemmatized']),
                'context_pos': ' '.join(annotated['context_pos'])}
 
-    return (context)
+    return context
 
 
 def annotate_text_word_tempowic(text, word):
     annotations = nlp(text)
     indexes_target_sentence = '-'
-    indexes_target_sentence_tokenized = '-'
     indexes_target_sentence_tokenized_s = 0
     indexes_target_sentence_tokenized_e = 0
     word = word.replace('\'s', '')
@@ -498,12 +467,8 @@ def annotate_text_word_tempowic(text, word):
     indexes_target_sentence_tokenized = str(indexes_target_sentence_tokenized_s) + ':' + str(
         indexes_target_sentence_tokenized_e)
     # print(n,indexes_target_sentence_tokenized_s,indexes_target_sentence_tokenized_e,word,context_tokenized)
-    assert context_tokenized[indexes_target_sentence_tokenized_s:indexes_target_sentence_tokenized_e] == [t.text for t
-                                                                                                          in
-                                                                                                          [sen for sen
-                                                                                                           in
-                                                                                                           annotations.sents][
-                                                                                                              n]]
+    assert (context_tokenized[indexes_target_sentence_tokenized_s:indexes_target_sentence_tokenized_e] ==
+            [t.text for t in [sen for sen in annotations.sents][n]])
 
     context_lemmatized = [str(token.lemma_.lower()) for token in annotations]
     context_pos = [str(token.pos_) for token in annotations]
@@ -514,7 +479,7 @@ def annotate_text_word_tempowic(text, word):
 
     return {'context_lemmatized': context_lemmatized, 'indexes_target_sentence': indexes_target_sentence,
             'context_pos': context_pos, 'indexes_target_sentence_tokenized': indexes_target_sentence_tokenized,
-            'context_lemmatized': context_lemmatized, 'context_tokenized': context_tokenized,
+            'context_tokenized': context_tokenized,
             'indexes_target_token_tokenized': indexes_target_token_tokenized}
 
 
@@ -535,7 +500,7 @@ if __name__ == '__main__':
                    ('dwug_en', 'https://zenodo.org/record/7387261/files/dwug_en.zip?download=1', 'raw'),
                    ('dwug_de', 'https://zenodo.org/record/7441645/files/dwug_de.zip?download=1', 'normalized'),
                    ('dwug_sv', 'https://zenodo.org/record/7389506/files/dwug_sv.zip?download=1', 'raw'),
-                   ('WiC_dataset','https://pilehvar.github.io/wic/package/WiC_dataset.zip', ''),
+                   ('WiC_dataset', 'https://pilehvar.github.io/wic/package/WiC_dataset.zip', ''),
                    ('TempoWiC_Starting_Kit',
                     'https://codalab.lisn.upsaclay.fr/my/datasets/download/3e22f138-ca00-4b10-a0fd-2e914892200d', '')]
 
@@ -546,8 +511,8 @@ if __name__ == '__main__':
         if not os.path.exists(f):
             try:
                 r = requests.get(link, allow_redirects=True)
-            except RequestException as e:
-                print(f"Request Exception occurred: {e}")
+            except RequestException as error:
+                print(f"Request Exception occurred: {error}")
                 continue
             with open(f, 'wb') as fp:
                 fp.write(r.content)
@@ -563,8 +528,8 @@ if __name__ == '__main__':
         try:
             with zipfile.ZipFile(f) as z:
                 z.extractall(path=extraction_path)
-        except zipfile.BadZipFile as e:
-            print(f"Bad zip file: {e}. Zenodo download could be broken.")
+        except zipfile.BadZipFile as error:
+            print(f"Bad zip file: {error}. Zenodo download could be broken.")
             os.remove(f)
             continue
 
@@ -579,9 +544,10 @@ if __name__ == '__main__':
 
         elif dataset == 'TempoWiC_Starting_Kit':
             # Transform dataset to WUG format
-            for data, name in [('train', 'labels'), ('trial', 'gold'), ('validation', 'labels')]:
-                tempowic2wug(data_path + 'data/' + data + '.data.jl', data_path + 'data/' + data + '.' + name + '.tsv',
-                             datasets_path, data)
+            for data_part, name in [('train', 'labels'), ('trial', 'gold'), ('validation', 'labels')]:
+                tempowic2wug(data_path + 'data/' + data_part + '.data.jl',
+                             data_path + 'data/' + data_part + '.' + name + '.tsv',
+                             datasets_path, data_part)
 
             # Tempowic to anno
             # run evonlp2wug.sh first to download data and convert it to wug format
