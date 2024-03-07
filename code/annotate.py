@@ -64,11 +64,24 @@ def main(annotator, usage_dir, annotation_dir, annotation_filename, prefix, debu
               sep=settings['delimiter'], index=False)
 
 
-def load_dataframe(settings: dict, prefix: str, usage_dir: str):
+def load_dataframe(settings: dict, prefix: str, usage_dir: str, level: str = 'relaxed') -> pd.DataFrame:
     delimiter = settings['delimiter']
     token_index_filepath = format_path(usage_dir, prefix, settings['token_index_filename'], settings['file_extension'])
-    return pd.read_csv(token_index_filepath, header='infer', delimiter=delimiter, quoting=3)
+    df = pd.read_csv(token_index_filepath, header='infer', delimiter=delimiter, quoting=3, escapechar='\\')
+    validate_dataframe(df, level)
+    return df
 
+def validate_dataframe(df: pd.DataFrame, level: str = 'relaxed'):
+    for a, b in df.itertuples(index=False):
+        print(a, b)
+        if level == 'strict':
+            pass
+        elif level == 'relaxed':
+            pass
+        else:
+            print('No dataframe validation applied.')
+            pass
+        
 
 def format_path(directory: str, prefix: str, filename: str, file_extension: str) -> str:
     return directory + '/{}'.format(prefix) + filename + file_extension
