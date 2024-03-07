@@ -73,24 +73,48 @@ def load_dataframe(settings: dict, prefix: str, usage_dir: str, level: str = 're
 
 def validate_dataframe(df: pd.DataFrame, level: str = 'relaxed'):
     punctuation = [' ', '.', ',', '!', '"', '\'']
+    error_no = 0
     for column1, column2 in [('context1','indexes_target_token1'), ('context2','indexes_target_token2')]:
         for context, target_indices in zip(df[column1], df[column2]):
-            index_target_start = target_indices.split(':')[0]
-            index_target_end = target_indices.split(':')[1]
+            index_target_start = int(target_indices.split(':')[0])
+            index_target_end = int(target_indices.split(':')[1])
             target = context[index_target_start:index_target_end]
-            print(target)
+            #print(target)
             if level == 'strict':
                 # Check that constructed target tokens have desired properties
                 assert 0 <= index_target_start <= len(context)
                 assert 0 <= index_target_end <= len(context)
                 assert len(target) > 0
                 assert not target[0] in punctuation
-                assert not target[-1] in punctuation                    
+                assert not target[-1] in punctuation
+                if index_target_start > 3:
+                    assert not context[index_target_start-1].isalpha()
+                if len(context)-index_target_end > 3:
+                    assert not context[index_target_end].isalpha()
             elif level == 'relaxed':
-                pass
+                # Check that constructed target tokens have desired properties
+                assert 0 <= index_target_start <= len(context)
+                assert 0 <= index_target_end <= len(context)
+                assert len(target) > 0
+                if target[0] in punctuation:
+                    print(target, 'problem: target[0] in punctuation')
+                    error_no += 1
+                if target[-1] in punctuation:                   
+                    print(target, 'problem: target[-1] in punctuation')
+                    error_no += 1
+                if index_target_start > 3:
+                    #print('test', [context[index_target_start-1]])
+                    if context[index_target_start-1].isalpha():
+                        print(context, 'problem: context[index_target_start-1].isalpha()')
+                        error_no += 1
+                if len(context)-index_target_end > 3:
+                    if context[index_target_end].isalpha():
+                        print(context, 'problem: context[index_target_end+1].isalpha()')
+                        error_no += 1
             else:
                 print('No dataframe validation applied.')
                 pass
+    print('error_no: {0}'.format(error_no))
 
 
 def format_path(directory: str, prefix: str, filename: str, file_extension: str) -> str:

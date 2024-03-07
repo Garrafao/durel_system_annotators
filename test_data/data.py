@@ -135,7 +135,7 @@ def wug2anno(input_path, output_path):
                         assert not target[-1] in punctuation
                         print('--')
                     else:
-                        raise NotImplementedException("No valid reprocessing option provided with:", preprocessing_mode)
+                        raise NotImplementedException("No valid preprocessing option provided with:", preprocessing_mode)
                     output_data.append(row_out)
 
                 uses_all += output_data
