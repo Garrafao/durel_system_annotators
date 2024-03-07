@@ -2,11 +2,17 @@ from scipy.stats import spearmanr
 from sklearn.metrics import accuracy_score
 import pandas as pd
 from xl_lexeme import specify_xl_lexeme_annotator
+import json
+
+settings_file_location = "./settings/repository-settings.json"
+
+with open(settings_file_location) as settings_file:
+    settings = json.load(settings_file)
 
 
 def evaluate(custom_dir,custom_filename,usage_dir,thresholds,dataset): # to do: it would be better to specify the metric as input
         annotator = specify_xl_lexeme_annotator(thresholds)
-        with open(custom_dir+custom_filename, 'r') as f:
+        with open(custom_dir+custom_filename+settings['file_extension'], 'r') as f:
             df = pd.read_csv(f,sep='\t', index_col=False)
 
             if dataset in ['wic_test','wic_dev','wic_train']: # to do: this seems old code, maybe remove

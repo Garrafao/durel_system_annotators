@@ -21,11 +21,11 @@ class TestAnAnnotator(unittest.TestCase):
     def setUp(self):
         self.lexeme_annotator = 'XL-Lexeme'  # or 'Random'
 
-        self.usage_dir_test_en_arm = test_data_directory_path + 'testwug_en_transformed_binarize-median/data/all/'
-        self.usage_dir_test_en_target = test_data_directory_path + 'testwug_en_transformed_binarize-median/data/all/'
+        self.usage_dir_test_en_binarize_median = test_data_directory_path + 'testwug_en_transformed_binarize-median/data/all/'
+        #self.usage_dir_test_en_target = test_data_directory_path + 'testwug_en_transformed_binarize-median/data/all/'
 
-        self.usage_dir_test_en_arm_median = test_data_directory_path + 'testwug_en_transformed_median/data_split/arm/'
-        self.usage_dir_test_en_target_median = test_data_directory_path + 'testwug_en_transformed_median/data_split/target/'
+        self.usage_dir_test_en_median = test_data_directory_path + 'testwug_en_transformed_median/data/all/'
+        #self.usage_dir_test_en_target_median = test_data_directory_path + 'testwug_en_transformed_median/data_split/target/'
 
 
         self.usage_dir_test_wic_train = test_data_directory_path + 'WiC_dataset_transformed/train/data/all/'
@@ -49,7 +49,7 @@ class TestAnAnnotator(unittest.TestCase):
         self.custom_dir = './temp/'
         if not os.path.exists(self.custom_dir):
             os.makedirs(self.custom_dir)
-        self.custom_filename = 'annotations' + settings['file_extension']
+        self.custom_filename = 'annotations'
         self.debug = True
         self.thresholds = None
 
@@ -58,46 +58,27 @@ class TestAnAnnotator(unittest.TestCase):
     #    os.remove(self.test_file_path)
     #    os.remove(self.output_file_path)
 
-    def test_xl_lexeme_main_test_en_arm(self):
+    def test_xl_lexeme_main_test_en_binarize_median(self):
         # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_en_arm, self.custom_dir, self.custom_filename,
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_en_binarize_median, self.custom_dir, self.custom_filename,
                        self.prefix, self.debug, self.thresholds, settings_file_location)
 
         self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_en_arm, self.thresholds,dataset='testwug_en_arm')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_en_binarize_median, self.thresholds,dataset='testwug_en_transformed_binarize-median')
 
-    def test_xl_lexeme_main_test_en_arm_median(self):
+    def test_xl_lexeme_main_test_en_median(self):
         # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_en_arm_median, self.custom_dir, self.custom_filename,
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_en_median, self.custom_dir, self.custom_filename,
                        self.prefix, self.debug, self.thresholds,settings_file_location)
 
         self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_en_arm_median, self.thresholds,dataset='testwug_en_arm_median')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_en_median, self.thresholds,dataset='testwug_en_transformed_median')
 
 
-    def test_xl_lexeme_main_test_en_target(self):
-        # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_en_target, self.custom_dir, self.custom_filename,
-                       self.prefix, self.debug, self.thresholds,settings_file_location)
-
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
-
-        # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_en_target, self.thresholds,dataset='testwug_en_target')
-
-    def test_xl_lexeme_main_test_en_target_median(self):
-        # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_en_target_median, self.custom_dir, self.custom_filename,
-                       self.prefix, self.debug, self.thresholds,settings_file_location)
-
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
-
-        # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_en_target_median, self.thresholds,dataset='testwug_en_target_median')
 
     def test_xl_lexeme_main_wic_train(self):
         # call the function to be tested
@@ -232,10 +213,9 @@ class TestAnAnnotator(unittest.TestCase):
 
 def suite():
     test_suite = unittest.TestSuite()
-    test_suite.addTest(TestAnAnnotator('test_xl_lexeme_main_test_en_arm'))
-    test_suite.addTest(TestAnAnnotator('test_xl_lexeme_main_test_en_target'))
-    test_suite.addTest(TestAnAnnotator('test_xl_lexeme_main_test_en_arm_median'))
-    test_suite.addTest(TestAnAnnotator('test_xl_lexeme_main_test_en_target_median'))
+    test_suite.addTest(TestAnAnnotator('test_xl_lexeme_main_test_en_binarize_median'))
+
+    test_suite.addTest(TestAnAnnotator('test_xl_lexeme_main_test_en_median'))
 
 
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_wic_train'))
@@ -253,8 +233,8 @@ def suite():
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_train'))
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_trial'))
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_validation'))
-    
 
+    
     return test_suite
 
 
