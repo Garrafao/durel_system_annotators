@@ -27,7 +27,7 @@ def create_annotations_for_input_data(df: pd.DataFrame, batch_size: int,
             # Tell PyTorch to use the GPU.
             torch.device("cuda")
             logger.info('There are %d GPU(s) available.' % torch.cuda.device_count())
-            logger.info('We will use the GPU:', torch.cuda.get_device_name(0))
+            logger.info('We will use the GPU: {0}'.format(torch.cuda.get_device_name(0)))
 
         # If not...
         else:
