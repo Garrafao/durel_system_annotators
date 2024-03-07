@@ -39,6 +39,7 @@ class TestAnAnnotator(unittest.TestCase):
         if not os.path.exists(self.custom_dir):
             os.makedirs(self.custom_dir)
         self.custom_filename = 'annotations'
+        self.custom_ending = ".csv"
         self.debug = True
         self.thresholds = [0.2]  # for multi-threshold
 
@@ -52,8 +53,8 @@ class TestAnAnnotator(unittest.TestCase):
         annotator_main(self.lexeme_annotator, self.usage_dir_test_en_binarize_median, self.custom_dir, self.custom_filename,
                        self.prefix, self.debug, self.thresholds,settings_file_location)
 
-        print(self.custom_dir + self.custom_filename)
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
+        print(self.custom_dir + self.custom_filename + self.custom_ending)
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename + self.custom_ending))
 
         # check that the contents of the output file are correct
         acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_en_binarize_median, self.thresholds,dataset='testwug_en_transformed_binarize-median')
@@ -63,7 +64,7 @@ class TestAnAnnotator(unittest.TestCase):
         annotator_main(self.lexeme_annotator, self.usage_dir_test_wic_train, self.custom_dir, self.custom_filename,
                        self.prefix, self.debug, self.thresholds,settings_file_location)
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename + self.custom_ending))
 
         # check that the contents of the output file are correct
         acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_wic_train, self.thresholds,dataset='wic_train')
@@ -73,7 +74,7 @@ class TestAnAnnotator(unittest.TestCase):
         annotator_main(self.lexeme_annotator, self.usage_dir_test_wic_dev, self.custom_dir, self.custom_filename,
                        self.prefix, self.debug, self.thresholds,settings_file_location)
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename + self.custom_ending))
 
         # check that the contents of the output file are correct
         acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_wic_dev, self.thresholds,dataset='wic_dev')
@@ -83,7 +84,7 @@ class TestAnAnnotator(unittest.TestCase):
         annotator_main(self.lexeme_annotator, self.usage_dir_test_wic_test, self.custom_dir, self.custom_filename,
                        self.prefix, self.debug, self.thresholds,settings_file_location)
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename + self.custom_ending))
 
         # check that the contents of the output file are correct
         acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_wic_test, self.thresholds,dataset='wic_test')
@@ -94,7 +95,7 @@ class TestAnAnnotator(unittest.TestCase):
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename + self.custom_ending))
 
         # check that the contents of the output file are correct
         acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_dwug_en, self.thresholds,dataset='dwug_en')
@@ -105,7 +106,7 @@ class TestAnAnnotator(unittest.TestCase):
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename + self.custom_ending))
 
         # check that the contents of the output file are correct
         #print(self.custom_filename)
@@ -117,7 +118,7 @@ class TestAnAnnotator(unittest.TestCase):
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename + self.custom_ending))
 
         # check that the contents of the output file are correct
         acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_dwug_sv, self.thresholds,dataset='dwug_sv')
@@ -128,7 +129,7 @@ class TestAnAnnotator(unittest.TestCase):
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename + self.custom_ending))
 
         # check that the contents of the output file are correct
         acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_tempowic_train, self.thresholds,dataset='tempowic_train')
@@ -139,7 +140,7 @@ class TestAnAnnotator(unittest.TestCase):
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename + self.custom_ending))
 
         # check that the contents of the output file are correct
         acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_tempowic_trial, self.thresholds,dataset='tempowic_trial')
@@ -150,7 +151,7 @@ class TestAnAnnotator(unittest.TestCase):
                        self.custom_filename, self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
-        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename))
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename + self.custom_ending))
 
         # check that the contents of the output file are correct
         acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_tempowic_validation, self.thresholds,dataset='tempowic_validation')
@@ -160,7 +161,6 @@ def suite():
     test_suite = unittest.TestSuite()
     test_suite.addTest(TestAnAnnotator('test_xl_lexeme_main_test_en_binarize_median'))
 
-    '''
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_wic_train'))
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_wic_dev'))
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_wic_test'))
@@ -171,7 +171,6 @@ def suite():
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_train'))
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_trial'))
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_validation'))
-    '''
 
     return test_suite
 
