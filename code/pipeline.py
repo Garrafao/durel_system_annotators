@@ -1,11 +1,37 @@
-import configparser
-import requests
-import subprocess
-from status_enum import StatusEnum
-import os
-import logging
-import random
 import json
+import logging
+import os
+import random
+import subprocess
+import torch
+
+import requests
+
+from status_enum import StatusEnum
+
+
+def get_gpu_usage():
+    torch.cuda.empty_cache()
+    gpu_max_memory = torch.cuda.get_device_properties(0).total_memory
+    gpu_memory_allocated = torch.cuda.memory_allocated()
+    gpu_load = (gpu_memory_allocated / gpu_max_memory) * 100
+    return gpu_load
+
+
+def authenticate():
+
+    url = settings['url'] + settings['auth_route']
+
+    with requests.Session() as s:
+        r = s.post(url, json={
+            'username': settings['username'],
+            'password': settings['password']})
+        print(r.content)
+
+    if r.status_code == 200:
+        return r.json()['jwt']
+    else:
+        print('Error: ' + str(r.status_code))
 
 
 # HELPER FUNCTIONS ########
@@ -19,7 +45,7 @@ def update_task_status(task_id, status):
     :param task_id: (int): The ID of the task to update the status for.
     :param status: (str): The new status of the task.
     """
-    url = config['SERVER']['url'] + config['TASK-ROUTES']['update_status'].format(task_id, status)
+    url = settings['url'] + settings['update_status_route'].format(task_id, status)
 
     r = requests.patch(url,
                        headers={'Authorization': auth})
@@ -42,7 +68,7 @@ def get_tasks():
         - If the status code of the response is not 200, the method will exit with status code 1.
         - If no task is available (task ID is 0), the method will exit with status code 0.
     """
-    url = config['SERVER']['url'] + config['TASK-ROUTES']['next']
+    url = settings['url'] + settings['/tasks/next']
     print("url for next task: " + url)
     r = requests.get(url,
                      headers={'Authorization': auth})
@@ -67,9 +93,9 @@ def get_instances():
     Retrieves instances from the server based on the provided word or project.
     """
     if word is None:
-        url = config['SERVER']['url'] + config['INSTANCE-ROUTES']['instance_with_project'].format(project)
+        url = settings['url'] + settings['instance_with_project_route'].format(project)
     else:
-        url = config['SERVER']['url'] + config['INSTANCE-ROUTES']['instance_with_word'].format(project, word)
+        url = settings['url'] + settings['instance_with_word_route'].format(project, word)
 
     print(url)
     r = requests.get(url, headers={
@@ -134,7 +160,7 @@ def finish_annotation():
     # JUDGEMENT UPLOAD ########
     # Upload judgements
     else:
-        url = config['SERVER']['url'] + config['JUDGEMENT-ROUTES']['judgement']
+        url = settings['url'] + settings['upload_annotation_route']
         print("url for upload votes: " + url)
         # build multipart form data for file upload with owner, project, phase and task id
         files = [("files", open('tmp/{}annotations.csv'.format(prefix), 'rb'))]
@@ -149,43 +175,38 @@ def finish_annotation():
 
 
 def delete_temporary_files():
-    os.remove('tmp/{}instances_with_token_index.csv'.format(prefix))
+    os.remove('tmp/{}instances.csv'.format(prefix))
 
 
-# Load settings file
-with open('settings.json') as settings_file:
+# 1 - Check GPU
+load = get_gpu_usage()
+if load > 70:
+    exit("GPU has too much load!")
+
+# 2 - Setup
+with open('settings/repository-settings.json') as settings_file:
     settings = json.load(settings_file)
-
 logging.basicConfig(filename=settings['logFilePath'], filemode='a', format=settings['logFormatting'],
                     level=logging.INFO)
 
-current_file_path = os.path.abspath(__file__)
-parent_dir_path = os.path.dirname(current_file_path)
+python_env = os.path.join(os.getcwd(), settings['envName'], "bin", "python")
+# Get authentication token
+auth = 'Bearer ' + authenticate()
 
-python_env = os.path.join(parent_dir_path, settings['envName'], "bin", "python")
-
-# CONFIGURATION ########
-
-# Load config
-config = configparser.ConfigParser()
-config.read('config.ini')
-
-# Load authentication token
-auth = 'Bearer ' + config['CREDENTIALS']['authentication_token']
+# 3 - Get task
 task = get_tasks()
 project = task["projectName"]
 word = task["word"]
 annotator_type = task["annotatorType"]
 prefix = str(random.randint(0, 1000))
 
+# 4 - Annotation
 logging.info("Start annotation")
-
 completed_process = annotate()
 # Capture stderr output from the completed process
 stderr_output = completed_process.stderr.decode('utf-8')
-
-# Print the stderr output if there is any
 if stderr_output:
     logging.error(stderr_output)
 
+# 5 - Finish annotation
 finish_annotation()
