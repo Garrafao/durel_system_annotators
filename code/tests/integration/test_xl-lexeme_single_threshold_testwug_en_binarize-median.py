@@ -53,7 +53,6 @@ class TestAnAnnotator(unittest.TestCase):
         annotator_main(self.lexeme_annotator, self.usage_dir_test_en_binarize_median, self.custom_dir, self.custom_filename,
                        self.prefix, self.debug, self.thresholds,settings_file_location)
 
-        print(self.custom_dir + self.custom_filename + self.custom_ending)
         self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename + self.custom_ending))
 
         # check that the contents of the output file are correct
