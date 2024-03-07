@@ -90,10 +90,20 @@ def compute_embeddings_lexeme(sentence_and_token_index: list[tuple], batch_size:
     token_embeddings_output = [InputExample(texts=sen,
                                             positions=[int(idx.split(':')[0]), int(idx.split(':')[1])])
                                for sen, idx in sentence_and_token_index]
-
+    validate_input_examples(sentence_and_token_index, token_embeddings_output)
     token_embeddings_output = model.encode(token_embeddings_output, batch_size=batch_size)
     token_embeddings_output = np.array(token_embeddings_output)
     return token_embeddings_output
+
+
+def validate_input_examples(sentence_and_token_index: list[tuple], token_embeddings_output: list[InputExample]):
+    i = 0
+    for sentence_original, index_string in sentence_and_token_index:
+        sentence_input_example = token_embeddings_output[i].texts
+        index_start = int(index_string.split(':')[0])
+        index_end = int(index_string.split(':')[1])
+        assert sentence_original[index_start:index_end] == sentence_input_example[index_start:index_end]
+        i += 1
 
 
 def get_contexts_and_token_indices(df: pd.DataFrame) -> tuple:
