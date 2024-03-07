@@ -72,16 +72,17 @@ def load_dataframe(settings: dict, prefix: str, usage_dir: str, level: str = 're
     return df
 
 def validate_dataframe(df: pd.DataFrame, level: str = 'relaxed'):
-    for data in df.itertuples(index=False):
-        print(data)
-        if level == 'strict':
-            pass
-        elif level == 'relaxed':
-            pass
-        else:
-            print('No dataframe validation applied.')
-            pass
-        
+    for column1, column2 in [('context1','indexes_target_token1'), ('context2','indexes_target_token2')]:
+        for context, target_indices in zip(df[column1], df[column2]):
+            #print(context, target_indices)
+            if level == 'strict':
+                pass
+            elif level == 'relaxed':
+                pass
+            else:
+                print('No dataframe validation applied.')
+                pass
+
 
 def format_path(directory: str, prefix: str, filename: str, file_extension: str) -> str:
     return directory + '/{}'.format(prefix) + filename + file_extension
