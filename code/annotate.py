@@ -72,8 +72,8 @@ def load_dataframe(settings: dict, prefix: str, usage_dir: str, level: str = 're
     return df
 
 def validate_dataframe(df: pd.DataFrame, level: str = 'relaxed'):
-    for a, b in df.itertuples(index=False):
-        print(a, b)
+    for data in df.itertuples(index=False):
+        print(data)
         if level == 'strict':
             pass
         elif level == 'relaxed':
