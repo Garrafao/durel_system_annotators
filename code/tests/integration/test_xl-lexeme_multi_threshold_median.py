@@ -159,7 +159,7 @@ def suite():
     test_suite = unittest.TestSuite()
 
     test_suite.addTest(TestAnAnnotator('test_xl_lexeme_main_test_en_median'))
-    '''
+
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_wic_train'))
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_wic_dev'))
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_wic_test'))
@@ -171,7 +171,7 @@ def suite():
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_train'))
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_trial'))
     test_suite.addTest( TestAnAnnotator('test_xl_lexeme_main_tempowic_validation'))
-    '''
+    
     return test_suite
 
 
