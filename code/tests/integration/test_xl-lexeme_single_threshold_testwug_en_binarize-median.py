@@ -56,7 +56,7 @@ class TestAnAnnotator(unittest.TestCase):
         self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename + self.custom_ending))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_en_binarize_median, self.thresholds,dataset='testwug_en_transformed_binarize-median')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_en_binarize_median, self.thresholds,self.debug,dataset='testwug_en_transformed_binarize-median')
 
 
 def suite():
