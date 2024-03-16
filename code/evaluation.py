@@ -45,7 +45,7 @@ def evaluate(custom_dir,custom_filename,usage_dir,thresholds,debug,dataset): # t
             accuracy = 'NA'
         correlation, p_value = spearmanr(gold_values, predicted_values)
         #print(predicted_values)
-        print('Corr:',round(correlation,3),'P-Value:',round(p_value,3))
+        #print('Corr:',round(correlation,3),'P-Value:',round(p_value,3))
         save_detailed_results(df_sorted_gold,df_sorted_pred,usage_dir,custom_dir,dataset,annotator,accuracy,correlation,p_value,debug)
         return (accuracy,correlation,p_value)
 
@@ -59,17 +59,18 @@ def save_detailed_results(df_sorted_gold,df_sorted_pred,usage_dir,custom_dir,dat
         logging.info(f"Spearmanr correlation: '{correlation}'")
         logging.info(f"Spearmanr p,value: '{p_value}'")
 
-    print(usage_dir)
+    #print(usage_dir)
 
     output_df =pd.DataFrame([dict(zip(['accuracy','correlation','p-value'],[accuracy,round(correlation,3),p_value]))])
     output_df.to_csv(custom_dir+dataset+'-'+annotator+'-output.csv',index=False,sep='\t')
+    '''
     with open(usage_dir+'uses.csv','r') as f:
         df_uses = pd.read_csv(f,sep='\t', quoting=3)
     #print('\t'.join(['id1','id2','prediction','gold']))
     columns = ['Identifier1', 'Identifier2', 'Prediction','Gold']
     results_df = pd.DataFrame(columns=columns)
     for index, row in df_sorted_pred.iterrows():
-        try:
+            #try:
             id1 = row['identifier1']
             id2 = row['identifier2']
             #print(id1,id2)
@@ -81,9 +82,10 @@ def save_detailed_results(df_sorted_gold,df_sorted_pred,usage_dir,custom_dir,dat
             #row = {'Column1': value[0], 'Column2': value[1], 'Column3': value[2]}
             row_data = dict(zip(columns, values))
             row_data = pd.DataFrame([row_data])
-            #print(id1+':'+extracted_use1[2],id2+':'+extracted_use2[2],row['label'],extracted_value[3])
+            print(id1+':'+extracted_use1[2],id2+':'+extracted_use2[2],row['label'],extracted_value[3])
             results_df = pd.concat([results_df, row_data], ignore_index=True)
-            #results_df = results_df.append(row_data, ignore_index=True)
-        except:
-            continue
+            results_df = results_df.append(row_data, ignore_index=True)
+            #except:
+            #continue
     results_df.to_csv(custom_dir+dataset+'-'+annotator+'-output-labels.csv', index=False,sep='\t')
+    '''

@@ -209,4 +209,4 @@ class TestAnAnnotator(unittest.TestCase):
         self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
 
         # check that the contents of the output file are correct
-        # acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_tempowic_validation, self.thresholds,dataset='tempowic_validation')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_tempowic_validation, self.thresholds,self.debug,dataset='tempowic_validation')
