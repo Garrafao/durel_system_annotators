@@ -22,7 +22,7 @@ def suite():
     test_suite.addTest( CustomTestAnAnnotator('test_xl_lexeme_main_dwug_sv'))
     test_suite.addTest( CustomTestAnAnnotator('test_xl_lexeme_main_tempowic_train'))
     test_suite.addTest( CustomTestAnAnnotator('test_xl_lexeme_main_tempowic_trial'))
-    
+
     test_suite.addTest( CustomTestAnAnnotator('test_xl_lexeme_main_tempowic_validation'))
 
     return test_suite

@@ -12,17 +12,18 @@ class CustomTestAnAnnotator(TestAnAnnotator):
 def suite():
     test_suite = unittest.TestSuite()
     test_suite.addTest(CustomTestAnAnnotator('test_xl_lexeme_main_test_en_median'))
+
     test_suite.addTest( CustomTestAnAnnotator('test_xl_lexeme_main_wic_train'))
     test_suite.addTest( CustomTestAnAnnotator('test_xl_lexeme_main_wic_dev'))
     test_suite.addTest( CustomTestAnAnnotator('test_xl_lexeme_main_wic_test'))
 
-    test_suite.addTest( CustomTestAnAnnotator('test_xl_lexeme_main_dwug_en'))
-    test_suite.addTest( CustomTestAnAnnotator('test_xl_lexeme_main_dwug_de'))
-    test_suite.addTest( CustomTestAnAnnotator('test_xl_lexeme_main_dwug_sv'))
+    test_suite.addTest( CustomTestAnAnnotator('test_xl_lexeme_main_dwug_en_median'))
+    test_suite.addTest( CustomTestAnAnnotator('test_xl_lexeme_main_dwug_de_median'))
+    test_suite.addTest( CustomTestAnAnnotator('test_xl_lexeme_main_dwug_sv_median'))
     test_suite.addTest( CustomTestAnAnnotator('test_xl_lexeme_main_tempowic_train'))
     test_suite.addTest( CustomTestAnAnnotator('test_xl_lexeme_main_tempowic_trial'))
     test_suite.addTest( CustomTestAnAnnotator('test_xl_lexeme_main_tempowic_validation'))
-
+    
     return test_suite
 
 

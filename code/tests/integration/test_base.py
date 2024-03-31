@@ -176,7 +176,7 @@ class TestAnAnnotator(unittest.TestCase):
         self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
 
         # check that the contents of the output file are correct
-        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_dwug_sv, self.self.thresholds,self.debug,dataset='dwug_sv_median')
+        acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_dwug_sv, self.thresholds,self.debug,dataset='dwug_sv_median')
 
     def test_xl_lexeme_main_tempowic_train(self):
         # call the function to be tested
