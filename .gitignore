@@ -9,4 +9,5 @@ code/__pycache__
 xl-lexeme/
 temp*
 model
+logs
 random-annotator-venv*
