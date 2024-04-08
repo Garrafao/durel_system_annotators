@@ -14,7 +14,7 @@
     "update_status_route": "/tasks/{}/update-status/{}",
     "instance_route": "/annotatorInstances/{}",
     "upload_annotation_route": "/upload/annotations",
-    "url": "http://localhost:8080",
+    "url": "https://durel.ims.uni-stuttgart.de",
     "login_route": "/login",
     "auth_route": "/authenticate",
     "username": "AnnotatorServer",
