@@ -42,7 +42,6 @@ def main(annotator, usage_dir, annotation_dir, annotation_filename, prefix, debu
     annotation_input_logging(annotator, debug, usage_dir, annotation_dir, annotation_filename, settings)
 
     df = load_dataframe(settings, prefix, usage_dir)
-
     # Get judgments
     judgments = None
     if annotator == "XL-Lexeme":
@@ -56,11 +55,11 @@ def main(annotator, usage_dir, annotation_dir, annotation_filename, prefix, debu
     # If you want to add another annotator, add the following here:
     # elif annotator == "NEW_ANNOTATOR_NAME":
     #       code here
-    #       cls_result = some_function_in_NEW_ANNOTATOR_NAME.py()
+    #       judgments = some_function_in_NEW_ANNOTATOR_NAME.py()
 
     df = complete_the_dataframe(df, annotator, judgments, settings)
 
-    df.to_csv(format_path(annotation_dir, prefix, annotation_filename, settings['file_extension']),
+    df.to_csv(format_path(annotation_dir, prefix, annotation_filename, ''),
               sep=settings['delimiter'], index=False)
 
 
@@ -71,15 +70,17 @@ def load_dataframe(settings: dict, prefix: str, usage_dir: str, level: str = 're
     validate_dataframe(df, level)
     return df
 
+
 def validate_dataframe(df: pd.DataFrame, level: str = 'relaxed'):
+    assert not df.empty
     punctuation = [' ', '.', ',', '!', '"', '\'']
     error_no = 0
-    for column1, column2 in [('context1','indexes_target_token1'), ('context2','indexes_target_token2')]:
+    for column1, column2 in [('context1', 'indexes_target_token1'), ('context2', 'indexes_target_token2')]:
         for context, target_indices in zip(df[column1], df[column2]):
             index_target_start = int(target_indices.split(':')[0])
             index_target_end = int(target_indices.split(':')[1])
             target = context[index_target_start:index_target_end]
-            #print(target)
+            # print(target)
             if level == 'strict':
                 # Check that constructed target tokens have desired properties
                 assert 0 <= index_target_start <= len(context)
@@ -88,8 +89,8 @@ def validate_dataframe(df: pd.DataFrame, level: str = 'relaxed'):
                 assert not target[0] in punctuation
                 assert not target[-1] in punctuation
                 if index_target_start > 3:
-                    assert not context[index_target_start-1].isalpha()
-                if len(context)-index_target_end > 3:
+                    assert not context[index_target_start - 1].isalpha()
+                if len(context) - index_target_end > 3:
                     assert not context[index_target_end].isalpha()
             elif level == 'relaxed':
                 # Check that constructed target tokens have desired properties
@@ -99,15 +100,15 @@ def validate_dataframe(df: pd.DataFrame, level: str = 'relaxed'):
                 if target[0] in punctuation:
                     print(target, 'problem: target[0] in punctuation')
                     error_no += 1
-                if target[-1] in punctuation:                   
+                if target[-1] in punctuation:
                     print(target, 'problem: target[-1] in punctuation')
                     error_no += 1
                 if index_target_start > 3:
-                    #print('test', [context[index_target_start-1]])
-                    if context[index_target_start-1].isalpha():
+                    # print('test', [context[index_target_start-1]])
+                    if context[index_target_start - 1].isalpha():
                         print(context, 'problem: context[index_target_start-1].isalpha()')
                         error_no += 1
-                if len(context)-index_target_end > 3:
+                if len(context) - index_target_end > 3:
                     if context[index_target_end].isalpha():
                         print(context, 'problem: context[index_target_end+1].isalpha()')
                         error_no += 1
@@ -170,7 +171,7 @@ if __name__ == '__main__':
                       help="Filename to store custom annotations. Default 'annotations.csv'.")
 
     parser.add_option("-d", "--debug", dest="debug", action="store_true", help="Enable debug mode.")
-    parser.add_option("-t", "--thresholds", dest="thresholds", type=list[int], default=None,
+    parser.add_option("-t", "--thresholds", dest="thresholds", default=None,
                       help="Thresholds for cutoff if mapping to labels is requested.")
     parser.add_option("-s", "--settings_location", default='./settings/repository-settings.json',
                       dest="settings_location", type=str, help="Default: './settings/repository-settings.json'")
