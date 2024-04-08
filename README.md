@@ -30,8 +30,7 @@ python -m spacy download en_core_web_sm
 Note you have to create the env just under the root directory of the project and with the name I have specified in the command, if you want to create the env elsewhere or change the env name, you have to change the code correspondingly in the cron_taskmng.sh and cron_auth.sh file.
 
 ### Language Model Locations
-
-TODO
+This language model location is determined by a parameter in the settings file.
 
 See Troubleshooting Language Models below.
 
