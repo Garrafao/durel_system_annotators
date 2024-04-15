@@ -177,6 +177,6 @@ if __name__ == '__main__':
                       dest="settings_location", type=str, help="Default: './settings/repository-settings.json'")
     (options, args) = parser.parse_args()
     logging.info(options)
-
+    thresholds = [float(threshold) for threshold in options.thresholds.split(',')] if options.thresholds else None
     main(options.annotator, options.usage_dir, options.annotation_dir, options.annotation_filename, options.prefix,
-         options.debug, options.thresholds, options.settings_location)
+         options.debug, thresholds, options.settings_location)
