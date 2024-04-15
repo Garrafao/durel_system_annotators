@@ -148,13 +148,13 @@ def annotate(prefix):
     :return: The subprocess result object.
     """
     with open('logs/subprocess.logs', 'w') as f:
-        if annotator_type == "XL-Lexeme":
+        if "XL-Lexeme" in annotator_type:
             process = subprocess.run(
-                [python_env, 'code/annotate.py', '-a' 'XL-Lexeme', '-p', prefix, '-t', thresholds], stdout=f,
+                ["python", 'code/annotate.py', '-a' 'XL-Lexeme', '-p', prefix, '-t', thresholds], stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
         else:
             process = subprocess.run(
-                [python_env, 'code/annotate.py', '-p', prefix], stdout=subprocess.PIPE,
+                ["python", 'code/annotate.py', '-p', prefix], stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
     return process
 
@@ -212,7 +212,7 @@ task_id = task["id"]
 project = task["projectName"]
 word = task["word"]
 annotator_type = task["annotatorType"]
-thresholds = [float(threshold) for threshold in task["thresholdValues"].split(',')] if task["thresholdValues"] else None
+thresholds = task["thresholdValues"]
 logging.info("Thresholds: {}".format(thresholds))
 
 # 4 - Get instances
@@ -220,7 +220,8 @@ prefixes = get_instances()
 
 # 5 - Annotation
 # Using ProcessPoolExecutor to handle parallel tasks
-with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
-    executor.map(perform_annotation, prefixes)
-
+# with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
+#     executor.map(perform_annotation, prefixes)
+for prefix in prefixes:
+    perform_annotation(prefix)
 logging.info("Finished")
