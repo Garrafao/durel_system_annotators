@@ -16,6 +16,10 @@ Activate the env with:
 
 `source annotator-venv/bin/activate`
 
+If you are working on the IMS server, also make sure to change the pip cache location:
+
+`export PIP_CACHE_DIR=/mount/arbeitsdaten20/projekte/cik/shared/computational_annotators/durel_system_annotators/.cache`
+
 After activating the env, install dependencies with:
 
 ```
@@ -48,18 +52,14 @@ After the above process, first create a task in the DURel web application.
 
 next, run the command:
 
-`python authenticator.py`
-
-and:
-
 `python pipeline.py`
 
 ### Cronjob
 The interaction with the DURel system is managed through cronjob.
 
-If the two scripts (authenticate.py and pipeline.py) do not throw any errors, and you have tested the annotators using the integration tests, you could start the cronjob with:
+If pipeline.py does not throw any errors, and you have tested the annotators using the integration tests, you could start the cronjob with:
 
-`bash cron_mng.sh`
+`crontab -l | { cat; echo "* * * * * $(pwd)/cron_mng.sh $(pwd) >> $(pwd)/logs/cron_mng.logs 2&>1"; } | crontab -`
 
 The cronjob executes the two python scripts above with the predefined interval in the cron_mng.sh file.
 
