@@ -17,7 +17,7 @@
     "url": "https://durel.ims.uni-stuttgart.de",
     "login_route": "/login",
     "auth_route": "/authenticate",
-    "username": "AnnotatorServer",
-    "password": "!aSfFrH\"#7e7WD#",
-    "authentication_token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJBbm5vdGF0b3JTZXJ2ZXIiLCJleHAiOjE3MDAzNDg0MDIsImlhdCI6MTY5OTc0MzYwMn0.Xq5Y3H2UDdAlcpxbEDdVcLroe2r0bJ-hjj-s_v1oWC4"
+    "username": "PutAUsernameHere",
+    "password": "PutAPasswordHere",
+    "authentication_token": "someToken"
 }
