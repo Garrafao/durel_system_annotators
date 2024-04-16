@@ -101,7 +101,7 @@ In order to add new models you should follow these steps:
 
 # Testing
 
-1. You can run integration tests on the following datasets (running /tests/data.py will build these datasets except tempowic, you need to run evonlp2wug.sh script before running data.py) using the random and lexeme models:
+1. You can run integration tests on the following datasets. Running /test_data/data.py will build these datasets:
 
    - testwug_en_arm
    - testwug_en_target
