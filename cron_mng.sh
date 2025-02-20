@@ -6,13 +6,13 @@ WORKDIR=$1
 cd $WORKDIR 
 
 echo $WORKDIR
-# Cronjob for getting tasks and annotating them
-# start the virtual environment
-source annotator-venv/bin/activate
 
-# run the task manager
+# Start the virtual environment with the correct path
+source ~/venvs/annotator-venv/bin/activate
+
+# Run the task manager
 python3 code/pipeline.py
 echo "Done"
 
-# deactivate the virtual environment
+# Deactivate the virtual environment
 deactivate
