@@ -61,7 +61,7 @@ class TestAnAnnotator(unittest.TestCase):
 
     def test_xl_lexeme_main_test_en_binarize_median(self):
         # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_en_binarize_median, self.custom_dir, self.custom_filename,
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_en_binarize_median, self.custom_dir, self.custom_filename+settings['file_extension'],
                        self.prefix, self.debug, self.thresholds, settings_file_location)
 
         self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
@@ -71,7 +71,7 @@ class TestAnAnnotator(unittest.TestCase):
 
     def test_xl_lexeme_main_test_en_median(self):
         # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_en_median, self.custom_dir, self.custom_filename,
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_en_median, self.custom_dir, self.custom_filename+settings['file_extension'],
                        self.prefix, self.debug, self.thresholds,settings_file_location)
 
         self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename + settings['file_extension']))
@@ -83,7 +83,7 @@ class TestAnAnnotator(unittest.TestCase):
 
     def test_xl_lexeme_main_wic_train(self):
         # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_wic_train, self.custom_dir, self.custom_filename,
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_wic_train, self.custom_dir, self.custom_filename+settings['file_extension'],
                        self.prefix, self.debug, self.thresholds,settings_file_location)
 
         self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
@@ -93,7 +93,7 @@ class TestAnAnnotator(unittest.TestCase):
 
     def test_xl_lexeme_main_wic_dev(self):
         # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_wic_dev, self.custom_dir, self.custom_filename,
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_wic_dev, self.custom_dir, self.custom_filename+settings['file_extension'],
                        self.prefix, self.debug, self.thresholds,settings_file_location)
 
         self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
@@ -103,7 +103,7 @@ class TestAnAnnotator(unittest.TestCase):
 
     def test_xl_lexeme_main_wic_test(self):
         # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_wic_test, self.custom_dir, self.custom_filename,
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_wic_test, self.custom_dir, self.custom_filename+settings['file_extension'],
                        self.prefix, self.debug, self.thresholds,settings_file_location)
 
         self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
@@ -113,7 +113,7 @@ class TestAnAnnotator(unittest.TestCase):
 
     def test_xl_lexeme_main_dwug_en(self):
         # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_en, self.custom_dir, self.custom_filename,
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_en, self.custom_dir, self.custom_filename+settings['file_extension'],
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
@@ -124,7 +124,7 @@ class TestAnAnnotator(unittest.TestCase):
 
     def test_xl_lexeme_main_dwug_de(self):
         # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_de, self.custom_dir, self.custom_filename,
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_de, self.custom_dir, self.custom_filename+settings['file_extension'],
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
@@ -135,7 +135,7 @@ class TestAnAnnotator(unittest.TestCase):
 
     def test_xl_lexeme_main_dwug_sv(self):
         # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_sv, self.custom_dir, self.custom_filename,
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_sv, self.custom_dir, self.custom_filename+settings['file_extension'],
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
@@ -147,7 +147,7 @@ class TestAnAnnotator(unittest.TestCase):
 
     def test_xl_lexeme_main_dwug_en_median(self):
         # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_en_median, self.custom_dir, self.custom_filename,
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_en_median, self.custom_dir, self.custom_filename+settings['file_extension'],
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
@@ -158,7 +158,7 @@ class TestAnAnnotator(unittest.TestCase):
 
     def test_xl_lexeme_main_dwug_de_median(self):
         # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_de_median, self.custom_dir, self.custom_filename,
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_de_median, self.custom_dir, self.custom_filename+settings['file_extension'],
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
@@ -169,7 +169,7 @@ class TestAnAnnotator(unittest.TestCase):
 
     def test_xl_lexeme_main_dwug_sv_median(self):
         # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_sv_median, self.custom_dir, self.custom_filename,
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_sv_median, self.custom_dir, self.custom_filename+settings['file_extension'],
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
@@ -180,7 +180,7 @@ class TestAnAnnotator(unittest.TestCase):
 
     def test_xl_lexeme_main_tempowic_train(self):
         # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_tempowic_train, self.custom_dir, self.custom_filename,
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_tempowic_train, self.custom_dir, self.custom_filename+settings['file_extension'],
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
@@ -191,7 +191,7 @@ class TestAnAnnotator(unittest.TestCase):
 
     def test_xl_lexeme_main_tempowic_trial(self):
         # call the function to be tested
-        annotator_main(self.lexeme_annotator, self.usage_dir_test_tempowic_trial, self.custom_dir, self.custom_filename,
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_tempowic_trial, self.custom_dir, self.custom_filename+settings['file_extension'],
                        self.prefix, self.debug, self.thresholds,settings_file_location)
         # check that the output file was created
 
