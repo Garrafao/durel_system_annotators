@@ -6,6 +6,7 @@ from optparse import OptionParser
 import pandas as pd
 
 import xl_lexeme
+import xl_durel
 
 # For new annotators:
 # import NEW_ANNOTATOR_NAME
@@ -48,6 +49,13 @@ def main(annotator, usage_dir, annotation_dir, annotation_filename, prefix, debu
         judgments = xl_lexeme.create_annotations_for_input_data(df, settings['batch_size'],
                                                                 thresholds, settings['model_dir'])
         annotator = xl_lexeme.specify_xl_lexeme_annotator(thresholds)
+
+            
+    elif annotator == "XL-DURel":
+        judgments = xl_durel.create_annotations_for_input_data(df, settings['batch_size'],
+                                                                thresholds, settings['model_dir'])
+        annotator = xl_durel.specify_xl_lexeme_annotator(thresholds)
+
 
     elif annotator == "Random":
         judgments = random.choices([1, 4], k=len(df))

@@ -8,6 +8,7 @@ from annotate import main as annotator_main
 import os
 
 from evaluation import *
+from evaluation_xl_durel import *
 
 test_data_directory_path = "./test_data/datasets/"
 settings_file_location = "./settings/repository-settings.json"
@@ -20,6 +21,7 @@ with open(settings_file_location) as settings_file:
 class TestAnAnnotator(unittest.TestCase):
     def setUp(self):
         self.lexeme_annotator = 'XL-Lexeme'  # or 'Random'
+       # self.lexeme_annotator = ['XL-Lexeme', 'XL-DURel', 'Random']  # or 'Random'
 
         self.usage_dir_test_en_binarize_median = test_data_directory_path + 'testwug_en_transformed_binarize-median/data/all/'
         #self.usage_dir_test_en_target = test_data_directory_path + 'testwug_en_transformed_binarize-median/data/all/'
@@ -68,6 +70,8 @@ class TestAnAnnotator(unittest.TestCase):
 
         # check that the contents of the output file are correct
         acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_en_binarize_median, self.thresholds,self.debug,dataset='testwug_en_transformed_binarize-median')
+
+
 
     def test_xl_lexeme_main_test_en_median(self):
         # call the function to be tested
@@ -210,3 +214,158 @@ class TestAnAnnotator(unittest.TestCase):
 
         # check that the contents of the output file are correct
         acc,corr,pvalue = evaluate(self.custom_dir,self.custom_filename,self.usage_dir_test_tempowic_validation, self.thresholds,self.debug,dataset='tempowic_validation')
+#############################################################################################
+
+    def test_xl_durel_main_test_en_binarize_median(self):
+        # call the function to be tested
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_en_binarize_median, self.custom_dir, self.custom_filename+settings['file_extension'],
+                       self.prefix, self.debug, self.thresholds, settings_file_location)
+
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+
+        # check that the contents of the output file are correct
+        acc,corr,pvalue = evaluate_xl_durel(self.custom_dir,self.custom_filename,self.usage_dir_test_en_binarize_median, self.thresholds,self.debug,dataset='testwug_en_transformed_binarize-median')
+
+
+
+    def test_xl_durel_main_test_en_median(self):
+        # call the function to be tested
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_en_median, self.custom_dir, self.custom_filename+settings['file_extension'],
+                       self.prefix, self.debug, self.thresholds,settings_file_location)
+
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename + settings['file_extension']))
+
+        # check that the contents of the output file are correct
+        acc,corr,pvalue = evaluate_xl_durel(self.custom_dir,self.custom_filename,self.usage_dir_test_en_median, self.thresholds,self.debug,dataset='testwug_en_transformed_median')
+
+
+
+    def test_xl_durel_main_wic_train(self):
+        # call the function to be tested
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_wic_train, self.custom_dir, self.custom_filename+settings['file_extension'],
+                       self.prefix, self.debug, self.thresholds,settings_file_location)
+
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+
+        # check that the contents of the output file are correct
+        acc,corr,pvalue = evaluate_xl_durel(self.custom_dir,self.custom_filename,self.usage_dir_test_wic_train, self.thresholds,self.debug,dataset='wic_train')
+
+    def test_xl_durel_main_wic_dev(self):
+        # call the function to be tested
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_wic_dev, self.custom_dir, self.custom_filename+settings['file_extension'],
+                       self.prefix, self.debug, self.thresholds,settings_file_location)
+
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+
+        # check that the contents of the output file are correct
+        acc,corr,pvalue = evaluate_xl_durel(self.custom_dir,self.custom_filename,self.usage_dir_test_wic_dev, self.thresholds,self.debug,dataset='wic_dev')
+
+    def test_xl_durel_main_wic_test(self):
+        # call the function to be tested
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_wic_test, self.custom_dir, self.custom_filename+settings['file_extension'],
+                       self.prefix, self.debug, self.thresholds,settings_file_location)
+
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+
+        # check that the contents of the output file are correct
+        acc,corr,pvalue = evaluate_xl_durel(self.custom_dir,self.custom_filename,self.usage_dir_test_wic_test, self.thresholds,self.debug,dataset='wic_test')
+
+    def test_xl_durel_main_dwug_en(self):
+        # call the function to be tested
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_en, self.custom_dir, self.custom_filename+settings['file_extension'],
+                       self.prefix, self.debug, self.thresholds,settings_file_location)
+        # check that the output file was created
+
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+
+        # check that the contents of the output file are correct
+        acc,corr,pvalue = evaluate_xl_durel(self.custom_dir,self.custom_filename,self.usage_dir_test_dwug_en, self.thresholds,self.debug,dataset='dwug_en')
+
+    def test_xl_durel_main_dwug_de(self):
+        # call the function to be tested
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_de, self.custom_dir, self.custom_filename+settings['file_extension'],
+                       self.prefix, self.debug, self.thresholds,settings_file_location)
+        # check that the output file was created
+
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+
+        # check that the contents of the output file are correct
+        acc,corr,pvalue = evaluate_xl_durel(self.custom_dir,self.custom_filename,self.usage_dir_test_dwug_de, self.thresholds,self.debug,dataset='dwug_de')
+
+    def test_xl_durel_main_dwug_sv(self):
+        # call the function to be tested
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_sv, self.custom_dir, self.custom_filename+settings['file_extension'],
+                       self.prefix, self.debug, self.thresholds,settings_file_location)
+        # check that the output file was created
+
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+
+        # check that the contents of the output file are correct
+        acc,corr,pvalue = evaluate_xl_durel(self.custom_dir,self.custom_filename,self.usage_dir_test_dwug_sv, self.thresholds,self.debug,dataset='dwug_sv')
+
+
+    def test_xl_durel_main_dwug_en_median(self):
+        # call the function to be tested
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_en_median, self.custom_dir, self.custom_filename+settings['file_extension'],
+                       self.prefix, self.debug, self.thresholds,settings_file_location)
+        # check that the output file was created
+
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+
+        # check that the contents of the output file are correct
+        acc,corr,pvalue = evaluate_xl_durel(self.custom_dir,self.custom_filename,self.usage_dir_test_dwug_en, self.thresholds,self.debug,dataset='dwug_en_median')
+
+    def test_xl_durel_main_dwug_de_median(self):
+        # call the function to be tested
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_de_median, self.custom_dir, self.custom_filename+settings['file_extension'],
+                       self.prefix, self.debug, self.thresholds,settings_file_location)
+        # check that the output file was created
+
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+
+        # check that the contents of the output file are correct
+        acc,corr,pvalue = evaluate_xl_durel(self.custom_dir,self.custom_filename,self.usage_dir_test_dwug_de, self.thresholds,self.debug,dataset='dwug_de_median')
+
+    def test_xl_durel_main_dwug_sv_median(self):
+        # call the function to be tested
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_dwug_sv_median, self.custom_dir, self.custom_filename+settings['file_extension'],
+                       self.prefix, self.debug, self.thresholds,settings_file_location)
+        # check that the output file was created
+
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+
+        # check that the contents of the output file are correct
+        acc,corr,pvalue = evaluate_xl_durel(self.custom_dir,self.custom_filename,self.usage_dir_test_dwug_sv, self.thresholds,self.debug,dataset='dwug_sv_median')
+
+    def test_xl_durel_main_tempowic_train(self):
+        # call the function to be tested
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_tempowic_train, self.custom_dir, self.custom_filename+settings['file_extension'],
+                       self.prefix, self.debug, self.thresholds,settings_file_location)
+        # check that the output file was created
+
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+
+        # check that the contents of the output file are correct
+        acc,corr,pvalue = evaluate_xl_durel(self.custom_dir,self.custom_filename,self.usage_dir_test_tempowic_train, self.thresholds,self.debug,dataset='tempowic_train')
+
+    def test_xl_durel_main_tempowic_trial(self):
+        # call the function to be tested
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_tempowic_trial, self.custom_dir, self.custom_filename+settings['file_extension'],
+                       self.prefix, self.debug, self.thresholds,settings_file_location)
+        # check that the output file was created
+
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+
+        # check that the contents of the output file are correct
+        acc,corr,pvalue = evaluate_xl_durel(self.custom_dir,self.custom_filename,self.usage_dir_test_tempowic_trial, self.thresholds,self.debug,dataset='tempowic_trial')
+
+    def test_xl_durel_main_tempowic_validation(self):
+        # call the function to be tested
+        annotator_main(self.lexeme_annotator, self.usage_dir_test_tempowic_validation, self.custom_dir,
+                       self.custom_filename, self.prefix, self.debug, self.thresholds,settings_file_location)
+        # check that the output file was created
+
+        self.assertTrue(os.path.exists(self.custom_dir + self.custom_filename+settings['file_extension']))
+
+        # check that the contents of the output file are correct
+        acc,corr,pvalue = evaluate_xl_durel(self.custom_dir,self.custom_filename,self.usage_dir_test_tempowic_validation, self.thresholds,self.debug,dataset='tempowic_validation')

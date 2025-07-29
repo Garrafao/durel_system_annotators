@@ -152,6 +152,12 @@ def annotate(prefix):
             process = subprocess.run(
                 ["python", 'code/annotate.py', '-a' 'XL-Lexeme', '-p', prefix, '-t', thresholds], stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE)
+        
+        elif "XL-DURel" in annotator_type:
+            process = subprocess.run(
+                ["python", 'code/annotate.py', '-a' 'XL-DURel', '-p', prefix, '-t', thresholds], stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE)
+
         else:
             process = subprocess.run(
                 ["python", 'code/annotate.py', '-p', prefix], stdout=subprocess.PIPE,
