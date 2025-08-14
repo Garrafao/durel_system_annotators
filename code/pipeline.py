@@ -91,7 +91,6 @@ def get_tasks():
 
     logging.info(datetime.now())
     logging.info(new_task)
-    logging.info("Annotator is: %s", new_task['annotatorType'])
     return new_task
 
 
@@ -216,8 +215,8 @@ auth = 'Bearer ' + authenticate()
 task = get_tasks()
 task_id = task["id"]
 project = task["projectName"]
-word = task["word"]
-annotator_type = task["annotatorType"]
+word = task["lemma"]
+annotator_type = task["selectedCompAnnotator"]
 thresholds = task["thresholdValues"]
 logging.info("Thresholds: {}".format(thresholds))
 

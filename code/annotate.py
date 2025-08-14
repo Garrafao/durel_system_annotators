@@ -39,6 +39,8 @@ def main(annotator, usage_dir, annotation_dir, annotation_filename, prefix, debu
     # Setup
     with open(settings_location) as settings_file:
         settings = json.load(settings_file)
+        print("thi sis sssjdskfjsdkjfjk", settings)
+    
 
     annotation_input_logging(annotator, debug, usage_dir, annotation_dir, annotation_filename, settings)
 
@@ -53,8 +55,8 @@ def main(annotator, usage_dir, annotation_dir, annotation_filename, prefix, debu
             
     elif annotator == "XL-DURel":
         judgments = xl_durel.create_annotations_for_input_data(df, settings['batch_size'],
-                                                                thresholds, settings['model_dir'])
-        annotator = xl_durel.specify_xl_lexeme_annotator(thresholds)
+                                                                thresholds, settings['model_dir_xl_durel'])
+        annotator = xl_durel.specify_xl_durel_annotator(thresholds)
 
 
     elif annotator == "Random":

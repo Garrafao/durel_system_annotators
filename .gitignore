@@ -12,3 +12,4 @@ model
 logs
 .cache/
 random-annotator-venv*
+xl-lexeme

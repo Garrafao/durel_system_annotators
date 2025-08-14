@@ -20,8 +20,8 @@ with open(settings_file_location) as settings_file:
 
 class TestAnAnnotator(unittest.TestCase):
     def setUp(self):
-        self.lexeme_annotator = 'XL-Lexeme'  # or 'Random'
-       # self.lexeme_annotator = ['XL-Lexeme', 'XL-DURel', 'Random']  # or 'Random'
+        self.lexeme_annotator = 'XL-DURel'  # or 'Random'
+      # self.lexeme_annotator = ['XL-Lexeme', 'XL-DURel', 'Random']  # or 'Random'
 
         self.usage_dir_test_en_binarize_median = test_data_directory_path + 'testwug_en_transformed_binarize-median/data/all/'
         #self.usage_dir_test_en_target = test_data_directory_path + 'testwug_en_transformed_binarize-median/data/all/'
