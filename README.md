@@ -21,13 +21,30 @@ Depending on how much space you have on your device, you might have to manually 
 After activating the env, install dependencies with:
 
 ```
-git clone git@github.com:pierluigic/xl-lexeme.git
-cd xl-lexeme
-pip3 install .
 pip install pandas
 pip install spacy
 python -m spacy download en_core_web_sm
 ```
+
+## XL-Lexeme & XL-DURel Installation
+
+There are two ways to install **XL-Lexeme & XL-DURel**:
+
+### Method 1: Clone the repository
+```bash
+git clone git@github.com:pierluigic/xl-lexeme.git
+cd xl-lexeme
+pip3 install .
+```
+### Method 2: Install from utils
+```bash
+cd utils
+pip3 install .
+```
+***Notes***
+- Using the first method may lead to issues when running the XL-DURel model, as both XL-Lexeme and XL-DURel share the same architecture and can encounter dependency conflicts.
+- **Method 2 is recommended**, but you can try both methods and see which works best for your setup.
+
 
 Note you have to create the env just under the root directory of the project and with the name I have specified in the command, if you want to create the env elsewhere or change the env name, you have to change the code correspondingly in the cron_taskmng.sh and cron_auth.sh file.
 
@@ -53,7 +70,8 @@ The regular interaction with the DURel system is managed through cronjob.
 
 If pipeline.py does not throw any errors, and you have tested the annotators using the integration tests, you could start the cronjob with:
 
-`crontab -l | { cat; echo "bash * * * * * $(pwd)/cron_mng.sh $(pwd) >> $(pwd)/logs/cron_mng.logs 2&>1"; } | crontab -`
+`crontab -l | { cat; echo "* * * * * bash $(pwd)/cron_mng.sh $(pwd) >> $(pwd)/logs/cron_mng.logs 2>&1"; } | crontab -`
+
 
 The cronjob executes the pipeline with the interval predefined in the `cron_mng.sh` file.
 
@@ -79,6 +97,11 @@ The repository currently contains these models:
 - XL-Lexeme-Cosine: [XL-Lexeme](https://github.com/pierluigic/xl-lexeme) is a bi-encoder that vectorizes the input sequences using a XLMR-based Siamese Network. It is trained to minimize the contrastive loss with cosine distance on several WiC datasets. XL-Lexeme-Cosine returns the cosine similarity between word vectors.
 - XL-Lexeme-Multi-Threshold: Predicts an integer between 1 and 4 based on thresholding cosine similarity between XL-Lexeme vectors at specified triple of thresholds (default is [0.2, 0.4, 0.6]).
 - XL-Lexeme-Binary: Predicts either value 1 or 4 based on thresholding cosine similarity between XL-Lexeme vectors at specified threshold (default is 0.5).
+- XL-DURel-Cosine: [XL-DURel](https://huggingface.co/sachinn1/xl-durel) is a bi-encoder that vectorizes the input sequences using a XLMR-based Siamese Network. It is trained for ordinal classification with angle loss on several ordinal WiC datasets. This variant returns the cosine similarity between word vectors.  
+
+- XL-DURel-Multi-Threshold: Predicts an integer between 1 and 4 based on thresholding cosine similarity between XL-DURel vectors at a specified triple of thresholds (default is [0.2, 0.4, 0.6]).  
+
+- XL-DURel-Binary: Predicts either value 1 or 4 based on thresholding cosine similarity between XL-DURel vectors at a specified threshold (default is 0.5).  
 
 ### Running the models
 
