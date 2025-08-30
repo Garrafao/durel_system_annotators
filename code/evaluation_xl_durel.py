@@ -44,7 +44,7 @@ def evaluate_xl_durel(custom_dir,custom_filename,usage_dir,thresholds,debug,data
         else:
             accuracy = 'NA'
         correlation, p_value = spearmanr(gold_values, predicted_values)
-        save_detailed_results(df_sorted_gold,df_sorted_pred,usage_dir,custom_dir,dataset,annotator,accuracy,correlation,p_value,debug)
+        save_detailed_xl_durel_results(df_sorted_gold,df_sorted_pred,usage_dir,custom_dir,dataset,annotator,accuracy,correlation,p_value,debug)
         return (accuracy,correlation,p_value)
 
 
