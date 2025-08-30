@@ -7,6 +7,7 @@ class CustomTestAnAnnotator(TestAnAnnotator):
         super().setUp()  # Call parent's setUp method first
         # Override thresholds for this test class
         self.thresholds = [0.4, 0.6, 0.8] # Custom thresholds
+        self.lexeme_annotator = 'XL-DURel'
 
 
 def suite():

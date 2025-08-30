@@ -124,7 +124,7 @@ In order to add new models you should follow these steps:
 
 # Testing
 
-1. You can run integration tests on the following datasets. Running /test_data/data.py will build these datasets:
+1. You can run integration tests on the following datasets. Running `python test_data/data.py` will build these datasets:
 
    - testwug_en_arm
    - testwug_en_target
@@ -138,13 +138,13 @@ In order to add new models you should follow these steps:
    - tempowic_trial
    - tempowic_validation
 
-2. There is one script to test each of the three models. Each of the test will also produce annotations and evaluation results which will be stored in the `self.custom_dir` mentioned in the test scripts above. Two result files will be produced for each test, one containing evaluation metrics and the other containing predictions. The *-labels.csv file contains predictions and *-output.csv contains evaluation scores.
+2. There is one script to test each of the models, find examples in `run_integration_tests.sh`. Each of the test will also produce annotations and evaluation results which will be stored in the `self.custom_dir` mentioned in the test scripts above. Two result files will be produced for each test, one containing evaluation metrics and the other containing predictions. The `*-labels.csv` file contains predictions and `*-output.csv` contains evaluation scores.
 
 # Troubleshooting
 
 ## Known Installation Issues
 - Tested installation on Python 3.10 and 3.11, might have some issues if you are trying with an earlier python version.
-- You might get 'No space left on device' error while installing. It might be that the temp dir is full. Try creating a temp-dir in your home dir, e.g. ~/tmp and prefix whatever command you're running with TMPDIR=~/tmp. For example, TMPDIR=~/tmp pip install PACKAGE_NAME.
+- You might get 'No space left on device' error while installing. It might be that the temp dir is full. Try creating a temp-dir in your home dir, e.g. `~/tmp` and prefix whatever command you're running with `TMPDIR=~/tmp`. For example, `TMPDIR=~/tmp pip install PACKAGE_NAME`.
 
 ## Code needs update after changes to DURel
 

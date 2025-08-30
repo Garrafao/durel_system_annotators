@@ -5,6 +5,7 @@ from test_base import *
 class CustomTestAnAnnotator(TestAnAnnotator):
     def setUp(self):
         super().setUp()  # Call parent's setUp method first
+        self.lexeme_annotator = 'XL-DURel'
 
 
 def suite():
