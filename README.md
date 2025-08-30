@@ -139,6 +139,13 @@ In order to add new models you should follow these steps:
    - tempowic_validation
 
 2. There is one script to test each of the models, find examples in `run_integration_tests.sh`. Each of the test will also produce annotations and evaluation results which will be stored in the `self.custom_dir` mentioned in the test scripts above. Two result files will be produced for each test, one containing evaluation metrics and the other containing predictions. The `*-labels.csv` file contains predictions and `*-output.csv` contains evaluation scores.
+3. Running `bash -e run_integration_tests.sh` on 25/08/30 gives the following performance results, see also [issue #56](https://github.com/Garrafao/durel_system_annotators/issues/56). For interpretation, also note that XL-DURel was trained on part of the datasets we test on here:
+
+| Dataset/Model | XL-Lexeme-Cosine | XL-DURel-Cosine |
+| ------------- | ------------- | ------------- |
+| dwug_en_transformed_median | 0.5982168823444104 | 0.6975626889051144 |
+| dwug_de_transformed_median | 0.6104381946163373 | 0.726615947915698 |
+| dwug_sv_transformed_median | 0.572885258828847 | 0.722711364592066 |
 
 # Troubleshooting
 
